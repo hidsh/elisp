@@ -1531,34 +1531,34 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 ;;@@ my-mark-whole-buffer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Similarly C-a under WINDOWS
-(defvar my-mark-whole-buffer-region ())
+;;(defvar my-mark-whole-buffer-region ())
 
-(defun my-mark-whole-buffer ()
-  "Usefull mark-whole-buffer."
-  (interactive)
-  (setq my-mark-whole-buffer-region (cons (point-min) (point-max)))
-  (message "Selected all"))
+;; (defun my-mark-whole-buffer ()
+;;   "Usefull mark-whole-buffer."
+;;   (interactive)
+;;   (setq my-mark-whole-buffer-region (cons (point-min) (point-max)))
+;;   (message "Selected all"))
+;;
+;; (global-set-key "\C-x\C-a" 'my-mark-whole-buffer)
+;; (global-set-key "\M-a"     'my-mark-whole-buffer)
 
-(global-set-key "\C-x\C-a" 'my-mark-whole-buffer)
-(global-set-key "\M-a"     'my-mark-whole-buffer)
+;; (defun my-kill-region ()
+;;   (interactive)
+;;   (if (eq last-command 'my-mark-whole-buffer)
+;;       (let ((region my-mark-whole-buffer-region))
+;;         (kill-region (car region) (cdr region)))
+;;     (call-interactively 'kill-region)))
+;;
+;; (global-set-key "\C-w" 'my-kill-region)
 
-(defun my-kill-region ()
-  (interactive)
-  (if (eq last-command 'my-mark-whole-buffer)
-      (let ((region my-mark-whole-buffer-region))
-        (kill-region (car region) (cdr region)))
-    (call-interactively 'kill-region)))
-
-(global-set-key "\C-w" 'my-kill-region)
-
-(defun my-kill-ring-save ()
-  (interactive)
-  (if (eq last-command 'my-mark-whole-buffer)
-      (let ((region my-mark-whole-buffer-region))
-        (kill-ring-save (car region) (cdr region)))
-    (call-interactively 'kill-ring-save)))
-
-(global-set-key "\M-w" 'my-kill-ring-save)
+;; (defun my-kill-ring-save ()
+;;   (interactive)
+;;   (if (eq last-command 'my-mark-whole-buffer)
+;;       (let ((region my-mark-whole-buffer-region))
+;;         (kill-ring-save (car region) (cdr region)))
+;;     (call-interactively 'kill-ring-save)))
+;;
+;; (global-set-key "\M-w" 'my-kill-ring-save)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ toggle-narrowing-region

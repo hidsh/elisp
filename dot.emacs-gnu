@@ -79,6 +79,7 @@
 (setq ring-bell-function 'ignore)
 (column-number-mode t)
 (setq parens-require-spaces nil)
+(setq transient-mark-mode nil)
 
 ;; line number
 ; (global-linum-mode t)
@@ -147,54 +148,33 @@
 (set-face-foreground 'which-func "Gray50")
 (set-face-italic-p 'which-func t)
 
+;; モードラインに リージョンの行数と文字数を表示
+(defun count-lines-and-chars ()
+  (if (region-active-p)
+      (format "[%3d:%4d]"
+              (count-lines (region-beginning) (region-end))
+              (- (region-end) (region-beginning)))
+    ""))
 
+(add-to-list 'default-mode-line-format
+             '(:eval (count-lines-and-chars)))
 
-;; cursor depends on IME state
-;;
-;; not work
-;; (add-hook 'input-method-activate-hook
-;;   '(lambda ()
-;; 	 (set-cursor-color "#FF0000")))
-;; (add-hook 'input-method-inactivate-hook
-;;   '(lambda ()
-;; 	 (set-cursor-color "#FFFFFF")))
 
 ;; prevent annoying message "Text is read only" at mimibuffer
 (plist-put minibuffer-prompt-properties 
            'point-entered 'minibuffer-avoid-prompt)
-
-; 1行づつスクロール
-;; (defadvice next-line (around next-line-edge-scroll)
-;;   (condition-case nil
-;;       (progn
-;;         (and (> (my-current-row) (- (window-height) 2 3))
-;;              (not (pos-visible-in-window-p (point-max)))
-;;              (scroll-up 1))
-;;         ad-do-it
-;;         (and (> (my-current-row) (- (window-height) 2 3))
-;;              (not (pos-visible-in-window-p (point-max)))
-;;              (scroll-up 1)))
-;;     (error nil)))
-;; (defadvice previous-line (around previous-line-edge-scroll)
-;;   (condition-case nil
-;;       (progn
-;;         (and (< (my-current-row) 3)
-;;              (not (pos-visible-in-window-p (point-min)))
-;;              (scroll-up -1))
-;;         ad-do-it
-;;         (and (< (my-current-row) 3)
-;;              (not (pos-visible-in-window-p (point-min)))
-;;              (scroll-up -1)))
-;;     (error nil)))
-;; (ad-enable-regexp   ".*-line-edge-scroll$")
-;; (ad-activate-regexp ".*-line-edge-scroll$")
 
 (setq scroll-step 1)
 (setq scroll-conservatively 99999) ; カーソルが画面外にはみ出した時10000行以内のはみ出しならスクロールする
 ;; (setq scroll-conservatively 1)
 (setq next-screen-context-lines 3)
 
-(setq transient-mark-mode nil)
+;;
+;; zoom font
+;;
+(global-set-key (kbd "C-M-=") 'text-scale-increase)
+(global-set-key (kbd "C-M--") 'text-scale-decrease)
+(global-set-key (kbd "C-M-0") '(lambda () (interactive) (text-scale-set 0)))
 
 
 ;;; setting end
@@ -316,7 +296,6 @@
 ;;
 ;; view-mode
 ;;
-;(keyboard-translate ?\b ?\a)
 (setq view-read-only t)   ; C-x C-q => toggle view-mode
 (setq view-inhibit-help-message t)
 (global-set-key [delete]    'toggle-read-only)
@@ -363,6 +342,17 @@
     (define-key map "v" 'eval-region-or-last-sexp)
     (define-key map "/" 'isearch-forward)
     map))
+
+
+(defun my-keyboard-quit ()
+  (interactive)
+  (unless view-mode
+    (view-mode-enter))
+  (keyboard-quit))
+
+(global-set-key "\C-g" 'my-keyboard-quit)
+
+
 
 ;; 
 ;; switching window

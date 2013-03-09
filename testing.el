@@ -13,7 +13,7 @@
      'eval-last-sexp)))
 
 (global-set-key "\C-x\C-e" 'eval-region-or-last-sexp)
-(defalias 'ev 'eval-region-or-last-sexp)
+;(defalias 'ev 'eval-region-or-last-sexp)
 
 ;;
 ;;
@@ -24,6 +24,9 @@
   (push-mark (point-min))
   (goto-char (point-max))
   (message "Selected all"))
+
+(global-set-key "\C-x\C-a" 'my-mark-whole-buffer)
+(global-set-key "\M-a"     'my-mark-whole-buffer)
 
 (defun my-meta-substring ()
   (let ((s (replace-regexp-in-string "[\n\t ]+" " " (buffer-substring-no-properties (mark) (point)))))
@@ -72,35 +75,11 @@
 (global-set-key "\M-v" 'my-meta-v)
 
 
-;;
-;;
-;;
-(defun my-keyboard-quit ()
-  (interactive)
-  (unless view-mode
-    (view-mode-enter))
-  (keyboard-quit))
-
-(global-set-key "\C-g" 'my-keyboard-quit)
-
-;;
-;; count lines and chars on mode line
-;;
-(defun count-lines-and-chars ()
-  (if (region-active-p)
-      (format "[%3d:%4d]"
-              (count-lines (region-beginning) (region-end))
-              (- (region-end) (region-beginning)))
-    ""))
-
-(add-to-list 'default-mode-line-format
-             '(:eval (count-lines-and-chars)))
 
 ;;
 ;; full screen
 ;;
 (defun my-toggle-fullscreen ()
-  "Toggle fullscreen."
   "Toggle fullscreen."
   (interactive)
   (if (eq (frame-parameter nil 'fullscreen) 'fullboth)
@@ -115,22 +94,92 @@
 
 
 ;;
-;; zoom font
+;; dired preview
 ;;
-(global-set-key (kbd "C-M-=") 'text-scale-increase)
-(global-set-key (kbd "C-M--") 'text-scale-decrease)
-(global-set-key (kbd "C-M-0") '(lambda () (interactive) (text-scale-set 0)))
+'(
+(defvar dired-view-file-other-window-viewing-p nil)
+
+(add-hook 'dired-mode-hook
+          '(lambda ()
+             (setq dired-view-file-other-window-viewing-p nil)))
+
+(defun dired-view-file-other-window-1 ()
 
 
-;;
-;;
-;;
+)
+  
+
+
+(defun dired-view-file-other-window ()
+  (let ((file (dired-get-file-for-visit)))
+    (if (file-directory-p file)
+        (or (and (cdr dired-subdir-alist)
+                 (dired-goto-subdir file))
+            (dired file))
+      (save-selected-window
+        (view-file-other-window file))
+      )))
+
+(defun dired-view-file-next (&optional reverse)
+  (interactive)
+  (let ((viewing-p dired-view-file-other-window-viewing-p))
+    (when viewing-p
+      (other-window 1)
+      (kill-buffer (current-buffer))
+      (delete-window))
+    (if reverse (dired-previous-line 1)
+      (dired-next-line 1))
+    (when viewing-p (dired-view-file-other-window))))
+
+(defun dired-view-file-previous ()
+  (interactive)
+  (dired-view-file-next 1))
+
+(defun dired-view-file-scroll-page-forward (&optional reverse)
+  (interactive)
+  (save-selected-window
+    (other-window 1)
+    (if reverse (View-scroll-page-backward)
+      (View-scroll-page-forward))))
+
+(defun dired-view-file-scroll-page-backward ()
+  (interactive)
+  (dired-view-file-scroll-page-forward 1))
+
+
+(defun dired-view-file-other-window-toggle ()
+  (interactive)
+  (setq dired-view-file-other-window-viewing-p (not dired-view-file-other-window-viewing-p))
+  (if dired-view-file-other-window-viewing-p
+      (progn
+        (dired-view-file-other-window)
+        ;; change key bindings
+        (define-key dired-mode-map [?\ ]    'dired-view-file-scroll-page-forward)
+        (define-key dired-mode-map [?\S-\ ] 'dired-view-file-scroll-page-backward)
+        (define-key dired-mode-map "n"      'dired-view-file-scroll-page-backward))
+    (delete-other-windows)
+    ;; restore key bindings
+    (define-key dired-mode-map [?\ ]    'dired-toggle-mark)
+    (define-key dired-mode-map [?\S-\ ] 'dired-toggle-mark)
+    (define-key dired-mode-map "n"      'dired-next-line)))
+
+
+(define-key dired-mode-map (kbd "v") 'dired-view-file-other-window-toggle)
+(define-key dired-mode-map (kbd "j") 'dired-view-file-next)
+(define-key dired-mode-map (kbd "k") 'dired-view-file-previous)
+
+
+)
+
+
 ;;
 ;; flymake
 ;;
 (require 'flymake)
 
 ;; for javascript
+'(
+
 (setq flymake-js-detect-trailing-comma t)
 
 (defconst flymake-allowed-js-file-name-masks '(("\\.json$" flymake-js-init)
@@ -172,6 +221,8 @@
                              (when (equal line (line-number-at-pos))
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
+
+)
 
 ;; for python
 
