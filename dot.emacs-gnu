@@ -72,6 +72,7 @@
         auto-mode-alist))
 
 
+(setq inhibit-startup-message t)
 (blink-cursor-mode 0)
 (setq default-cursor-type 'box)
 (tool-bar-mode -1)
