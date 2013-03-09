@@ -1,0 +1,44 @@
+cd c:/cygwin/home/gnrr/elisp/
+diff -u "c:/cygwin/home/gnrr/elisp/color-moccur.el.1.50" "c:/cygwin/home/gnrr/elisp/color-moccur.el"
+--- c:/cygwin/home/gnrr/elisp/color-moccur.el.1.50	2003-10-02 10:10:58.000000000 +0900
++++ c:/cygwin/home/gnrr/elisp/color-moccur.el	2003-10-02 10:03:21.000000000 +0900
+@@ -291,6 +291,7 @@
+ (defvar moccur-matches nil)
+ (defvar moccur-mocur-buffer nil)
+ (defvar moccur-last-command nil)
++(defvar moccur-buffers-before-moccur nil)
+ ;;;;; dmoccur
+ (defvar dmoccur-mask-internal nil)
+ (defvar dmoccur-history nil)
+@@ -1073,6 +1074,7 @@
+   (interactive (list (moccur-regexp-read-from-minibuf)
+ 		     current-prefix-arg))
+   (moccur-setup)
++  (setq moccur-buffers-before-moccur (buffer-list))
+
+   (setq moccur-regexp-input regexp)
+   (let ((buffers (moccur-add-files-to-search-list
+@@ -1091,7 +1093,9 @@
+ 	(setq buff (car buffers))
+ 	(if (memq buff moccur-match-buffers)
+ 	    ()
+-	  (kill-buffer buff))
++	  (if (memq buff moccur-buffers-before-moccur)
++	      (delq buff buffers)
++	    (kill-buffer buff)))
+ 	(setq buffers (cdr buffers))))
+     ))
+
+@@ -1118,7 +1122,9 @@
+ 	  (set-buffer-modified-p nil)) ;; mark as not modified
+ 	(display-buffer mocc-buffer)
+ 	(select-window mocc-window)
+-	(kill-buffer buff))
++	(if (memq buff moccur-buffers-before-moccur)
++	    (delq buff buffers)
++	  (kill-buffer buff)))
+       (setq buffers (cdr buffers))
+       ))
+   nil)
+
+Diff finished at Thu Oct 02 10:11:17

@@ -1,0 +1,100 @@
+;;; testing.el --- now testing
+;;;
+;;; now testing functions
+;;;
+
+;;
+;;
+;;
+(defun eval-region-or-last-sexp ()
+  (interactive)
+  (call-interactively
+   (if (region-active-p) 'eval-region
+     'eval-last-sexp)))
+
+(global-set-key "\C-x\C-e" 'eval-region-or-last-sexp)
+(defalias 'ev 'eval-region-or-last-sexp)
+
+;;
+;;
+;;
+(defun my-meta-substring ()
+  (let ((s (replace-regexp-in-string "[\n\t ]+" " " (buffer-substring-no-properties (mark) (point)))))
+    (substring s 0 (min (length s) 20))))
+
+(defun my-meta-c ()
+  (interactive)
+  (cond ((eq last-command 'my-mark-whole-buffer)
+         (let ((region my-mark-whole-buffer-region))
+           (kill-ring-save (car region) (cdr region)))
+         (message "Copied all"))
+        ((region-active-p)
+         (call-interactively 'kill-ring-save)
+         (message "Copied '%s..." (my-meta-substring)))
+        (t (call-interactively 'capitalize-word))))
+
+(defun my-meta-x ()
+  (interactive)
+  (cond (buffer-read-only
+         (call-interactively 'execute-extended-command))
+        ((eq last-command 'my-mark-whole-buffer)
+         (let ((region my-mark-whole-buffer-region))
+           (kill-region (car region) (cdr region)))
+         (message "Cut all"))
+        ((and (region-active-p) (< (- (point) (mark)) 0))
+         (message "invalid region."))
+        ((and (region-active-p) (> (- (point) (mark)) 500))
+         (when (y-or-n-p "large region. cut sure? ")
+           (let ((s (my-meta-substring)))
+             (call-interactively 'kill-region)
+             (message "Cut '%s..." s))))
+        ((region-active-p)
+         (let ((s (my-meta-substring)))
+           (call-interactively 'kill-region)
+           (message "Cut '%s..." s)))
+        (t
+         (call-interactively 'execute-extended-command))))
+
+(defun my-meta-v ()
+  (interactive)
+  (if buffer-read-only
+      (message "buffer is read only.")
+    (call-interactively 'yank)))
+
+(global-set-key "\M-a" 'my-mark-whole-buffer)
+(global-set-key "\M-c" 'my-meta-c)
+(global-set-key "\M-x" 'my-meta-x)
+(global-set-key "\M-v" 'my-meta-v)
+
+
+;;
+;;
+;;
+(defun my-keyboard-quit ()
+  (interactive)
+  (unless view-mode
+    (view-mode-enter))
+  (keyboard-quit))
+
+(global-set-key "\C-g" 'my-keyboard-quit)
+
+;;
+;; count lines and chars on mode line
+;;
+(defun count-lines-and-chars ()
+  (if (region-active-p)
+      (format "[%3d:%4d]"
+              (count-lines (region-beginning) (region-end))
+              (- (region-end) (region-beginning)))
+    ""))
+
+(add-to-list 'default-mode-line-format
+             '(:eval (count-lines-and-chars)))
+
+
+;;
+;;
+;;
+
+(provide 'testing)
+;;; testing.el ends here

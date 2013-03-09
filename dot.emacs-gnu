@@ -1,0 +1,728 @@
+;;; dot.emacs-gnu
+;;;
+;;; for gnu-macs on mac
+;;;
+;;;
+
+(message "loading dot.emacs-gnu")
+
+;;;
+;;; themes
+;;;
+(setq load-path (append '("~/elisp/themes/") load-path))
+
+;; (require 'color-theme-solarized) (color-theme-solarized-dark)
+;; (require 'color-theme-tango) (color-theme-tango)
+;; (require 'color-theme-tangotango) (color-theme-tangotango)
+;; (require 'color-theme-zenburn) (color-theme-zenburn)
+(require 'color-theme-almost-monokai) (color-theme-almost-monokai)
+
+
+;;;
+;;; font
+;;;
+(set-face-attribute 'default nil :family "menlo" :height 140) 
+(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+(add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
+
+
+;;;
+;;; window size and position
+;;;
+(setq default-frame-alist (append '(
+				    (top    . 0)
+				    (left   . 82)
+				    (height . 64)
+				    (width  . 95))
+				  default-frame-alist))
+
+;;;
+;;; unbinding and key binding
+;;;
+(keyboard-translate ?\C-h ?\C-?)            ; c-h
+
+
+(global-unset-key "\C-z")                          ; suspend-frame
+(global-unset-key "\C-x\C-z")                      ; suspend-frame
+(global-unset-key "\C-xo")                         ; other-window
+
+(global-set-key "\C-x\C-b" 'bs-show)
+(global-set-key "\C-o" 'other-window)
+
+(global-set-key "\M-g" 'goto-line)
+(global-set-key "\M-v" 'new-empty-buffer-other-frame)
+(global-set-key ";" 'comment-set-column)         ; c-x ;
+(global-set-key [24 67108923] 'comment-indent)     ; c-x c-;
+(global-set-key "\C-xt" 'revert-buffer)            ; c-x t
+(global-set-key "\C-xnf" 'narrow-to-defun)
+(global-set-key "\C-x\C-t" 'toggle-truncate-lines) ; c-x c-t
+
+(global-set-key "\M-9" 'insert-parentheses)
+(global-set-key "\M-P" 'beginning-of-buffer)
+(global-set-key "\M-N" 'end-of-buffer)
+(global-set-key "\M-p" 'View-scroll-page-backward)
+(global-set-key "\M-n" 'View-scroll-page-forward)
+
+;;;
+;;; setting
+;;;
+(setq auto-mode-alist
+      (cons '("\\.emacs.*$" . lisp-interaction-mode)
+        auto-mode-alist))
+
+
+(blink-cursor-mode 0)
+(setq default-cursor-type 'box)
+(tool-bar-mode -1)
+(setq ring-bell-function 'ignore)
+(column-number-mode t)
+(setq parens-require-spaces nil)
+
+;; line number
+; (global-linum-mode t)
+(setq linum-format "%5d")
+
+
+;; tab
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq tab-stop-list  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
+
+(setq default-truncate-lines t)             ; 折り返しなし
+
+
+;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
+;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
+;; when opened from desktep entry, path won't be set to shell's value.
+(let ((path-str
+       (replace-regexp-in-string "\n+$" "" (shell-command-to-string "echo $path"))))
+    (setenv "path" path-str)
+    (setq exec-path (nconc (split-string path-str ":") exec-path)))
+
+
+;; 日本語環境設定 for mac
+;; http://maro.air-nifty.com/maro/2009/02/carbon-emacs-sh.html
+;; (set-language-environment "japanese")
+(set-language-environment 'utf-8)
+(prefer-coding-system 'utf-8-unix)
+(setq default-buffer-file-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-8)
+
+;; http://sakito.jp/emacs/emacsshell.html#id7
+(cond ((or (eq window-system 'mac) (eq window-system 'ns))
+       ;; mac os x の hfs+ ファイルフォーマットではファイル名は nfd (の様な物)で扱うため以下の設定をする必要がある
+       (require 'ucs-normalize)
+       (setq file-name-coding-system 'utf-8-hfs)
+       (setq locale-coding-system 'utf-8-hfs))
+      (or (eq system-type 'cygwin) (eq system-type 'windows-nt)
+          (setq file-name-coding-system 'utf-8)
+          (setq locale-coding-system 'utf-8)
+          ;; もしコマンドプロンプトを利用するなら sjis にする
+          ;; (setq file-name-coding-system 'sjis)
+          ;; (setq locale-coding-system 'sjis)
+          ;; 古い cygwin だと euc-jp にする
+          ;; (setq file-name-coding-system 'euc-jp)
+          ;; (setq locale-coding-system 'euc-jp)
+          )
+      (t
+       (setq file-name-coding-system 'utf-8)
+       (setq locale-coding-system 'utf-8)))
+
+;; kill-ringに同じ内容を重複して入れない
+(defadvice kill-new (before ys:no-kill-new-duplication activate)
+  (setq kill-ring (delete (ad-get-arg 0) kill-ring)))
+
+;; ファイル名が重複していたらディレクトリ名を追加する。
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
+
+;; モードラインに現在の関数名を表示
+(which-function-mode 1)
+(set-face-foreground 'which-func "Gray50")
+(set-face-italic-p 'which-func t)
+
+
+
+;; cursor depends on IME state
+;;
+;; not work
+;; (add-hook 'input-method-activate-hook
+;;   '(lambda ()
+;; 	 (set-cursor-color "#FF0000")))
+;; (add-hook 'input-method-inactivate-hook
+;;   '(lambda ()
+;; 	 (set-cursor-color "#FFFFFF")))
+
+;; prevent annoying message "Text is read only" at mimibuffer
+(plist-put minibuffer-prompt-properties 
+           'point-entered 'minibuffer-avoid-prompt)
+
+; 1行づつスクロール
+;; (defadvice next-line (around next-line-edge-scroll)
+;;   (condition-case nil
+;;       (progn
+;;         (and (> (my-current-row) (- (window-height) 2 3))
+;;              (not (pos-visible-in-window-p (point-max)))
+;;              (scroll-up 1))
+;;         ad-do-it
+;;         (and (> (my-current-row) (- (window-height) 2 3))
+;;              (not (pos-visible-in-window-p (point-max)))
+;;              (scroll-up 1)))
+;;     (error nil)))
+;; (defadvice previous-line (around previous-line-edge-scroll)
+;;   (condition-case nil
+;;       (progn
+;;         (and (< (my-current-row) 3)
+;;              (not (pos-visible-in-window-p (point-min)))
+;;              (scroll-up -1))
+;;         ad-do-it
+;;         (and (< (my-current-row) 3)
+;;              (not (pos-visible-in-window-p (point-min)))
+;;              (scroll-up -1)))
+;;     (error nil)))
+;; (ad-enable-regexp   ".*-line-edge-scroll$")
+;; (ad-activate-regexp ".*-line-edge-scroll$")
+
+(setq scroll-step 1)
+(setq scroll-conservatively 99999) ; カーソルが画面外にはみ出した時10000行以内のはみ出しならスクロールする
+;; (setq scroll-conservatively 1)
+(setq next-screen-context-lines 3)
+
+(setq transient-mark-mode nil)
+
+
+;;; setting end
+
+;;;
+;;; additional elisp package
+;;;
+
+(require 'cl)
+
+
+;;;
+;;; auto-install
+;;;
+(add-to-list 'load-path "~/elisp/auto-install/")
+(require 'auto-install)
+(setq auto-install-directory "~/elisp/auto-install/")
+(auto-install-compatibility-setup)
+
+;;
+;; key-chord
+;;
+;; (require 'key-chord)
+;; (setq key-chord-two-keys-delay 0.10)
+;; (key-chord-mode 1)
+
+;;
+;; anything
+;;
+;; (require 'anything-startup)
+;; (global-set-key "\M-a" 'anything-filelist+)
+;; (global-set-key "\M-y" 'anything-show-kill-ring)
+
+;;
+;; yasnippet
+;;
+
+;; (require 'yasnippet-bundle)             ; using old version
+
+;; current-version (confricts /w my view-mode keybindings)
+;;
+;; (add-to-list 'load-path "~/elisp/yasnippet")
+;; (require 'yasnippet)
+;; (setq yas-snippet-dirs
+;;       '("~/elisp/yasnippet/snippets-g" ;; 作成するスニペットはここに入る
+;;         "~/elisp/yasnippet/snippets"   ;; 最初から入っていたスニペット(省略可能)
+;;         ))
+;; (yas-global-mode 1)
+;; (custom-set-variables '(yas-trigger-key "TAB"))
+
+;; ;; 既存スニペットを挿入する
+;; (define-key yas-minor-mode-map (kbd "C-x i i") 'yas-insert-snippet)
+;; ;; 新規スニペットを作成するバッファを用意する
+;; (define-key yas-minor-mode-map (kbd "C-x i n") 'yas-new-snippet)
+;; ;; 既存スニペットを閲覧・編集する
+;; (define-key yas-minor-mode-map (kbd "C-x i v") 'yas-visit-snippet-file)
+
+;;
+;; my-backup
+;;
+(require 'my-backup)
+
+;;
+;; auto-complete
+;;
+
+;;; パスを通す
+(add-to-list 'load-path "~/elisp/auto-complete")
+(add-to-list 'load-path "~/elisp/popup-el")
+(add-to-list 'load-path "~/elisp/fuzzy-el")
+
+(require 'auto-complete-config)
+;(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+(ac-config-default)
+
+
+;;; 適用するメジャーモードを足す
+(add-to-list 'ac-modes 'scss-mode)
+(add-to-list 'ac-modes 'web-mode)
+(add-to-list 'ac-modes 'coffee-mode)
+(add-to-list 'ac-modes 'ruby-mode)
+(add-to-list 'ac-modes 'python-mode)
+
+;;; ベースとなるソースを指定
+(defvar my-ac-sources
+  '(ac-source-yasnippet
+    ac-source-abbrev
+    ac-source-dictionary
+    ac-source-words-in-same-mode-buffers))
+
+;;; 個別にソースを指定
+(defun ac-scss-mode-setup ()
+  (setq-default ac-sources (append '(ac-source-css-property) my-ac-sources)))
+(defun ac-web-mode-setup ()
+  (setq-default ac-sources my-ac-sources))
+(defun ac-coffee-mode-setup ()
+  (setq-default ac-sources my-ac-sources))
+(add-hook 'scss-mode-hook 'ac-scss-mode-setup)
+(add-hook 'web-mode-hook 'ac-web-mode-setup)
+(add-hook 'coffee-mode-hook 'ac-coffee-mode-setup)
+(add-hook 'ruby-mode-hook 'ruby-mode-setup)
+(add-hook 'python-mode-hook 'python-mode-setup)
+
+(global-auto-complete-mode t)
+
+;;; C-n / C-p で選択
+(setq ac-use-menu-map t)
+
+
+;;; yasnippetのbindingを指定するとエラーが出るので回避する方法。
+(setf (symbol-function 'yas-active-keys)
+      (lambda ()
+        (remove-duplicates (mapcan #'yas--table-all-keys (yas--get-snippet-tables)))))
+
+
+; auto-complete に対応しないモード
+; (setq ac-modes (append '(js2-mode)))
+
+;;
+;; view-mode
+;;
+;(keyboard-translate ?\b ?\a)
+(setq view-read-only t)   ; C-x C-q => toggle view-mode
+(setq view-inhibit-help-message t)
+(global-set-key [delete]    'toggle-read-only)
+
+;(key-chord-define-global "jk" 'my-toggle-view-mode)
+
+(defadvice view-mode-exit (after cursor-type-edit activate)
+  (setq cursor-type '(hbar . 4)))
+
+(defadvice view-mode-enter (after cursor-type-view activate)
+  (setq cursor-type default-cursor-type))
+
+(add-hook 'find-file-hook
+  '(lambda ()
+     (view-mode-enter)))
+
+(add-hook 'after-save-hook
+  '(lambda ()
+     (view-mode-enter)))
+
+(add-hook 'temp-buffer-show-hook
+  '(lambda ()
+	 (view-mode-enter)))
+
+
+; override keymap
+(setq view-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "h" 'backward-char)
+    (define-key map "j" 'next-line)
+    (define-key map "k" 'previous-line)
+    (define-key map "l" 'forward-char)
+    (define-key map "g" 'beginning-of-buffer)
+    (define-key map "G" 'end-of-buffer)
+    (define-key map "a" 'my-beginning-of-line)
+    (define-key map "e" 'end-of-line)
+    (define-key map "w" 'forward-word)
+    (define-key map "b" 'backward-word)
+    (define-key map "i" 'toggle-read-only)
+    (define-key map "o" 'other-window)
+    (define-key map [?\ ]    'View-scroll-page-forward)
+    (define-key map [?\S-\ ] 'View-scroll-page-backward)
+    (define-key map "n"      'View-scroll-page-backward)
+    (define-key map "v" 'eval-region-or-last-sexp)
+    (define-key map "/" 'isearch-forward)
+    map))
+
+;; 
+;; switching window
+;; 
+(defconst toggle-split-window-threshold-width 120)
+(defun toggle-split-window ()
+  (interactive)
+  (if (one-window-p)
+      (progn
+        (if (> (frame-width) toggle-split-window-threshold-width)
+            (split-window-horizontally)
+          (split-window-vertically))
+        (other-window 1)
+        ;; view-mode
+        (view-mode-enter))
+    (delete-window)))
+
+(global-set-key (kbd "C-0") 'toggle-split-window)
+
+(defun my-other-window ()
+  (interactive)
+  (unless (one-window-p)
+    ;; view-mode
+    (view-mode-enter)
+    (other-window 1)))
+
+(global-set-key (kbd "C-o") 'my-other-window)
+    
+;; not use
+(defun other-window-or-split ()
+  (interactive)
+  (let ((wide-enough-p (> (frame-width) other-window-or-split-width-threshold)))
+    (if (one-window-p)
+        (if wide-enough-p
+            (split-window-horizontally)
+          (split-window-vertically))
+      (if wide-enough-p
+          (when (window-full-width-p)   ; already split-h?
+            (delete-window)
+            (split-window-horizontally))
+        (when (window-full-height-p)    ; already split-v?
+          (delete-window)
+          (split-window-vertically)))))
+  (other-window 1))
+        
+;; (global-set-key (kbd "C-o") 'other-window-or-split)
+;; (global-set-key (kbd "C-0") 'delete-window)
+
+
+;;
+;; bs-cycle-buffer (pre-installed)
+;;
+(global-set-key [(f11)]       'bs-cycle-previous)
+(global-set-key [(f12)]       'bs-cycle-next)
+(setq bs-cycle-configuration-name "files-and-scratch")
+
+
+;;
+;; diminish
+;;
+(require 'diminish)
+;(diminish 'abbrev-mode "Abv")
+
+(add-hook 'lisp-interaction-mode-hook
+	  '(lambda ()
+	     (setq mode-name "Lisp-Int")))
+
+(add-hook 'emacs-lisp-mode-hook
+	  '(lambda ()
+	     (setq mode-name "Elisp")))
+
+; hide
+(add-hook 'isearch-mode-hook
+	  '(lambda () (setcar (cdr (assq 'isearch-mode minor-mode-alist)) "")))
+
+
+;;
+;; recent files
+;;
+(global-set-key "\C-r" 'recentf-open-files)
+
+;; (defadvice widget-forward (after widget-forward-hl-adv activate)
+;;   (highlight-current-line))
+
+(eval-after-load "recentf"
+  '(progn
+     (define-key recentf-dialog-mode-map "j" 'next-line)
+     (define-key recentf-dialog-mode-map "k" 'previous-line)
+     (define-key recentf-dialog-mode-map "l" 'forward-char)
+     (define-key recentf-dialog-mode-map "g" 'beginning-of-buffer)
+     (define-key recentf-dialog-mode-map "G" 'end-of-buffer)
+     (define-key recentf-dialog-mode-map "a" 'my-beginning-of-line)
+     (define-key recentf-dialog-mode-map "e" 'end-of-line)
+     (define-key recentf-dialog-mode-map "w" 'forward-word)
+     (define-key recentf-dialog-mode-map "b" 'backward-word)
+     (define-key recentf-dialog-mode-map "o" 'other-window)
+     (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
+     (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
+     (define-key recentf-dialog-mode-map "n"      'View-scroll-page-backward)
+     (define-key recentf-dialog-mode-map "/" 'isearch-forward)))
+
+(recentf-mode 1)
+(setq recentf-max-menu-items 0)
+(setq recentf-max-saved-items 1000)
+
+(setq recentf-exclude '("\\.emacs-places$"))
+
+;;
+;; saveplace
+;;
+(require 'saveplace)
+(setq save-place-limit 50)
+(setq-default save-place t)
+
+;;
+;; mic-paren
+;;
+(when (or (string-match "XEmacs\\|Lucid" emacs-version) window-system)
+  (require 'mic-paren) ; loading
+  (paren-activate)     ; activating
+  ;; coloring inside between each parentheses
+  (setq paren-match-face 'region)
+  (setq paren-sexp-mode t)
+  )
+
+(show-paren-mode t)
+;; (add-hook 'c-mode-common-hook
+;;	     (function (lambda ()
+;;		      (paren-toggle-open-paren-context 1))))
+
+
+;; jump to paren
+(require 'mic-paren)
+
+(defvar my-paren-open "\\s(")
+(make-variable-buffer-local 'my-paren-open)
+(defvar my-paren-close "\\s)")
+(make-variable-buffer-local 'my-paren-close)
+
+(defun my-paren (ARG)
+  (interactive "P")
+  (let ((FOL-CHAR (char-to-string (following-char)))
+	(PRE-CHAR (char-to-string (preceding-char))))
+    (save-match-data
+      (cond
+       ((and (string-match my-paren-open FOL-CHAR) (string-match my-paren-close PRE-CHAR))
+;	  (if ARG (mic-paren-forward-sexp) (mic-paren-backward-sexp)))
+	  (if ARG (paren-forward-sexp) (paren-backward-sexp)))
+       ;; ((string-match my-paren-open FOL-CHAR)  (mic-paren-forward-sexp))
+       ;; ((string-match my-paren-close PRE-CHAR) (mic-paren-backward-sexp))
+       ((string-match my-paren-open FOL-CHAR)  (paren-forward-sexp))
+       ((string-match my-paren-close PRE-CHAR) (paren-backward-sexp))
+       (t (re-search-backward my-paren-open))))))
+
+(global-set-key "\M-]" 'my-paren)
+
+;;
+;; moccur & moccur edit
+;;
+(require 'color-moccur)
+(require 'moccur-edit)
+(define-key Buffer-menu-mode-map "O" 'Buffer-menu-moccur)
+(add-hook 'dired-mode-hook
+	  '(lambda () (define-key dired-mode-map "O" 'dired-do-moccur)))
+
+; for moccur (not work with moccur-grep)
+(setq *moccur-buffer-name-exclusion-list*
+      '(".+TAGS+" "*Completions*" "*Messages*" "^[ ].+" ".svn"))
+
+; moccur-grep & moccur-grep-find
+(global-set-key "\M-o" 'moccur-grep-find)
+
+; カーソル付近の単語をデフォルトの検索文字列とする
+(setq moccur-grep-default-word-near-point t)
+
+; *.c 編集中のデフォルトファイルマスク： \.[HhCc]$
+(add-hook 'c-mode-common-hook
+	  '(lambda ()
+	     (setq moccur-grep-default-mask "\\.\[HhCcm\]$")))
+
+; for color-moccur.el, v 1.48 or later
+(setq kill-buffer-after-dired-do-moccur t)
+
+; colors
+(set-face-background 'moccur-face "pale turquoise")
+(set-face-bold-p 'moccur-face nil)
+(set-face-background 'moccur-edit-face "Pink")
+(set-face-bold-p 'moccur-edit-face nil)
+(set-face-background 'moccur-edit-file-face "Pink")
+(set-face-bold-p 'moccur-edit-file-face nil)
+(set-face-background 'moccur-edit-reject-face "hot pink")
+(set-face-bold-p 'moccur-edit-reject-face nil)
+
+
+
+;;
+;; hippie-expand
+;;
+(setq hippie-expand-try-functions-list
+      '(
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+;;         try-expand-dabbrev-from-kill
+        try-complete-file-name-partially
+        try-complete-file-name
+;;         try-expand-list try-expand-line
+;;         try-complete-lisp-symbol-partially
+;;         try-complete-lisp-symbol
+;;         try-expand-all-abbrevs
+))
+
+;; (global-set-key "\M-/" 'hippie-expand)
+
+;;
+;; re-builder
+;;
+(add-hook 'reb-mode-hook
+      '(lambda ()
+         (define-key reb-mode-map "\C-xk" 'reb-quit)))
+
+(defalias 'reb 're-builder)
+
+;;
+;; dired
+;;
+
+;; dired でディレクトリを移動しても，新しいバッファを作成しないように
+(require 'dired)
+(defadvice dired (around dired-move-point-to-file-adv activate disable)
+  "move point to file after dired list."
+  (let ((f (buffer-file-name)))
+    ad-do-it
+    (when (and f (file-exists-p f))
+      (let ((pt nil))
+        (save-excursion
+          (goto-char (point-min))
+          (re-search-forward (concat "[ ]+" (file-name-nondirectory f) "$"))
+          (setq pt (re-search-backward "[ ]+")))
+        (when pt (goto-char (1+ pt)))))))
+
+(defun dired-open-and-move-to-file ()
+  (interactive)
+  (let ((f (buffer-file-name)))
+    (if f
+        (let ((func 'dired)
+              (class 'around)
+              (adv 'dired-move-point-to-file-adv))
+          (ad-enable-advice func class adv)
+          (ad-activate func)
+          (dired (file-name-directory f)) ;; call dired
+          (ad-deactivate func)
+          (ad-disable-advice func class adv))
+          (ad-activate func)
+      (call-interactively 'dired))))
+(defalias 'd 'dired-open-and-move-to-file) ;; M-x d
+
+
+(defvar my-dired-before-buffer nil)
+(defadvice dired-advertised-find-file (before kill-dired-buffer activate)
+  (setq my-dired-before-buffer (current-buffer)))
+
+(defadvice dired-advertised-find-file (after kill-dired-buffer-after activate)
+  (if (eq major-mode 'dired-mode)
+      (kill-buffer my-dired-before-buffer)))
+
+(defadvice dired-up-directory (before kill-up-dired-buffer activate)
+  (setq my-dired-before-buffer (current-buffer)))
+
+(defadvice dired-up-directory (after kill-up-dired-buffer-after activate)
+  (if (eq major-mode 'dired-mode)
+      (kill-buffer my-dired-before-buffer)))
+
+
+;; 簡素な表示
+(setq ls-lisp-verbosity nil)
+
+(defadvice ls-lisp-format (after hidepermission activate)
+  (put-text-property 1 10 'invisible t ad-return-value))
+
+;; ファイルサイズが 8 桁固定なので Kbyte 単位で表示
+(defadvice ls-lisp-format (after hidepermission activate)
+  (put-text-property 1 10 'invisible t ad-return-value))
+
+;; listing directory first
+(setq ls-lisp-dirs-first t)
+
+;; enable recursive copy(C) and delete(D)
+(setq dired-recursive-copies 'always)
+(setq dired-recursive-deletes 'always)
+
+
+;;;
+;;; command aliases
+;;;
+
+;; iro mihon
+(defalias 'color-list 'list-colors-display)
+
+;; edebug-defun
+(require 'edebug)
+(eval-after-load "edebug"
+  '(defalias 'ede 'edebug-defun))
+
+;; apropos
+(defalias 'a 'apropos)
+(defalias 'l 'linum-mode)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(defalias 'com 'comment-region)
+(defalias 'ind 'indent-region)
+
+
+
+
+;; vimpulse
+;(require 'my-vimpulse)
+;(viper-go-away)
+
+;;;
+;;; hooks and advices
+;;;
+
+;; 先頭に#!があるファイルを保存時に実行権をつける
+(add-hook 'after-save-hook
+          'executable-make-buffer-file-executable-if-script-p)
+
+;; confirm when hit cmd+w
+(defadvice close-window (around close-window-adv activate)
+  (if (region-active-p) (call-interactively 'kill-ring-save)
+    (if (y-or-n-p-with-timeout "really close? " 2 nil) ad-do-it
+      (message ""))))
+
+;(defadvice recentf-mode (before my-recentf-adv activate)
+;(add-hook 'recentf-dialog-mode-hook
+;          '(lambda ()
+  ;; (define-key recentf-mode-map "j" 'widget-forward)
+  ;; (define-key recentf-mode-map "k" 'widget-backward)
+;))
+
+;; (defun apropos-next ()
+;;   (interactive)
+;;   (goto-char (1+ (point)))
+;;   (re-search-forward "^[^ ]")
+;;   (beginning-of-line))
+
+;; (defun apropos-prev ()
+;;   (interactive)
+;;   (beginning-of-line)
+;;   (goto-char (1- (point)))
+;;   (re-search-backward "^[^ ]")
+;;   (beginning-of-line))
+
+;; (defadvice apropos-mode (after my-apropos-adv activate)
+;;   (define-key apropos-mode-map "j" 'apropos-next)
+;;   (define-key apropos-mode-map "k" 'apropos-prev))
+
+
+;;;
+;;; my-additional elisp
+;;;
+(load-library "discrete")
+(load-library "mac")
+(load-library "testing")

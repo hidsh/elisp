@@ -1,0 +1,51 @@
+cd c:/cygwin/home/gnrr/elisp/
+diff -u "c:/cygwin/home/gnrr/elisp/color-moccur.el.1.48.tmp" "c:/cygwin/home/gnrr/elisp/color-moccur.el"
+--- c:/cygwin/home/gnrr/elisp/color-moccur.el.1.48.tmp	2003-10-01 13:13:05.000000000 +0900
++++ c:/cygwin/home/gnrr/elisp/color-moccur.el	2003-10-01 13:00:38.000000000 +0900
+@@ -258,6 +258,9 @@
+ (defvar kill-buffer-after-dired-do-moccur nil
+   "non-nil means to kill buffer after dired do moccur")
+
++(defvar kill-buffer-after-dired-do-moccur-persistent-inquire nil
++  "*Non-nil means to inquire persistently, at exit from dired-do-moccur.")
++
+ (defvar dmoccur-list
+   '(
+     ;; name directory mask option
+@@ -1091,6 +1094,23 @@
+ 	(kill-buffer (get-buffer "*Moccur*"))))
+     ))
+
++(defun moccur-inquire-save-buffer-p (buffer)
++  (let ((buff-name (buffer-name buffer))
++	(res nil)) ;; nil: no respond
++    (while (null res)
++      (setq res
++	    (if (y-or-n-p (concat "Buffer " buff-name
++				  " modified; save it? "))
++		'save
++	      (if (or (not kill-buffer-after-dired-do-moccur-persistent-inquire)
++		      (y-or-n-p (concat "Buffer " buff-name
++					" modified; kill anyway? ")))
++		  'kill
++		nil))))
++    (if (equal res 'save)
++	t
++      nil)))
++
+ ;; kill-buffer when moccur-quit
+ (defadvice moccur-quit (before moccur-quit-kill-buffers activate)
+   (let ((buffers moccur-match-buffers)
+@@ -1107,9 +1127,7 @@
+ 	(set-window-buffer (selected-window) buff)
+ 	(if (and (buffer-file-name buff)
+ 		 (buffer-modified-p buff)
+-		 (y-or-n-p (concat "Buffer "
+-				   (buffer-name buff)
+-				   " modified. Save it? ")))
++		 (moccur-inquire-save-buffer-p buff))
+ 	    (save-buffer)
+ 	  (set-buffer-modified-p nil)) ;; mark as not modified
+ 	(display-buffer mocc-buffer)
+
+Diff finished at Wed Oct 01 13:13:22

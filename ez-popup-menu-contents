@@ -1,0 +1,17 @@
+;;
+;; ez-popup-menu-contents
+;;
+;; menu contents for ez-popup-menu
+;;
+
+;(define-key menu [kaigyo] '("new line" . newline))
+;(define-key menu [read-only] '("read-only" . toggle-read-only))
+
+(defun ez-popup-menu-contents ()
+  "Return a list of menu contents."
+  (list
+   ; put menu contents here
+   '("new line" . newline)
+   '("read-only" . toggle-read-only)
+))
+

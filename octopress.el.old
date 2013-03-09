@@ -1,0 +1,107 @@
+;;; octopress.el -- easy blogging via Emacs
+;;;
+;;; Requirements:
+;;;   github pages, ruby(>=1.9.3), rake, octopress
+;;;
+;;; Install:
+;;;   (require 'octopress)
+;;;
+;;; Usage:
+;;;   new post: M-x octopress-new-post
+;;;   new page: M-x octopress-new-page
+;;;   deploy:   M-x octopress-gen-deploy
+;;;   preview:  M-x octopress-preview
+;;;
+;;; TODO:
+;;;   - major mode
+;;;   - autosave hook --> open or reload www browser
+;;;   - markdown cheat sheet like hatena-insert(on xyzzy)
+;;;   - tiny color syntax
+;;;   - dnd image, link string, gist, amazon associate link, vine, etc
+;;;   - just create buffer at 'new-post' instead of 'rake' command
+;;;   - template at 'new-post'
+;;;   - octopress-open-recent
+;;;   - 
+
+
+(setq octopress-dir (expand-file-name "~/git-clone/octopress"))
+(setq octopress-proc-name "octopress-previewer")
+
+	
+(defun octopress-proc-clean (name)
+  (dolist (p (process-list))
+	(when (string-match (format "^%s\\(<.+>\\)*$" name) (process-name p))
+	  (delete-process p))))
+
+(defun octopress-rake (command)
+  "run rake commands"
+  (defun command-exist-p (command)
+	(string> (shell-command-to-string (concat "which " command)) ""))
+  (defun proc-exist-p (name)
+	(dolist (p (process-list))
+		(when (string-match (format "^%s\\(<.+>\\)*$" name) (process-name p))
+		  (return t))
+		nil))
+   (let ((command-str (if (command-exist-p "rbenv")
+						  (format "bash -l -c 'eval \"$(rbenv init -)\" && rbenv local 1.9.2-p290 && cd %s && rake %s'" octopress-dir command)
+						(format "bash -l -c 'cd %s && rake %s'" octopress-dir command))))
+	 (if (string= command "preview")
+		 (unless (proc-exist-p octopress-proc-name)
+		   (start-process-shell-command octopress-proc-name nil command-str))
+	   (shell-command-to-string command-str))))
+	   
+
+(defun octopress-new (class title)
+  (let* ((command-str (format "new_%s[\"%s\"]" class title))
+         (command-result (octopress-rake command-str))
+         (regexp-str (format "Creating new %s: " class))
+         (filename))
+    (progn
+      (setq filename (concat octopress-dir "/"
+                             (replace-regexp-in-string regexp-str ""
+                                                       (car (cdr (reverse (split-string command-result "\n")))))))
+      (find-file filename))))
+
+(defun octopress-new-post ()
+  "begin a new post in source/_posts"
+  (interactive)
+  (octopress-new "post" (format-time-string "%H%M%S" (current-time)))
+  (re-search-forward "^title: +\"\\(.+\\)\"")
+  (replace-match "" nil nil nil 1))
+
+
+(defun octopress-new-page (title)
+  "create a new page in source/(filename)/index.markdown"
+  (interactive "MTitle: ")
+  (octopress-new "page" title))
+
+
+(defun octopress-generate ()
+  "generate jekyll site"
+  (interactive)
+  (octopress-rake "generate")
+  (message "Generate site OK"))
+
+
+(defun octopress-deploy ()
+  "default deploy task"
+  (interactive)
+  (octopress-rake "deploy")
+  (message "Deploy site OK")
+  (octopress-proc-clean octopress-proc-name))
+
+
+(defun octopress-gen-deploy ()
+  "generate website and deploy"
+  (interactive)
+  (octopress-rake "gen_deploy")
+  (message "Generate and Deploy OK")
+  (octopress-proc-clean octopress-proc-name))
+
+
+(defun octopress-preview ()
+  "preview the site in a web browser"
+  (interactive)
+  (octopress-rake "preview"))
+
+(provide 'octopress)

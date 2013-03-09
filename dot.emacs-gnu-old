@@ -1,0 +1,2792 @@
+;;;; -*- lisp-interaction; syntax: elisp; coding: utf-8-unix -*-
+;;;;
+;;;; this setting is for GNU Emacs (not Aquamacs)
+;;;;
+;;;;
+;;;; (defconst my-time-zero (current-time)) ;; for my-time-lag in discrete.el
+;;;;
+;;;;	Filename: dot.emacs-gnu
+;;;;	Last modified: Wed Feb 27 2013 19:51:53 JST
+;;;;
+;;;;	based: $Id: .emacs,v 1.26 2006/02/16 06:44:23 gnrr Exp gnrr $
+;;;;
+;;;;    note: update --> M-x eval-current-buffer
+;;;;
+
+;;; themes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq load-path (append '("~/elisp/themes/") load-path))
+;(color-theme-initialize)
+
+;; (require 'color-theme-solarized) (color-theme-solarized-dark)
+;; (require 'color-theme-tango) (color-theme-tango)
+;; (require 'color-theme-tangotango) (color-theme-tangotango)
+;; (require 'color-theme-zenburn) (color-theme-zenburn)
+(require 'color-theme-almost-monokai) (color-theme-almost-monokai)
+
+;;;
+;;; font
+;;;
+(set-face-attribute 'default nil :family "menlo" :height 140) 
+(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+(add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
+
+
+;;; util ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; nop (no operation)
+(defun nop ()
+  (interactive))
+
+;; error off
+(defadvice error (around error-off-adv activate)
+  (if (active-minibuffer-window)
+      (message (minibuffer-prompt))
+    ad-do-it))
+
+;;; アイコンやDockから起動したEmacsのPATHやexec-pathが正しく設定されてないのをなんとかする
+;;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
+;; When opened from Desktep entry, PATH won't be set to shell's value.
+(let ((path-str
+	   (replace-regexp-in-string "\n+$" "" (shell-command-to-string "echo $PATH"))))
+	(setenv "PATH" path-str)
+	(setq exec-path (nconc (split-string path-str ":") exec-path)))
+
+
+;;; 日本語環境設定 for Mac
+;;; http://maro.air-nifty.com/maro/2009/02/carbon-emacs-sh.html
+;; (set-language-environment "Japanese")
+(set-language-environment 'utf-8)
+(prefer-coding-system 'utf-8-unix)
+(setq default-buffer-file-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-clipboard-coding-system 'utf-8)
+
+;;; http://sakito.jp/emacs/emacsshell.html#id7
+(cond ((or (eq window-system 'mac) (eq window-system 'ns))
+	   ;; Mac OS X の HFS+ ファイルフォーマットではファイル名は NFD (の様な物)で扱うため以下の設定をする必要がある
+	   (require 'ucs-normalize)
+	   (setq file-name-coding-system 'utf-8-hfs)
+	   (setq locale-coding-system 'utf-8-hfs))
+	  (or (eq system-type 'cygwin) (eq system-type 'windows-nt)
+		  (setq file-name-coding-system 'utf-8)
+		  (setq locale-coding-system 'utf-8)
+		  ;; もしコマンドプロンプトを利用するなら sjis にする
+		  ;; (setq file-name-coding-system 'sjis)
+		  ;; (setq locale-coding-system 'sjis)
+		  ;; 古い Cygwin だと EUC-JP にする
+		  ;; (setq file-name-coding-system 'euc-jp)
+		  ;; (setq locale-coding-system 'euc-jp)
+		  )
+	  (t
+	   (setq file-name-coding-system 'utf-8)
+	   (setq locale-coding-system 'utf-8)))
+
+;;; IMEの設定
+;-(mw32-ime-initialize)
+;-(setq default-input-method "MW32-IME")
+;-(setq-default mw32-ime-mode-line-state-indicator "[--]")
+;-(setq mw32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
+;-(add-hook 'mw32-ime-on-hook
+;-	  (function (lambda () (set-cursor-height 2))))
+;-(add-hook 'mw32-ime-off-hook
+;-	  (function (lambda () (set-cursor-height 4))))
+;; IME の ON/OFF でカーソルの色を変える
+; (cursor-type が box, bar の場合)
+;-(add-hook 'mw32-ime-on-hook
+;-	  (lambda () (set-cursor-color "brown"))) ; ON
+;-(add-hook 'mw32-ime-off-hook
+;-	  (lambda () (set-cursor-color "khaki4"))) ; OFF
+
+;; disable IME temporary when y-or-n or yes-or-no
+;-(wrap-function-to-control-ime 'y-or-n-p nil nil)
+;-(wrap-function-to-control-ime 'yes-or-no-p nil nil)
+
+;; ;;; カーソルの設定
+;; ;; (set-cursor-type 'box)        ; Meadow-1.10互換 (SKK等で色が変る設定)
+;; ;; (set-cursor-type 'hairline-caret) ; 縦棒キャレット
+
+
+;;; マウスカーソルを消す設定
+;-(setq w32-hide-mouse-on-key t)
+;-(setq w32-hide-mouse-timeout 5000)
+
+
+
+;; which for elisp
+(autoload 'which "which" "Here is the which command for loadables" t)
+
+;; kill-ringに同じ内容を重複して入れない
+(defadvice kill-new (before ys:no-kill-new-duplication activate)
+  (setq kill-ring (delete (ad-get-arg 0) kill-ring)))
+
+;; ;;; browse-url の設定
+;; (require 'browse-url)
+;; (global-set-key [S-mouse-2] 'browse-url-at-mouse)
+
+
+;; ;;; 印刷の設定
+;; ;; この設定で M-x print-buffer RET などでの印刷ができるようになります
+;; ;;
+;; ;;  notepad に与えるパラメータの形式の設定
+;; (define-process-argument-editing "notepad"
+;;   (lambda (x) (general-process-argument-editing-function x nil t)))
+
+;; (defun w32-print-region (start end
+;;			       &optional lpr-prog delete-text buf display
+;;			       &rest rest)
+;;   (interactive)
+;;   (let ((tmpfile (expand-file-name (make-temp-name "w32-print-")
+;;				   temporary-file-directory))
+;;	(coding-system-for-write w32-system-coding-system))
+;;     (write-region start end tmpfile nil 'nomsg)
+;;     (call-process "notepad" nil nil nil "/p" tmpfile)
+;;     (and (file-writable-p tmpfile) (delete-file tmpfile))))
+;; (setq print-region-function 'w32-print-region)
+
+
+;; case sensitive in search
+;; (setq default-case-fold-search nil)
+
+;;; ;;; キーバインド等
+;;; C-h を backspace として使う。
+(keyboard-translate ?\C-h ?\C-?)
+;(global-set-key "\C-h" nil)
+
+;; バッファの最後の行で next-line しても新しい行を作らない
+(setq next-line-add-newlines nil)
+
+;; バッファの最初の行で previous-line しても、
+;; "beginning-of-buffer" と注意されないようにする。
+;; (defun previous-line (arg)
+;;   (interactive "p")
+;;   (if (interactive-p)
+;;       (condition-case nil
+;; 	  (line-move (- arg))
+;; 	((beginning-of-buffer end-of-buffer)))
+;;     (line-move (- arg)))
+;;   nil)
+
+;; moved --> discrete.el
+;; (defun narrowed-current-line ()
+;;   "Print the current buffer line number and narrowed line number of point."
+;;   (let ((opoint (point)) start)
+;;     (save-excursion
+;;       (save-restriction
+;; 	(goto-char (point-min))
+;; 	(widen)
+;; 	(forward-line 0)
+;; 	(setq start (point))
+;; 	(goto-char opoint)
+;; 	(forward-line 0)
+;; 	(1+ (count-lines start (point)))))))
+
+
+;; 警告音のかわりに画面フラッシュ
+;(setq visible-bell t)
+;;警告音、ビジブルベルを無効化
+(setq ring-bell-function 'ignore)
+
+;; disable menu bar, tool bar
+;; for Meadow3
+;; (menu-bar-mode -1)
+(tool-bar-mode -1)
+;; disable
+
+;; stop cursor blinking
+(blink-cursor-mode 0)
+
+;; disable first message on default start up
+(setq initial-scratch-message nil)
+
+;; show filename on title bar
+;;(setq frame-title-format (format "%%f" (system-name)))
+;-(setq frame-title-format '("Meadow [ %b ]" (buffer-file-name " - %f")))
+
+;; Always end a file with a newline
+(setq require-final-newline t)
+
+;; Stop at the end of the file, not just add lines
+(setq next-line-add-newlines nil)
+
+;; force command execution
+;; http://www002.upp.so-net.ne.jp/mamewo/emacs.html#recursive-minibuffers
+(setq enable-recursive-minibuffers nil)
+
+;; delete default value when starting input in minibuffer
+;;http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=minibuf-eldef
+(minibuffer-electric-default-mode t)
+
+;; バッファ自動再読み込み
+(global-auto-revert-mode 1)
+
+;; 同名ファイルのバッファ名の識別文字列を変更する
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
+;; M-x install-elisp ;; todo
+;; (require 'install-elisp)
+;; (setq install-elisp-repository-directory "~/elisp/")
+
+;; window manipulate: C-o
+(defun split-window-vertically-n (num_wins)
+  (interactive "p")
+  (if (= num_wins 2)
+      (split-window-vertically)
+    (progn
+      (split-window-vertically
+       (- (window-height) (/ (window-height) num_wins)))
+      (split-window-vertically-n (- num_wins 1)))))
+(defun split-window-horizontally-n (num_wins)
+  (interactive "p")
+  (if (= num_wins 2)
+      (split-window-horizontally)
+    (progn
+      (split-window-horizontally
+       (- (window-width) (/ (window-width) num_wins)))
+      (split-window-horizontally-n (- num_wins defun)))))
+
+(defun other-window-or-split ()
+  (interactive)
+  (when (one-window-p)
+   (if (>= (window-body-width) 230)
+        (split-window-horizontally-n 3)
+      (split-window-horizontally)))
+  (other-window 1))
+
+(global-set-key "\C-o" 'other-window-or-split)
+
+
+;; binding ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; binding help to M-?
+(global-set-key "\M-?" 'help-for-help)
+
+;; set-mark to M-SPC
+;; (global-set-key "\M- " 'set-mark-command)
+
+;; (global-set-key [f11] 'tabbed-menu-prev-buffer)
+;; (global-set-key [f12] 'tabbed-menu-next-buffer)
+
+;; unbinding ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (global-unset-key "\C-f")
+;; (global-unset-key "\C-b")
+;; (global-unset-key "\C-n")
+;; (global-unset-key "\C-p")
+
+
+(global-unset-key "\C-h")
+(global-unset-key "\C-o")
+(global-unset-key "\M-`")
+;; (global-unset-key "\M-h")
+(global-unset-key "\377") ;; M-DEL
+(global-unset-key "\C-t")
+;;(global-unset-key "\C-[") ;; Why don't work M-x??
+(global-unset-key "\C-]")
+(global-unset-key "\C-_")
+(global-unset-key [?\C-/])
+;; (global-unset-key "\C-#") ;; not work on emacs21
+(global-unset-key "\C-v")
+(global-unset-key "\C-j")
+(global-unset-key "\C-x\C-z")
+;;  (global-unset-key "\C-\\")
+(global-unset-key [f1])
+(global-unset-key [f2])
+(global-unset-key [f10])
+(global-unset-key "\C-xnp") ;; narrow-to-page
+(global-unset-key "\C-xnd") ;; narrow-to-defun
+;; (global-unset-key "\C-xnw") ;; widen
+;; (global-unset-key "\C-xnn") ;; narrow-to-region
+(global-unset-key "\M-k") ;; kill-sentence
+(global-unset-key "\C-x\C-p") ;; mark-page
+(global-unset-key "\C-x\C-n") ;; set-goal-colum
+(global-unset-key "\C-x-") ;; shrink-window-if-larger-than-buffer
+(global-unset-key "\M-p")
+(global-unset-key "\M-v")
+(global-unset-key "\C-v")
+
+(global-unset-key "\C-x\C-l")
+;; (global-unset-key "\C-\\")		; indent-region
+(global-unset-key (quote [67108909]))	;C--
+(global-unset-key "\M-i")		; tab-to-tab-stop
+(global-unset-key "\M-^")
+(global-unset-key [mouse-2])	; mouse-yank-primary
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; for Mac
+(global-set-key "\M-v" 'yank)
+(global-set-key "\M-c" 'copy-region-as-kill)
+
+(defun select-all ()
+	(interactive)
+	(push-mark (point-min))
+	(goto-char (point-max)))
+(global-set-key "\M-a" 'select-all)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; right mouse menu
+(defun bingalls-edit-menu (event)
+  (interactive "e")
+  (popup-menu menu-bar-edit-menu))
+(global-set-key [down-mouse-3] 'bingalls-edit-menu)
+
+;; ;; binding Undo to C-z
+;; (global-set-key "\C-z" 'undo)
+
+;; dired
+(global-set-key "\C-x\C-d" 'dired)
+
+;; (add-hook 'dired-mode-hook
+;;	  '(lambda ()
+;; ;	     (define-key dired-mode-map " " 'dired-mark)
+;;	     (define-key dired-mode-map "\C-m" 'dired-my-advertised-find-file)
+;; ;	     (define-key dired-mode-map "^" 'dired-my-up-directory)
+;;	     ))
+
+;;インデントは、タブではなくスペースを使う
+(setq-default indent-tabs-mode nil)
+
+;;タブ幅を 4 に設定
+(setq-default tab-width 4)
+;;タブ幅の倍数を設定
+(setq tab-stop-list
+  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
+
+ ;; ;; binding Page UP/DOWN
+(global-set-key "\M-n" 'scroll-up)
+(global-set-key "\M-p" 'scroll-down)
+
+;; beginning/end of buffer
+(global-set-key "\M-\S-n" 'end-of-buffer)
+(global-set-key "\M-\S-p" 'beginning-of-buffer)
+
+;; ;; binding other window Page UP/DOWN
+(global-set-key "\C-x\C-n" 'scroll-other-window)
+(global-set-key "\C-x\C-p" 'scroll-other-window-down)
+
+;; ;; binding Shell to M-s
+;; (global-set-key "\M-s" 'shell)
+
+;; binding goto-line to M-g
+(global-set-key "\M-g" 'goto-line)
+
+;; ;; binding comment-region to C-/
+;; (global-set-key [?\C-/] 'comment-region)
+;; binding comment-region to C-;
+(global-set-key [?\C-\;] 'comment-region)
+
+;; comment-indent and comment-set-collum
+(global-set-key ";" 'comment-set-column)	; C-x ;
+(global-set-key [24 67108923] 'comment-indent)	; C-x C-;
+
+
+;; ;; binding delete word to M-h
+;; (global-set-key "\M-h" 'backward-kill-word)
+
+;; binding revert-buffer to C-x t
+(global-set-key "\C-xt" 'revert-buffer)
+
+;; i-search with zenkaku after \C-k
+(define-key isearch-mode-map "\C-k" 'isearch-edit-string)
+
+;; M-^ replace-regexp
+;; (global-set-key "\M-^" 'replace-regexp)
+
+;; M-^ 
+
+;; which bind buffer-menu etc... to C-x C-b
+;; (global-set-key "\C-x\C-b" 'buffer-menu)
+(global-set-key "\C-x\C-b" 'electric-buffer-list)
+
+;; ;; iswitchb
+;; (iswitchb-default-keybindings)
+;; (add-hook 'iswitchb-define-mode-map-hook
+;;	     'iswitchb-my-keys)
+;; (defun iswitchb-my-keys ()
+;;   "Add my keybindings for iswitchb."
+;;   (define-key iswitchb-mode-map "\C-n" 'iswitchb-next-match)
+;;   (define-key iswitchb-mode-map "\C-p" 'iswitchb-prev-match)
+;;   (define-key iswitchb-mode-map "\C-f" 'iswitchb-next-match)
+;;   (define-key iswitchb-mode-map " " 'iswitchb-next-match)
+;;   (define-key iswitchb-mode-map "\C-b" 'iswitchb-prev-match)
+;;   )
+
+;; ;; 自動セーブをOFF
+(setq auto-save-default nil)
+
+;; 自動セーブファイル*~の保存場所を設定 --> ~/.autosave
+(setq make-backup-files nil)  ;; not create backup files
+(setq backup-directory-alist
+;;    (cons (cons "\\.*$" (expand-file-name "~/.autosave"))
+      (cons (cons "." (expand-file-name "~/.autosave"))
+     backup-directory-alist))
+
+;; マウスの真ん中ボタンでペーストするときに、
+;; マウスの位置ではなく、カーソルの位置にペーストする。
+;; (setq mouse-yank-at-point t)
+
+;; toggle line truncation
+(setq truncate-partial-width-windows nil)
+(global-set-key "\C-x\C-t" 'toggle-truncate-lines)
+
+;; default truncate-lines enable
+(setq default-truncate-lines t)
+
+;; imenu
+;; (global-set-key "\C-c\C-f" 'imenu)
+
+;; also delete much space by C-h
+;; (setq backward-delete-char-untabify-method 'hungry)
+
+;; case sensitive in dynamic abbrev
+(setq dabbrev-case-fold-search nil)
+
+;; restrict height of minibuffer to one line.(for Meadow2)
+;; (setq resize-mini-windows nil)
+
+;; binding repeat-complex-command to C-x ;
+(global-set-key "\C-x\C-z" 'repeat-complex-command)
+
+;; narrowing and widening
+(global-set-key "\C-xnf" 'narrow-to-defun)
+
+;; binding indent-region to C-\
+;; (global-set-key "\C-\\" 'indent-region)
+
+;; quit by q key in completion-window
+(define-key completion-list-mode-map "q" 'delete-completion-window)
+
+;; history in minibuffer
+(define-key minibuffer-local-must-match-map "\C-n" 'next-history-element)
+(define-key minibuffer-local-must-match-map "\M-n" 'next-history-element)
+(define-key minibuffer-local-must-match-map "\C-p" 'previous-history-element)
+(define-key minibuffer-local-must-match-map "\M-p" 'previous-history-element)
+
+;; for insert-parentheses
+(setq parens-require-spaces nil)
+(global-set-key "\M-9" 'insert-parentheses)
+
+;; beginning-of-defun for all modes
+(global-set-key "\C-c\C-f" 'beginning-of-defun)
+
+;; create new frame
+;(global-set-key "\M-v" 'make-frame-command)
+
+;; for c-mode
+(setq auto-mode-alist
+      (append '(("\\.[ch]$" . c-mode)) auto-mode-alist))
+
+
+(setq compilation-window-height 10)
+
+(add-hook 'c-mode-common-hook
+	  '(lambda ()
+;;       (c-set-style "gnu")
+         (c-set-style "cc-mode")
+;;       (c-hungry-state 1)
+	     (setq c-basic-offset 4)
+	     (setq tab-width 4)
+	     (c-set-offset 'case-label '+)	;; for switch statements
+	     (setq comment-column 50)
+         (local-unset-key "\C-c\C-b") ; disable c-submit-bug-report
+	     (define-key c-mode-map "\C-c\C-f" '(lambda ()
+					       (interactive)
+					       (push-mark)
+					       (c-beginning-of-defun)
+;;                            (recenter 3)
+					       ))
+))
+
+;; for asm-mode
+(setq auto-mode-alist
+      (append '(("\\.src$" . asm-mode)("\\.src$" . asm-mode)) auto-mode-alist))
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;; vc (cvs) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=199%20setup-for-pcl-cvs
+;; (autoload 'vc-stay-local-p "vc-hooks") ;; for svn
+;; (autoload 'vc-workfile-unchanged-p "vc-hooks") ;; for rcs
+;; (defalias 'with-no-warnings 'progn)
+
+;; (setq cvs-cvsroot ":local:/cygdrive/c/cygwin/home/gnrr/CVSROOT")
+
+;; (autoload 'diff-mode "diff-mode" "Diff major mode" t)
+;; (add-to-list 'auto-mode-alist '("\\.\\(diffs?\\|patch\\|rej\\)\\'" . diff-mode))
+;; (setq diff-switches "-u")
+;; (setq suppress-confirm t)
+
+;; ;; log はどのコードで書くか決めて
+;; (modify-coding-system-alist 'process "cvs" '(undecided . sjis))
+
+;; ;; pserver ではなく local repository を使うための設定. 詳細は
+;; ;; meadow-users-jp メーリングリストの
+;; ;; Subject: about pcl-cvs    X-ML-COUNT: 1870
+;; (if (featurep 'meadow)
+;;     (define-process-argument-editing
+;;       "/cvs\\.exe\\'"
+;;       (lambda (x)
+;; 	(let ((command (car x))
+;; 	      (argument (cdr x)))
+;; 	  (setq argument (cygnus-process-argument-quoting argument))
+;; 	  (concat
+;; 	   (unix-to-dos-filename command) " "
+;; 	   (unix-to-dos-argument (mapconcat (function concat) argument " ")
+;; 				 nil nil nil nil))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; summarye ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'se/make-summary-buffer "summarye" nil t)
+(global-set-key "\C-x\C-u" 'se/make-summary-buffer)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; printing with ak2pr.exe ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; for postscript printer
+;; command: lpr-buffer, print-buffer, lpr-region, print-region
+;-(setq lpr-command
+;-      (expand-file-name "c:/#work/bin/ak2pr.exe"))
+;-       (expand-file-name (concat exec-directory
+;- 				"../../site-bin/ak2pr/ak2pr.exe")))
+
+(setq lpr-switches '("-ol" "-f9" "-u2" "-sA4"))
+(setq lpr-add-switches t)
+(setq lpr-command-switches '())
+
+;; for non-ps printer
+;; command: ps-print-buffer, ps-print-buffer-with-faces, ps-print-region,
+;;	    ps-print-region-with-faces
+(setq ps-multibyte-buffer 'non-latin-printer    ;マルチバイト印刷を行う
+      ps-line-number t              ;行番号を印刷する
+      ps-paper-type 'a4             ;用紙サイズはA4
+      ps-landscape-mode t           ;用紙は横置き
+      ps-number-of-columns 2		;2段組
+      ps-lpr-command lpr-command	;lprと同じ
+      ps-lpr-switches '("-mPS_GHOST")       ;GhostScriptに処理させる
+      ps-print-color-p 'black-white     ;モノクロプリンタ用
+      )
+
+;; bind
+;; (global-set-key "\C-xrp" 'ps-print-buffer-with-faces)
+; (global-set-key "\C-xrp" 'ps-print-buffer)
+; (global-set-key "\C-xrq" 'ps-print-region)
+;; (global-set-key "\C-xrp" 'ps-print-buffer-with-faces)
+;; (global-set-key "\C-xrp" 'print-buffer)
+
+
+;; ;; ;; for view-mode (emacs21 only ) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;; (eval-after-load "view"
+;; ;;   '(setcar (cdr (assq 'view-mode minor-mode-alist))
+;; ;;	      (if (fboundp 'propertize)
+;; ;;		  (list (propertize " View"
+;; ;;				    'face '(:foreground "white"
+;; ;;					    :background "DeepPink1")))
+;; ;;		" View")))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; mode-line ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; show column number on mode line
+(column-number-mode t)
+
+;; メジャーモード名を短く
+;;http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=customize%20mode%20line
+;; minor-mode名の短縮はdiminishで。
+
+;; Encoded-kb はいらない
+;; (eval-after-load "encoded-kb"
+;;   '(setcar (cdr (assq 'encoded-kbd-mode minor-mode-alist)) ""))
+
+;; Isearch は表示しなくてよい
+(add-hook 'isearch-mode-hook
+	  '(lambda () (setcar (cdr (assq 'isearch-mode minor-mode-alist)) "")))
+;; Texinfo も長い
+(add-hook 'texinfo-mode-hook
+	  '(lambda ()
+	     (setq mode-name "Texi")))
+;; scratch バッファの Lisp Interaction も長い
+(add-hook 'lisp-interaction-mode-hook
+	  '(lambda ()
+	     (setq mode-name "Lisp-Int")))
+;; Emacs-Lisp も長い
+(add-hook 'emacs-lisp-mode-hook
+	  '(lambda ()
+	     (setq mode-name "Elisp")))
+
+;; Visual-Basic-mode
+(add-hook 'visual-basic-mode-hook
+	  '(lambda ()
+	     (setq mode-name "vb")))
+
+;; IME ON/OFF を非表示
+;-(setq-default mw32-ime-mode-line-state-indicator "")
+;-(setq mw32-ime-mode-line-state-indicator-list '("" "" ""))
+
+;; date
+;; (setq display-time-string-forms
+;;   '(month "/" day " " dayname))
+;; (display-time)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hooks and advices ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook 'electric-buffer-menu-mode-hook
+	  #'(lambda ()
+	      (define-key electric-buffer-menu-mode-map "j" 'next-line)
+	      (define-key electric-buffer-menu-mode-map "k" 'previous-line)))
+
+;; バッファセーブ
+;;http://www.boreas.dti.ne.jp/~miyoshi/EvilTips/index.html
+(defvar my-byte-compile-file-list
+  ;; '("~/.emacs" "~/Dropbox/elisp/discrete.el"))
+'())
+
+(add-hook 'after-save-hook
+	  (lambda ()
+            (mapcar (lambda (el)
+		      (setq el (expand-file-name el))
+		      (when (string= el (buffer-file-name))
+			(let ((body (file-name-sans-extension el))
+			      elc)
+			  (when (string= body "") (setq body el))
+			  (setq elc (concat body ".elc"))
+			  (when (file-exists-p elc)
+			    (delete-file elc)))
+			(save-window-excursion
+			  (save-excursion (byte-compile-file el))
+		  (sit-for 2))))
+		    my-byte-compile-file-list)))
+
+;; quit-window ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; デフォルト動作でそのウィンドウも消すようにする。
+(defadvice quit-window (around kill-window-adv activate)
+  "quit-window with kill selected window"
+  (unless (ad-get-arg 1)
+    (ad-set-arg 1 (selected-window)))
+  ad-do-it)
+
+;; info ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defadvice Info-mode (after my-Info-adv activate)
+  (define-key Info-mode-map "\M-n" nil)
+  (define-key Info-mode-map "\C-xk" 'Info-exit))
+;;   (define-key Info-mode-map '[33554464] 'Info-scroll-down))
+
+(defun info-elisp ()
+  "Display the elisp manual in Info mode."
+  (interactive)
+  (info "Elisp"))
+
+;; dired ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;dired でディレクトリを移動しても，新しいバッファを作成しないように
+(require 'dired)
+(defadvice dired (around dired-move-point-to-file-adv activate disable)
+  "move point to file after dired list."
+  (let ((f (buffer-file-name)))
+    ad-do-it
+    (when (and f (file-exists-p f))
+      (let ((pt nil))
+	(save-excursion
+	  (goto-char (point-min))
+	  (re-search-forward (concat "[ ]+" (file-name-nondirectory f) "$"))
+	  (setq pt (re-search-backward "[ ]+")))
+	(when pt (goto-char (1+ pt)))))))
+
+(defun dired-open-and-move-to-file ()
+  (interactive)
+  (let ((f (buffer-file-name)))
+    (if f
+	(let ((func 'dired)
+	      (class 'around)
+	      (adv 'dired-move-point-to-file-adv))
+	  (ad-enable-advice func class adv)
+	  (ad-activate func)
+	  (dired (file-name-directory f)) ;; call dired
+	  (ad-deactivate func)
+	  (ad-disable-advice func class adv))
+	  (ad-activate func)
+      (call-interactively 'dired))))
+(defalias 'd 'dired-open-and-move-to-file) ;; M-x d
+
+
+(defvar my-dired-before-buffer nil)
+(defadvice dired-advertised-find-file (before kill-dired-buffer activate)
+  (setq my-dired-before-buffer (current-buffer)))
+
+(defadvice dired-advertised-find-file (after kill-dired-buffer-after activate)
+  (if (eq major-mode 'dired-mode)
+      (kill-buffer my-dired-before-buffer)))
+
+(defadvice dired-up-directory (before kill-up-dired-buffer activate)
+  (setq my-dired-before-buffer (current-buffer)))
+
+(defadvice dired-up-directory (after kill-up-dired-buffer-after activate)
+  (if (eq major-mode 'dired-mode)
+      (kill-buffer my-dired-before-buffer)))
+
+;; 簡素な表示
+(setq ls-lisp-verbosity nil)
+
+(defadvice ls-lisp-format (after hidepermission activate)
+  (put-text-property 1 10 'invisible t ad-return-value))
+
+;; ファイルサイズが 8 桁固定なので Kbyte 単位で表示
+(defadvice ls-lisp-format (after hidepermission activate)
+  (put-text-property 1 10 'invisible t ad-return-value))
+
+;; listing directory first
+(setq ls-lisp-dirs-first t)
+
+;; enable recursive copy(C) and delete(D)
+(setq dired-recursive-copies 'always)
+(setq dired-recursive-deletes 'always)
+
+;; keybind
+(add-hook 'dired-mode-hook
+	  #'(lambda ()
+	      (define-key dired-mode-map "a" 'nop) ;; do nothing
+	      (define-key dired-mode-map "A" 'nop) ;; do nothing
+	      (define-key dired-mode-map [f5] 'revert-buffer)
+	      (define-key dired-mode-map "u" 'dired-up-directory)
+;;        (define-key dired-mode-map [DEL] 'dired-up-directory)
+	      (substitute-key-definition 'dired-unmark-backward
+					 'dired-up-directory dired-mode-map
+					 dired-mode-map)))
+
+;; for mac
+
+;; (defun open-current-dir-with-finder ()
+;;   (interactive)
+;;   (shell-command (concat "open .")))
+;;
+;; (defalias 'e 'open-current-dir-with-finder)
+
+(defun open-finder-1 (dir file)
+  (let ((script
+		 (if file
+			 (concat
+			  "tell application \"Finder\"\n"
+			  "    set frontmost to true\n"
+			  "    make new Finder window to (POSIX file \"" dir "\")\n" 
+			  "    select file \"" file "\"\n"
+			  "end tell\n")
+		   (concat
+			"tell application \"Finder\"\n"
+			"    set frontmost to true\n"
+			"    make new Finder window to {path to desktop folder}\n"
+			"end tell\n"))))
+    (start-process "osascript-getinfo" nil "osascript" "-e" script)))
+
+
+(defun open-finder ()
+  (interactive)
+  (let ((path (buffer-file-name))
+		dir file)
+	(when path
+	  (setq dir (file-name-directory path))
+	  (setq file (file-name-nondirectory path)))
+	(open-finder-1 dir file)))
+  
+(defalias 'e 'open-finder)
+
+
+;; Win32: dierd からエクスプローラを開く
+;;http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=dired%20fiber
+;;
+;; dired で "e" で開く。
+;-(defun dired-exec-explorer ()
+;-  "In dired, execute Explorer"
+;-  (interactive)
+;-  (explorer (dired-current-directory)))
+;-
+;-(add-hook 'dired-mode-hook
+;-	  (lambda ()
+;-	    (local-set-key "e" 'dired-exec-explorer)))
+;-
+;;- ;; M-x explorer で現在のディレクトリをもとにエクスプローラを起動
+;;- (define-process-argument-editing "/explorer\\.exe$"
+;;-   (lambda (x)
+;;-     (general-process-argument-editing-function x nil nil nil)))
+;;-
+;;- (defun explorer (&optional dir)
+;;-   (interactive)
+;;-   (setq dir (expand-file-name (or dir default-directory)))
+;;-   (if (or (not (file-exists-p dir))
+;;- 	  (and (file-exists-p dir)
+;;- 	       (not (file-directory-p dir))))
+;;-       (message "%s can't open." dir)
+;;-     (setq dir (unix-to-dos-filename dir))
+;;-     (let ((w32-start-process-show-window t))
+;;-       (apply (function start-process)
+;;- ;;		"explorer" nil "explorer.exe" (list (concat "/e,/root," dir))))))
+;;- 	     "explorer" nil "explorer.exe"
+;;- 	     (list (if (buffer-file-name)
+;;- 		       (progn
+;;- 			 (concat "/e,/select,"
+;;- 				 dir ""
+;;- 				 (file-name-nondirectory buffer-file-name)))
+;;- 		     (concat "/e," dir)))))))
+;;-
+;;- (defalias 'e 'explorer) ;; M-x e -> launch explorer
+
+;; ;; for my-create-scratch (scratch) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (add-hook 'kill-buffer-hook
+;;	  '(lambda ()
+;;   (when (and (string-match "^\\*scratch" (buffer-name))
+;;	     (buffer-modified-p)
+;;	     (y-or-n-p "Scrach has not been saved; save it? "))
+;;     (let ((scratch-dir "~/scratch/")
+;;	  (filename nil))
+;;	 (setq filename
+;;	    (read-file-name "Save scratch: "
+;;			    scratch-dir
+;;			    (concat scratch-dir
+;;				    (format-time-string "%Y%m%d%H%M%S"
+;;							(current-time))
+;;				    ".el")))
+;;	 (write-file filename)))))
+
+;; trim-buffer & my-insert-filename ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; auto execution when file is saved.
+
+;; (setq trim-buffer-del-trailing-spc-except-list
+;;	 '("\\.leave_it_away$" "\\.not_delete_trail_spc$"))
+;; (setq trim-buffer-del-end-empty-line-except-list
+;;	 '("\\.leave_it_away$" "\\.not_delete_empty_line$"))
+;; (setq trim-buffer-tabify-list '("\\.do$" "\\.tab$" "\\.them$"))
+;; (setq trim-buffer-untabify-list '("\\.go$" "\\.untab$" "\\.others$"))
+(setq trim-buffer-del-trailing-spc-except-list
+      '("memo.txt$"))
+(setq trim-buffer-tabify-list '("\\.c$"))
+
+;; re-builder ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'reb-mode-hook
+	  '(lambda ()
+	     (define-key reb-mode-map "\C-xk" 'reb-quit)))
+
+(defalias 'reb 're-builder)
+
+;; memo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'change-log-mode-hook
+	  '(lambda ()
+	     (define-key change-log-mode-map "\C-m" 'memo-newline)))
+
+;; clgrep for memo. (C-s)
+;; (defvar clgrep-window-stack (current-window-configuration))
+;; (defadvice clgrep (before window-push activate)
+;;   (setq clgrep-window-stack (current-window-configuration)))
+;; (defadvice clgrep-quit (after window-pop activate)
+;;   (set-window-configuration clgrep-window-stack))
+
+;; eshell ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'eshell-mode-hook
+	  '(lambda ()
+	     (let ((path))
+;-	       (setq path (concat
+;-			   "c:/cygwin/usr/local/bin;"
+;-			   "c:/cygwin/usr/bin;"
+;-			   "c:/cygwin/bin;"
+;-;;			   "c:/cygwin/home/gnrr/sh;"
+;-			   (getenv "PATH")))
+	       (setenv "PATH" path))
+	     (rename-uniquely)
+;;	     (local-set-key "\C-u" 'eshell-kill-input)
+;;	     (local-set-key "\C-d" 'kill-buffer-current)
+	     (local-unset-key "\C-d")
+	     (define-key eshell-mode-map "\M-?" nil)
+;; 	     (define-key eshell-mode-map "\M-n" 'sane-scroll-up)
+;; 	     (define-key eshell-mode-map "\M-p" 'sane-scroll-down)
+	     (define-key eshell-mode-map "\C-n"
+	       'eshell-next-matching-input-from-input)
+	     (define-key eshell-mode-map "\C-p"
+	       'eshell-previous-matching-input-from-input)
+;; 	     (define-key eshell-mode-map '[up] 'sane-previous-line)
+;; 	     (define-key eshell-mode-map '[down] 'sane-next-line)
+	     (local-unset-key "\C-f")
+	     (local-unset-key "\C-b")))
+
+(defun eshell/clear ()
+  "04Dec2001 - sailor, to clear the eshell buffer."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+
+(defun eshell-prompt-at-home ()
+  (let ((home-str (replace-regexp-in-string "\\\\" "/" (getenv "HOME"))))
+    (replace-regexp-in-string home-str "~" (eshell/pwd))))
+(setq eshell-prompt-function
+      (lambda ()
+	(concat (eshell-prompt-at-home)
+		(if (= (user-uid) 0)
+		    "# " "$ "))))
+(setq eshell-prompt-regexp "^[^#$\n]*[#$] ")
+
+;; (setq eshell-ask-to-save-history 'always)
+(setq eshell-ask-to-save-history nil)
+
+;; electric-buffer-menu ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'electric-buffer-menu-mode-hook
+	  '(lambda ()
+	     (define-key
+	       electric-buffer-menu-mode-map "x" 'Buffer-menu-execute)))
+
+;; open a compressed file directly
+(auto-compression-mode)
+
+;; for text-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'text-mode-hook
+	  '(lambda ()
+;; 	     (auto-fill-mode 1)
+	     (define-key text-mode-map "\C-m" 'newline)
+;; 	     (define-key text-mode-map "\C-m" 'outline-show-hide)
+))
+
+;; (setq auto-mode-alist
+;;   (cons ' ( "\\.txt\\'" . outline-mode) auto-mode-alist))
+
+;; for outline-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (add-hook 'outline-mode-hook
+;;	  #'(lambda ()
+;;	      (ee-outline)
+;;	      ))
+
+;; (defun outline-show-hide (arg)
+;;   (interactive "P")
+;;   (let (pos)
+;;     (setq pos (point))
+;;     (beginning-of-line)
+;;     (if (re-search-forward "^\\*"
+;; 			   (line-end-position) t)
+;; 	(if (= (line-end-position) (next-overlay-change (point)))
+;; 	    (if arg
+;; 		(show-all)
+;; 	      (show-entry))
+;; 	  (if arg
+;; 	      (hide-body)
+;; 	    (hide-entry))
+;; 	  (beginning-of-line))
+;;       (goto-char pos)
+;;       (newline-and-indent)
+;;       )))
+
+;; ;; for html-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (add-hook 'html-mode-hook
+;;	  '(lambda ()
+;; ;;	     (set-buffer-file-coding-system 'euc-jp) ;;'sjis) ;;'iso-2022-jp)
+;; ;;	     (html-autoview-mode 1)
+;;	     (setq fill-column 80)
+;;	     (auto-fill-mode 1)
+;;	     ))
+
+;; (add-hook 'write-file-hooks
+;;	  '(lambda ()
+;;	     (when (and (not (null buffer-file-name))
+;;			(string-match "\\.htm[l]?$" buffer-file-name))
+;;	       (set-buffer-file-coding-system 'euc-jp))
+;;	     nil))
+
+;; for lisp-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;-(add-hook 'lisp-mode-hook
+;-	  '(lambda ()
+;-	     (setq tags-file-name
+;-		   "c:/cygwin/usr/local/Meadow/2.00b2/lisp/TAGS")
+;-	     ))
+
+;; for lisp-interaction-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq auto-mode-alist
+      (cons '("\\.emacs.*$" . lisp-interaction-mode)
+        auto-mode-alist))
+
+(defvar scratch-save-default-directory "~/scratch/"
+  "directory string to save scratch buffer.")
+
+(defun scratch-save ()
+  "save scratch buffer to default directory"
+  (when (string= (buffer-name) "*scratch*")
+    (let ((s (concat scratch-save-default-directory
+		     (format-time-string "%Y%m%d" (current-time))
+		     "\.el")))
+		 (setq my-save-buffer-default-path s))))
+
+(add-hook 'lisp-interaction-mode-hook
+	  '(lambda ()
+	     ;; TAGS file
+;-	     (setq tags-file-name "c:/cygwin/usr/local/Meadow/2.00b2/lisp/TAGS")
+	     ;; save scratch
+	     (scratch-save)))
+
+(defalias 'scratch 'open-scratch)
+(defun open-scratch (&optional flo)
+  "open scratch file. flo is one of 'recent, 'next or 'prev"
+  (interactive)
+  (let* ((re "^[0-9][0-9][0-9][0-9].*[.]el$")
+	 (files (directory-files scratch-save-default-directory t re nil))
+	 (curr (buffer-file-name)))
+    (unless flo
+      (cond ((or (string= (buffer-name) "*scratch*")
+		 (string-match re (file-name-nondirectory curr)))
+	     (setq flo 'prev))
+	    (t (setq flo 'recent))))
+    (let ((f (if (eq flo 'recent)
+		 (nth (1- (length files)) files)
+	       (let ((prev nil)
+		     (found nil))
+		 (while files
+		   (if (string= (car files) (expand-file-name curr))
+		       (progn
+			 (cond ((eq flo 'next)
+				(setq found (car (cdr files))))
+			       ((eq flo 'prev)
+				(setq found prev))
+			       (t nil))
+			 (setq files '()))
+		     (setq prev (car files))
+		     (setq files (cdr files))))
+		 found))))
+  (if f
+      (progn
+	  (when (string-match re (file-name-nondirectory curr))
+	    (kill-buffer (buffer-name)))
+	  (view-file f))
+    (message "no %s scratch" (symbol-name flo))))))
+
+
+(defun open-scratch-next ()
+  (interactive)
+  (open-scratch 'next))
+
+(defun open-scratch-prev ()
+  (interactive)
+  (open-scratch 'prev))
+
+
+;; for find-tags ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (defadvice find-tag (after read-only activate compile)
+;;   "When show source file in new buffer, It is made read only."
+;;   (setq buffer-read-only t))
+
+;; (defadvice find-tag (before c-tag-file activate)
+;;   "Automatically create tags file."
+;;   (let ((tag-file (concat default-directory "TAGS")))
+;;     (unless (file-exists-p tag-file)
+;; ;;       (shell-command "etags *.[ch] *.el .*.el -o TAGS 2>/dev/null"))
+;;       (shell-command "etags *.[ch] *.el .*.el -o TAGS"))
+;;     (visit-tags-table tag-file)))
+
+;; Time stamp ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; e.g. Last modified: Fri Aug 01 2003 15:17:45 JST
+(if (not (memq 'time-stamp write-file-hooks))
+    (setq write-file-hooks
+	  (cons 'time-stamp write-file-hooks)))
+(setq time-stamp-format " %3a %3b %02d %:y %02H:%02M:%02S %Z")
+(setq time-stamp-start "Last modified:")
+(setq time-stamp-end "$")
+(let ((defval 8))
+  (make-variable-buffer-local 'time-stamp-line-limit)
+  (set-default 'time-stamp-line-limit defval))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; command aliases  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; iro mihon
+(defalias 'color-list 'list-colors-display)
+
+;; edebug-defun
+(require 'edebug)
+(eval-after-load "edebug"
+  '(defalias 'edebug 'edebug-defun))
+
+;; apropos
+(defalias 'a 'apropos)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; additional elisp package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq load-path (append '(
+			  "~/Dropbox/elisp"
+;-			  "c:/#work/elisp"
+;-			  "c:/#work/elisp/mode-info"
+			    ) load-path))
+;; 			  "~/elisp/navi2ch"
+;			  "~/elisp/mode-info"
+;;			  "~/elisp/hhm"
+;;			  "~/elisp/emacs-w3m"
+;;			  "~/elisp/tramp/lisp"
+;;			  "~/elisp/tramp/contrib"
+;;			  "~/elisp/ee"
+;;			  "~/elisp/wl"
+;;			  "~/elisp/psgml"
+;			  )
+;			load-path))
+
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;  font: droid sans mono slashed --> http://www.cosmix.org/software/
+;; ;; フォントセットを作る
+;; (let* ((fontset-name "myfonts") ; フォントセットの名前
+;;        (size 14) ; ASCIIフォントのサイズ [9/10/12/14/15/17/19/20/...]
+;;        (asciifont "Droid Sans Mono Slashed") ; ASCIIフォント
+;;        (jpfont "Hiragino Maru Gothic ProN") ; 日本語フォント
+;;        (font (format "%s-%d:weight=normal:slant=normal" asciifont size))
+;;        (fontspec (font-spec :family asciifont))
+;;        (jp-fontspec (font-spec :family jpfont)) 
+;;        (fsn (create-fontset-from-ascii-font font nil fontset-name)))
+;;   (set-fontset-font fsn 'japanese-jisx0213.2004-1 jp-fontspec)
+;;   (set-fontset-font fsn 'japanese-jisx0213-2 jp-fontspec)
+;;   (set-fontset-font fsn 'katakana-jisx0201 jp-fontspec) ; 半角カナ
+;;   (set-fontset-font fsn '(#x0080 . #x024F) fontspec) ; 分音符付きラテン
+;;   (set-fontset-font fsn '(#x0370 . #x03FF) fontspec) ; ギリシャ文字
+;;   )
+
+;; (add-to-list 'default-frame-alist '(font . "fontset-myfonts"))
+
+;; ;; フォントサイズの比を設定
+;; (dolist (elt '(("^-apple-hiragino.*" . 1.2)
+;;                (".*osaka-bold.*" . 1.2)
+;;                (".*osaka-medium.*" . 1.2)
+;;                (".*courier-bold-.*-mac-roman" . 1.0)
+;;                (".*monaco cy-bold-.*-mac-cyrillic" . 0.9)
+;;                (".*monaco-bold-.*-mac-roman" . 0.9)))
+;;   (add-to-list 'face-font-rescale-alist elt))
+
+;; ;; デフォルトのフレームパラメータでフォントセットを指定
+;; ;; # これは起動時に default-frame-alist に従ったフレームが
+;; ;; # 作成されない現象への対処
+;; (set-face-font 'default "fontset-myfonts")
+
+;; window size and position ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq default-frame-alist (append '(
+				    (top . 0)
+				    (left . 74)
+				    (height . 64)
+				    (width . 95))
+				  default-frame-alist))
+
+;; discrete elisp ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "discrete")
+
+;; (global-set-key "\M-h" 'my-backward-kill-word)
+(global-set-key "\M-:" 'insert-paren-quote)
+;(global-set-key "\M--" 'multi-line)
+
+;; sx project elisp ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;??(load "sx")
+
+;; gnuserv, gnuclientw ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(require 'gnuserv)
+;(gnuserv-start)
+;(setq gnuserv-frame (selected-frame))
+
+;; html-table ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'html-table "create html table from region" t)
+;(load-library "html-table")
+
+;; history in minibuffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load-library "tails-history")
+
+;; (define-key minibuffer-local-must-match-map "\C-n" 'next-history-element)
+;; (define-key minibuffer-local-must-match-map "\M-n" 'next-history-element)
+;; (define-key minibuffer-local-must-match-map "\C-p" 'previous-history-element)
+;; (define-key minibuffer-local-must-match-map "\M-p" 'previous-history-element)
+
+;; filecache ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'filecache)
+;; (file-cache-add-directory-list
+;;  (list "~/c-pgm"))
+
+
+;; http://homepage1.nifty.com/blankspace/emacs/filecache.html
+(defun my-cache-find-file ()
+  (interactive)
+  (let ((com (lookup-key minibuffer-local-must-match-map "\C-i"))
+	filename)
+    (define-key minibuffer-local-must-match-map
+      "\C-i" 'file-cache-minibuffer-complete)
+    (condition-case nil
+	(setq filename (read-file-name "cache find file: " "" nil t nil))
+      (quit (define-key minibuffer-local-must-match-map "\C-i" com)))
+    (define-key minibuffer-local-must-match-map "\C-i" com)
+    (and filename (find-file filename))))
+
+(global-set-key "\C-x\C-g" 'my-cache-find-file)
+
+;; develock ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "develock")
+
+;; ;; povray ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;; Where did you install the POV-mode? Change the path to whatever
+;; ;; it's supposed to be
+;; (setq load-path (cons "~/elisp/pov-mode" load-path))
+;; ;; Set autoloading of POV-mode for these file-types.
+;; (autoload 'pov-mode "pov-mode.el" "PoVray scene file mode" t)
+;; (setq auto-mode-alist
+;;	(append '(("\\.pov$" . pov-mode)
+;;		  ("\\.inc$" . pov-mode)
+;;		    ) auto-mode-alist))
+
+;; ;; (setq povray-command
+;; ;;	    (concat "d:/APPS/POV-Ray for Windows v3.5/bin/" "pvengine.exe"))
+
+;; ;; another render method
+;; ;;from http://www.geocities.co.jp/SiliconValley/5518/west/mule.html
+;; (add-hook 'pov-mode-hook
+;;   '(lambda ()
+;;     (define-key pov-mode-map "\C-c\C-c" 'pov-scene-render)))
+
+;; (defvar pov-render-option nil)
+;; (defvar povray-path "d:/APPS/POV-Ray for Windows v3.5/bin/pvengine.exe")
+
+;; (defun pov-scene-render ()
+;;   (interactive)
+;;   (if (buffer-modified-p) (save-buffer))
+;;   (setq pov-render-option (read-from-minibuffer "Commandline Option?: "))
+;;   (if (get-process "pov-ray") (delete-process "pov-ray"))
+;;   (start-process
+;;     "pov-ray" "pov-ray" povray-path
+;;     (concat "+L" (file-name-directory(buffer-file-name))
+;;	       " +I" (file-name-nondirectory(buffer-file-name))
+;;	       " " pov-render-option)))
+
+;; (defun pov-ask-save-buffer ()
+;;   (let (A)
+;;     (setq A (read-from-minibuffer
+;;	     "This buffer is modified. Save it? (y, n): "))
+;;     (if (string= A "y") (save-buffer)
+;;	 (if (string= A "n") () (pov-ask-save-buffer)))))
+
+
+;; ;; delphi.el ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'delphi-mode "delphi")
+;; (setq auto-mode-alist
+;;       (cons '("\\.\\(pas\\|dpr\\|dpk\\)$" . delphi-mode) auto-mode-alist))
+;; (setq delphi-indent-level 2)
+
+
+;; ;; addtional key binding
+;; (defvar script-name "d:/cygwin/home/gnrr/wsh/delphi-exec.vbs")
+
+;; (defun delphi-exec ()
+;;   ""
+;;   (interactive)
+;;   (let ((arg "not"))
+;;     (when (buffer-modified-p)
+;;       (save-buffer)
+;;       (setq arg "modified"))
+;;     (call-process "Wscript.exe"
+;; 		  nil 0 nil
+;; 		  script-name arg))
+;;   (message "delphi-exec."))
+
+;; (defadvice delphi-mode (after delphi-mode-adv activate)
+;;   ""
+;;   (define-key
+;;     delphi-mode-map "\C-c\C-c" 'delphi-exec))
+
+
+;; ;; visual-basic-mode.el ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'visual-basic-mode "visual-basic-mode" "Visual Basic mode." t)
+;; (setq auto-mode-alist (append '(("\\.\\(frm\\|bas\\|cls\\|vbs\\)$" .
+;; 				 visual-basic-mode)) auto-mode-alist))
+;; (defun execute-script ()
+;;   (interactive)
+;;   ;; need "find-file-existed-complementary.el" for "extension-from-pattern"
+;;   (when (string= (downcase (extension-from-pattern buffer-file-name)) ".vbs")
+;;     (save-buffer)
+;;     (start-process "proc" "proc-buffer" "fiber" buffer-file-name)))
+
+;; (add-hook 'visual-basic-mode-hook
+;; 	  '(lambda ()
+;; 	     (set-buffer-file-coding-system 'sjis)
+;; 	     (define-key
+;; 	       visual-basic-mode-map "\C-c\C-c" 'execute-script)))
+
+
+;; ee ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'ee-autoloads)
+;; (setq ee-textfile-changelog-name-regexp
+;;	 "[(].*[)][ ]*\\([^<(]+?\\) [ \t]*[(<]\\([A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+\\) [>)]")
+
+;; ;;ee のアウトライン表示で該当箇所を別ウィンドウに表示できる．
+;; ;; http://www.bookshelf.jp/soft/meadow_21.html#SEC193
+
+;; (defadvice previous-line
+;;   (after ee activate)
+;;   (if (and (eq major-mode 'ee-mode)
+;;	      (string-match "ee-outline" (buffer-name (current-buffer))))
+;;	 (ee-outline-display-buffer)))
+
+;; (defadvice next-line
+;;   (after ee activate)
+;;   (if (and (eq major-mode 'ee-mode)
+;;	      (string-match "ee-outline" (buffer-name (current-buffer))))
+;;	 (ee-outline-display-buffer)))
+
+;; (defadvice ee-view-record-select-or-expansion-show-or-hide
+;;   (around ee-delete-window activate)
+;;   (if (and (eq major-mode 'ee-mode)
+;;	      (string-match "ee-outline" (buffer-name (current-buffer))))
+;;	 (progn
+;;	   ad-do-it
+;;	   (delete-other-windows))
+;;     ad-do-it))
+
+
+;; ;; nallout outline mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.boreas.dti.ne.jp/~miyoshi/Meadow/elisp2.html#nallout_mode
+;; ;; nallout outline mode の設定
+;; (if (locate-library "nallout")  ; ライブラリの有無をチェック
+;;     (progn
+;;	 (require 'nallout)
+;;	 (allout-init t)
+
+;;   ;; 拡張子が .out のファイルをロードするときに自動的に
+;;	 ;; allout-mode にする
+;;	 (setq auto-mode-alist
+;;	       (append '(("\\.out$" . allout-mode))
+;;		       auto-mode-alist))
+
+;;	 (add-hook
+;;	  'allout-mode-hook
+;;	  '(lambda ()
+;;       ;; 必要に応じて、下記(1)(2)の設定をここに追加する
+
+;;       ;; キーバインドの追加
+;;	 ;; ------------------
+;;       ;; C-c C-r    見出し全体を右方向へシフト(C-c > と同じ)
+;;       ;; C-c c-l    見出し全体を左方向へシフト(C-c < と同じ)
+;;	 (define-key allout-mode-map "\C-c\C-r" 'allout-shift-in)
+;;	 (define-key allout-mode-map "\C-c\C-l" 'allout-shift-out)
+
+;; ;; ;;       メニューバーへの登録
+;; ;; ;;	   (require 'easymenu)
+
+;; ;; ;;	   (easy-menu-define
+;; ;; ;;	    allout-menu allout-mode-map
+;; ;; ;;	    "Allout Outline Mode Commands"
+;; ;; ;;	    '("Allout"
+;; ;; ;;	      ["Next visible heading" allout-next-visible-heading t]
+;; ;; ;;	      ["Previous visible heading" allout-previous-visible-heading t]
+;; ;; ;;	      "---"
+;; ;; ;;	      ["Hide current subtree" allout-hide-current-subtree t]
+;; ;; ;;	      ["Show current subtree" allout-show-current-subtree t]
+;; ;; ;;	      "---"
+;; ;; ;;	      ["Open sibtopic" allout-open-sibtopic t]
+;; ;; ;;	      ["Open subtopic" allout-open-subtopic t]
+;; ;; ;;	      ["supertopic" allout-open-supertopic t]
+;; ;; ;;	      "---"
+;; ;; ;;	      ["Shift in" allout-shift-in t]
+;; ;; ;;	      ["Shift out" allout-shift-out t]
+;; ;; ;;	      ["Number siblings" allout-number-siblings t]
+;; ;; ;;	      "---"
+;; ;; ;;	      ["Kill topic" allout-kill-topic t]
+;; ;; ;;	      ["Yank" allout-yank t]))
+;; ))))
+
+;; ;; font-lock 用の設定
+;; ;; 見出しのレベルによってハイライト色を変える
+;; ;; outline.el と allout.el を参考にした
+;; (make-local-variable 'font-lock-defaults)
+
+;; (defvar allout-font-lock-keywords
+;;   (list
+;;    ;; 最上位以外の見出しの設定
+;;    ;; ちょっと自信がないけど、とりあえずは動いている
+;;    '(eval .
+;;	     (list
+;;	      ;; 見出しの正規表現
+;;	      (concat "^\\("
+;;		      (regexp-quote allout-header-prefix)
+;;		      "\\)\\([ \t]*["
+;;		      allout-bullets-string
+;;		      "]\\)[^ \t]*[ \t]*\\([^\n\r]*\\)")
+;;        ;; 見出しの文字列(3番目にマッチしたもの)の face を、見
+;;        ;; 出しの深さに応じて変更する
+;;	      '(3
+;;		(let* ((start-pos (match-beginning 2))
+;;		       (end-pos (match-end 2))
+;;             ;; 見出しの深さを3で割った余り
+;;		       (len (mod (- end-pos start-pos) 3)))
+;;        ;; 見出しの深さに応じてフェイスを変える
+;;		  (or (cdr
+;;		       (assq len
+;;			     '((0 . font-lock-function-name-face)
+;;			       (1 . font-lock-keyword-face)
+;;			       (2 . font-lock-comment-face))))
+;;		      font-lock-variable-name-face))
+;;		nil t)))
+;;    ;; 最上位の見出しの設定
+;;    '(eval .
+;;	     (list
+;;	      ;; 見出しの正規表現
+;;	      (concat "^\\("
+;;		      (regexp-quote allout-primary-bullet)
+;;		      "\\)[ \t]*\\([^\n\r]*\\)")
+;;        ;; 見出しの文字列(2番目にマッチしたもの)の face を設定
+;;	      ;; する
+;;	      '(2
+;;        ;; 見出しのフェイスを設定
+;;		  font-lock-function-name-face))))
+;;   "Additional expressions to highlight in allout outline mode.")
+
+;; (setq font-lock-defaults '(allout-font-lock-keywords t))
+
+;; ;; font-lock-mode の明示な起動
+;; (turn-on-font-lock)
+
+
+;; ;; auto-vc-checkin ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'auto-vc-checkin)
+;; (setq auto-vc-checkin-backend '(RCS CVS SVN))
+;; (setq auto-vc-checkin-full-count 3)
+;; ;; (setq auto-vc-checkin-disp-mode-line nil)
+
+;; ;; vc-svn ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'vc-svn)
+
+;; mcomplete ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=icomplete
+;; (require 'mcomplete)
+;; (turn-on-mcomplete-mode)
+
+;; quit by q key in completion-window
+(define-key completion-list-mode-map "q" 'delete-completion-window)
+
+
+;; minibuf-shrink ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=minibuffer%20shrink
+;; (defvar minibuf-shrink-type0-chars '((w3m-input-url-history . (?/ ?+ ?:))
+;; 				     (read-expression-history . (?\) ))
+;; 				     (t . (?/ ?+ ?~ ?:)))
+;;   "*minibuffer-history-variable とセパレータと見なす character の alist。
+;; type0 はセパレータを残すもの。")
+ 
+;; (defvar minibuf-shrink-type1-chars '((file-name-history . (?.))
+;; 				     (w3m-input-url-history . (?# ?? ?& ?.))
+;; 				     (t . (?- ?_ ?. ? )))
+;;   "*minibuffer-history-variable とセパレータと見なす character の alist。
+;; type1 はセパレータを-するもの。")
+ 
+;; (defun minibuf-shrink-get-chars (types)
+;;   (or (cdr (assq minibuffer-history-variable types))
+;;       (cdr (assq t types))))
+ 
+;; (defun minibuf-shrink (&optional args)
+;;   "point が buffer の最後なら 1 word する。その他の場所は delete-char を起動する。
+;; 単語のセパモレータは minibuf-shrink-type[01]-chars。"
+;;   (interactive "p")
+;;   (if (/= (if (fboundp 'field-end) (field-end) (point-max)) (point))
+;;       (delete-char args)
+;;     (let ((type0 (minibuf-shrink-get-chars minibuf-shrink-type0-chars))
+;; 	  (type1 (minibuf-shrink-get-chars minibuf-shrink-type1-chars))
+;; 	  (count (if (<= args 0) 1 args))
+;; 	  char)
+;;       (while (not (zerop count))
+;; 	(when (memq (setq char (char-before)) type0)
+;; 	  (delete-char -1)
+;; 	  (while (eq char (char-before))
+;; 	    (delete-char -1)))
+;; 	(setq count (catch 'detect
+;; 		      (while (/= (if (fboundp 'field-beginning)
+;; 				     (field-beginning) (point-min))
+;; 				 (point))
+;; 			(setq char (char-before))
+;; 			(cond
+;; 			 ((memq char type0)
+;; 			  (throw 'detect (1- count)))
+;; 			 ((memq char type1)
+;; 			  (delete-char -1)
+;; 			  (while (eq char (char-before))
+;; 			    (delete-char -1))
+;; 			  (throw 'detect (1- count)))
+;; 			 (t (delete-char -1))))
+;; 		      ;; exit
+;; 		      0))))))
+ 
+;; (defvar minibuf-expand-filename-original nil)
+;; (defvar minibuf-expand-filename-begin nil)
+ 
+;; (defun minibuf-expand-filename (&optional args)
+;;   "file-name-history だったら minibuffer の内容を expand-file-name するﾂ。
+;; 連続して起動すると元に戻す。C-u 付きだと link を展開する。"
+;;   (interactive "P")
+;;   (when (eq minibuffer-history-variable 'file-name-history)
+;;     (let* ((try-again (eq last-command this-command))
+;; 	   (beg (cond
+;; 		 ;; Emacs21.3.50 + ange-ftp だと2回目に変になる
+;; 		 ((and try-again minibuf-expand-filename-begin)
+;; 		  minibuf-expand-filename-begin)
+;; 		 ((fboundp 'field-beginning) (field-beginning))
+;; 		 (t (point-min))))
+;; 	   (end (if (fboundp 'field-end) (field-end) (point-max)))
+;; 	   (file (buffer-substring-no-properties beg end))
+;; 	   (remote (when (string-match "^\\(/[^:/]+:\\)/" file)
+;; 		     (match-string 1 file)))
+;; 	   (home (if (string-match "^\\(/[^:/]+:\\)/" file)
+;; 		     (expand-file-name (format "%s~" (match-string 1 file)))
+;; 		   (expand-file-name "~"))))
+;;       (unless try-again
+;; 	(setq minibuf-expand-filename-begin beg))
+;;       (cond
+;;        ((and args try-again minibuf-expand-filename-original)
+;; 	(setq file (file-chase-links (expand-file-name file))))
+;;        (args
+;; 	(setq minibuf-expand-filename-original file)
+;; 	(setq file (file-chase-links (expand-file-name file))))
+;;        ((and try-again minibuf-expand-filename-original)
+;; 	(setq file minibuf-expand-filename-original)
+;; 	(setq minibuf-expand-filename-original nil))
+;;        (t
+;; 	(setq minibuf-expand-filename-original file)
+;; 	(if (string-match (concat "^" (regexp-quote home)) file)
+;; 	    (if remote
+;; 		(setq file (concat remote "~" (substring file (match-end 0))))
+;; 	      (setq file (concat "~" (substring file (match-end 0)))))
+;; 	  (setq file (expand-file-name file)))))
+;;       (delete-region beg end)
+;;       (insert file))))
+ 
+;; (mapcar (lambda (map)
+;; 	  (define-key map "\C-d" 'minibuf-shrink)
+;; 	  (define-key map "\M-\C-d" 'minibuf-expand-filename))
+;; 	(delq nil (list (and (boundp 'minibuffer-local-map)
+;; 			     minibuffer-local-map)
+;; 			(and (boundp 'minibuffer-local-ns-map)
+;; 			     minibuffer-local-ns-map)
+;; 			(and (boundp 'minibuffer-local-completion-map)
+;; 			     minibuffer-local-completion-map)
+;; 			(and (boundp 'minibuffer-local-must-match-map)
+;; 			     minibuffer-local-must-match-map))))
+
+
+;; ;; mpg123 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'mpg123 "mpg123" "A Front-end to mpg123" t)
+
+;; ;; mixer
+;; (setq mpg123-system-type 'freebsd)
+
+;; autolisp-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'autolisp-mode "autolisp" "AutoLISP" t)
+;; (setq auto-mode-alist (adjoin '("\\.LSP$" . autolisp-mode) auto-mode-alist))
+
+;;; yank-pop-summary ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://namazu.org/~tsuchiya/elisp/index.html#yank-pop-summary
+
+;; (autoload 'yank-pop-forward "yank-pop-summary" nil t)
+;; (autoload 'yank-pop-backward "yank-pop-summary" nil t)
+;; (global-set-key "\M-y" 'yank-pop-forward)
+;; (global-set-key "\C-\M-y" 'yank-pop-backward)
+
+;;; dabbrev-ja ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;http://www.math.s.chiba-u.ac.jp/~matsu/mule/emacs21/abbrev.html
+(require 'dabbrev)
+(load "dabbrev-ja")
+
+;; binary-edit ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar YAMA-file-not-binary-extensions '()
+  )
+
+(defvar YAMA-file-not-binary-files
+  '("tags" "gsyms" "gpath" "grtags" "gsyms" "gtags")
+  )
+
+(defun YAMA-file-binary-p (file &optional full)
+   "Return t if FILE contains binary data.  If optional FULL is non-nil,
+check for the whole contents of FILE, otherwise check for the first
+  1000-byte."
+   (let ((coding-system-for-read 'binary)
+         default-enable-multibyte-characters)
+     (if (or
+          (and
+           (boundp 'image-types)
+           (or
+            (memq (intern (upcase (file-name-extension file)))
+                  image-types)
+            (memq (intern (downcase (file-name-extension file)))
+                  image-types)))
+          (member (downcase (file-name-extension file))
+                  YAMA-file-not-binary-extensions)
+          (member (downcase (file-name-nondirectory file))
+                  YAMA-file-not-binary-files))
+          nil
+       (with-temp-buffer
+         (insert-file-contents file nil 0 (if full nil 1000))
+         (goto-char (point-min))
+         (and (re-search-forward
+               "[\000-\010\016-\032\034-\037]"
+               nil t)
+              t)))))
+
+ (defadvice find-file (around YAMA-find-file (file &optional wild))
+   (if (and
+        (condition-case nil (YAMA-file-binary-p file) (error))
+        (y-or-n-p "Open as binary file?"))
+       (hexl-find-file file)
+     ad-do-it))
+
+ (ad-activate 'find-file)
+
+;; smart-compile ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;http://home.att.ne.jp/alpha/z123/elisp-j.html#smart-compile
+(require 'smart-compile)
+(add-hook 'c-mode-common-hook
+	     (function (lambda ()
+			 (define-key c-mode-map "\C-c\C-c" 'smart-compile)
+			 (define-key c-mode-map "\C-cn" 'my-next-error)
+			 (define-key c-mode-map "\C-cp" 'my-prev-error))))
+
+(setq compilation-window-height 10)
+
+;; my-next-error
+(defun my-next-error ()
+  (interactive)
+  (let ((compilation-buffer (get-buffer "*compilation*")))
+    (when compilation-buffer
+      (next-error))))
+
+(defun my-prev-error ()
+  (interactive)
+  (let ((compilation-buffer (get-buffer "*compilation*")))
+    (when compilation-buffer
+      (next-error -1))))
+
+;; kill *compilation* buffer prior compilation
+(defadvice compile (before kill-buffer-beforehand-adv activate)
+  (let ((compilation-buffer (get-buffer "*compilation*")))
+    (when compilation-buffer
+      (kill-buffer compilation-buffer))))
+
+
+;; diminish ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; モードラインのマイナーモード表示を短く
+(require 'diminish)
+;; 表示を変更
+(diminish 'abbrev-mode "Abv")
+;; 表示を消す
+;; (diminish 'abbrev-mode)
+;; (diminish 'eldoc-mode "Eld")
+
+;; ;; psgml for html ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'sgml-mode "psgml" "Major mode to edit SGML files" t)
+;; (setq sgml-custom-dtd '(
+;;	("HTML 4.01" "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">")))
+;; (setq auto-mode-alist
+;;	 (append '(
+;;	("\\.html" . sgml-mode))
+;;	auto-mode-alist))
+;; (setq sgml-catalog-files '("CATALOG" "~/dtd/HTML4.cat"))
+;; (setq sgml-auto-activate-dtd t)
+;; (setq sgml-omittag-transparent t)
+;; (setq sgml-balanced-tag-edit t)
+;; (setq sgml-auto-insert-required-elements t)
+;; (setq sgml-live-element-indicator t)
+;; (setq sgml-indent-step nil)
+
+;; ;; coloring
+;; ;; in sgml documents, parse dtd immediately to allow immediate
+;; ;; syntax coloring
+;; (setq sgml-auto-activate-dtd t)
+
+;; ;; here we set the syntax color information for psgml
+;; (setq-default sgml-set-face t)
+;;   ;;
+;;   ;; Faces.
+;;   ;;
+;;   (make-face 'sgml-comment-face)
+;;   (make-face 'sgml-doctype-face)
+;;   (make-face 'sgml-end-tag-face)
+;;   (make-face 'sgml-entity-face)
+;;   (make-face 'sgml-ignored-face)
+;;   (make-face 'sgml-ms-end-face)
+;;   (make-face 'sgml-ms-start-face)
+;;   (make-face 'sgml-pi-face)
+;;   (make-face 'sgml-sgml-face)
+;;   (make-face 'sgml-short-ref-face)
+;;   (make-face 'sgml-start-tag-face)
+
+;;   (set-face-foreground 'sgml-comment-face "dark turquoise")
+;;   (set-face-foreground 'sgml-doctype-face "firebrick")
+;;   (set-face-foreground 'sgml-end-tag-face "blue")
+;;   (set-face-foreground 'sgml-entity-face "magenta")
+;;   (set-face-foreground 'sgml-ignored-face "gray40")
+;;   (set-face-background 'sgml-ignored-face "gray60")
+;;   (set-face-foreground 'sgml-ms-end-face "green")
+;;   (set-face-foreground 'sgml-ms-start-face "yellow")
+;;   (set-face-foreground 'sgml-pi-face "lime green")
+;;   (set-face-foreground 'sgml-sgml-face "brown")
+;;   (set-face-foreground 'sgml-short-ref-face "deep sky blue")
+;;   (set-face-foreground 'sgml-start-tag-face "blue")
+
+;;   (setq-default sgml-markup-faces
+;;    '((comment . sgml-comment-face)
+;;	(doctype . sgml-doctype-face)
+;;	(end-tag . sgml-end-tag-face)
+;;	(entity . sgml-entity-face)
+;;	(ignored . sgml-ignored-face)
+;;	(ms-end . sgml-ms-end-face)
+;;	(ms-start . sgml-ms-start-face)
+;;	(pi . sgml-pi-face)
+;;	(sgml . sgml-sgml-face)
+;;	(short-ref . sgml-short-ref-face)
+;;	(start-tag . sgml-start-tag-face)))
+
+
+;; ;; yatex, yahtml ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (setq YaTeX-use-font-lock)
+;; (require 'font-lock)
+
+;; ;; yatex
+;; (setq auto-mode-alist
+;;	 (cons (cons "\\.tex$" 'yatex-mode)
+;;	       (cons (cons "\\.ltx" 'yatex-mode)
+;;		     auto-mode-alist)))
+;; (autoload 'yatex-mode "yatex" "Yet Another LaTeX mode" t)
+
+;; (setq  YaTeX-create-file-prefix-g t)
+;; (if (equal window-system 'win32)
+;;     (setq
+;;	dvi2-command "DVIOUT.EXE"
+;;	dviprint-command-format "dvipsk %f %t %s"
+;;	dviprint-from-format	"-p %b"
+;;	dviprint-to-format	"-l %e"
+;;	tex-command "platex"
+;;	YaTeX-help-file "E:/unix/Meadow/site-lisp/yatex/help/YATEXHLP.jp"
+;;	)) ;; これは環境に合わせて
+
+;; ;; yahtml
+
+;; (setq auto-mode-alist
+;;       (append '(("\\.html$" . yahtml-mode)
+;; 		("\\.htm$" . yahtml-mode))
+;; 	      auto-mode-alist))
+;; (autoload 'yahtml-mode "yahtml" "Yet Another HTML mode" t)
+
+;; ;; (setq yahtml-www-browser "start.exe")
+;; (setq yahtml-www-browser "fiber")
+;; (setq yahtml-p-prefered-env-regexp "^\\(div\\|body\\|dl\\|blockquote\\)")
+;; (setq yahtml-path-url-alist
+;; 	       '(("~/site_work" . "http://www.bookshelf.jp/")
+;;         ));; 環境に合わせて変更してください
+
+;; ;; additional function for binding
+;; (defun yahtml-lint-buffer-current-buffer ()
+;;   (interactive)
+;;   (yahtml-lint-buffer
+;;    (buffer-file-name (current-buffer))))
+
+;; ;; hook
+;; (add-hook 'yahtml-mode-hook
+;; 	  #'(lambda ()
+;; 	      (auto-fill-mode -1)
+;; 	      (setq time-stamp-line-limit -20)
+;; 	      (define-key
+;; 		yahtml-mode-map "\C-c\C-c" 'yahtml-browse-current-file)
+;; 	      (define-key
+;; 		yahtml-mode-map "\C-c\C-l" 'yahtml-lint-buffer-current-buffer)
+;; 	      (define-key
+;; 		yahtml-mode-map "\C-]" 'yahtml-goto-corresponding-*)
+;; 	      ))
+
+;; ;;C-c s list
+;; (setq yahtml-form-table
+;;       '(("img") ("input") ("a") ("body") ("form") ("select")
+;; 	("p") ("textarea") ("table") ("font")
+;;     )) ;;好みにより調整してください
+
+;; ;; set kanji-code 1:S-JIS 2:JIS 3:EUC-JP
+;; (setq yahtml-kanji-code 3)
+
+;; ;; HTML のタグを大文字にする
+;; ;; (setq yahtml-prefer-upcases t)
+
+;; ;; 属性指定子を大文字にする
+;; ;; (setq yahtml-prefer-upcase-attributes t)
+
+;; ;; lint
+;; (setq yahtml-lint-buffer "*Another HTML-lint*")
+;; (setq yahtml-lint-program "perl /usr/local/htmllint/htmllint")
+
+;; ;;  全ての警告を出す場合
+;; ;;  (setq yahtml-lint-program
+;; ;;	  "perl c:/cygwin/usr/local/share/htmllint/htmllint -pedantic")
+
+;; typing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'typing-of-emacs "typing" "The Typing Of Emacs, a game." t)
+
+;; tramp ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'tramp)
+;; ;; (setq process-connection-type t)
+;; ;; (setq tramp-default-method "ssh")
+;; (setq tramp-methods
+;;	 (list	'("ssh"
+;;	       (tramp-connection-function tramp-open-connection-rsh)
+;;	       (tramp-login-program "ssh")
+;;	       (tramp-copy-program nil)
+;;	       (tramp-remote-sh "/bin/ksh -i")
+;;	       (tramp-login-args
+;;		("/bin/ksh" "-i"))
+;;	       (tramp-copy-args nil)
+;;	       (tramp-copy-keep-date-arg nil))))
+
+;; (when (require 'tramp nil t)
+;;   (cond ((eq system-type 'windows-nt)
+;;	 (setq tramp-default-method "smp")
+;;	 (nconc (cadr (assq 'tramp-rsh-args (assoc "smp" tramp-methods)))
+;;		'("/bin/ksh" "-i"))
+;;	 (modify-coding-system-alist 'process "ssh" '(undecided . unix))
+;;	 (setcdr (assq 'tramp-remote-sh (assoc "smp" tramp-methods))
+;;		 '("/bin/ksh -i"))
+;;	 (add-to-list 'tramp-remote-path "/usr/local/bin"))
+;;	(t
+;;	 (setq tramp-default-method "scp"))))
+
+;; (when (require 'tramp nil t)
+;;   (cond ((eq system-type 'windows-nt)
+;;	 (setq tramp-default-method "smp")
+;;	 (nconc (cadr (assq 'tramp-rsh-args (assoc "smp" tramp-methods)))
+;;		'("/bin/ksh" "-i"))
+;;	 (modify-coding-system-alist 'process "ssh" '(undecided . unix))
+;;	 (setcdr (assq 'tramp-remote-sh (assoc "smp" tramp-methods))
+;;		 '("/bin/ksh -i"))
+;;	 (add-to-list 'tramp-remote-path "/usr/local/bin"))
+;;	(t
+;;	 (setq tramp-default-method "scp"))))
+
+;; ("ssh"
+;;  (tramp-connection-function tramp-open-connection-rsh)
+;;  (tramp-login-program "ssh")
+;;  (tramp-copy-program nil)
+;;  (tramp-remote-sh "/bin/bash -i")
+;;  (tramp-login-args
+;;   ("/bin/bash" "-i"))
+;;  (tramp-copy-args nil)
+;;  (tramp-copy-keep-date-arg nil))
+
+
+;; generic ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq auto-mode-alist
+      (append '(("\\.bat$" . bat-generic-mode)
+		)
+	      auto-mode-alist))
+
+;; apache-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;http://www.keelhaul.demon.co.uk/linux/#apachemode
+;; (autoload 'apache-mode "apache-mode" "autoloaded" t)
+;; (add-to-list 'auto-mode-alist '("\\.htaccess$"   . apache-mode))
+;; (add-to-list 'auto-mode-alist '("httpd\\.conf$"  . apache-mode))
+;; (add-to-list 'auto-mode-alist '("srm\\.conf$"    . apache-mode))
+;; (add-to-list 'auto-mode-alist '("access\\.conf$" . apache-mode))
+
+(require 'generic-x)
+
+
+;; w32-symlinks ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;http://centaur.maths.qmw.ac.uk/Emacs/
+;;http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=link%20dired
+;; (require 'w32-symlinks)
+;; (customize-option 'w32-symlinks-handle-shortcuts)
+
+;; dired で S として現在選択しているファイルに対するリンクを作成
+;-(setq w32-symlinks-make-using 'wsh)
+;-(setq w32-symlinks-ln-script
+;-      (expand-file-name "~/w32-symlinks-ln-s.js"))
+
+;-(defadvice w32-symlinks-make-using-wsh
+;-  (around make-shortcut activate)
+;-  (w32-symlinks-check-ln-script)
+;-  (if (not (string= (substring newname -4) ".lnk"))
+;-      (setq newname (concat newname ".lnk")))
+;-  (start-process "makelink" "makelink" w32-symlinks-ln-script
+;-		 (unix-to-dos-filename (expand-file-name file))
+;-		 (unix-to-dos-filename (expand-file-name newname)))
+;-  )
+
+(defun dired-make-symbolic-link (newname)
+  (interactive "\FName for link to : \n")
+  (if (string= "" (file-name-nondirectory test))
+      (error "Input filename for link"))
+  (if (not (string= (substring newname -4) ".lnk"))
+      (setq newname (concat newname ".lnk")))
+  (let ((file (dired-get-filename)))
+    (make-symbolic-link file newname)))
+
+(add-hook 'dired-mode-hook
+	  '(lambda ()
+	     (define-key dired-mode-map "S" (function dired-make-symbolic-link))
+	     ))
+
+;; dired 以外でリンク先がディレクトリの場合は補完を試みる。
+;; completerとかを利用しているなら，関数を変更する必要があります．
+;; しかし，なぜかcompleterを使っていると動かない．．．
+(defadvice minibuffer-complete
+   (before expand-symlinks activate)
+   (let ((file (expand-file-name
+		(buffer-substring-no-properties
+		 (line-beginning-position) (line-end-position)))))
+     (when (string-match ".lnk$" file)
+       (delete-region (line-beginning-position) (line-end-position))
+       (insert (ls-lisp-parse-symlink file)))))
+
+;; 削除ファイルをゴミ箱に入れる
+(setq delete-by-moving-to-trash t)
+(setq trash-directory "~/.Trash")
+
+;; ;; eldoc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'turn-on-eldoc-mode "eldoc" nil t)
+;; (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+;; (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+;; ;; (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
+
+;; recent files ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global-set-key "\C-xrr" 'recentf-open-files) ; C-x r r
+
+;; (defadvice widget-forward (after widget-forward-hl-adv activate)
+;;   (highlight-current-line)
+;; )
+
+;; (add-hook 'widget-move-hook
+;; 	  '(lambda ()
+;; 	       (highlight-current-line)
+;; 	       (forward-char 1)))
+
+
+(defadvice recentf-open-files (after recentf-open-files-adv activate)
+  (save-current-buffer
+   (set-buffer "*Open Recent*")
+   (setq next-prev-line-highlight t)
+   ;; (forward-line 2)
+   (viper-change-state-to-vi)    ; why doesnot work?!
+   ;; (goto-char (+ (point) 2))
+))
+
+
+(recentf-mode 1)
+(setq recentf-max-menu-items 0)
+(setq recentf-max-saved-items 100)
+
+(setq recentf-exclude '("\\.emacs-places$"))
+
+;; saveplace ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'saveplace)
+(setq save-place-limit 50)
+(setq-default save-place t)
+
+;; clmemo & clgrep ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'clmemo "clmemo" "ChangeLog memo mode." t)
+;; (defvar clmemo-entry-list
+;;   '("IDEA" "EMACS" "PGM" "AUTOMETA" ""))
+;; (setq clmemo-time-string-with-weekday t)
+;; (global-set-key "\C-xm" 'clmemo)
+
+;; (autoload 'clgrep "clgrep" "grep mode for ChangeLog file." t)
+;; (autoload 'clgrep-title "clgrep" "grep first line of entry in ChangeLog." t)
+;; (autoload 'clgrep-header "clgrep" "grep header line of ChangeLog." t)
+;; (autoload 'clgrep-clmemo "clgrep" "clgrep directly ChangeLog MEMO." t)
+;; (add-hook 'change-log-mode-hook
+;; 	  '(lambda ()
+;; 	     (define-key change-log-mode-map "\C-c\C-g" 'clgrep)
+;; 	     (define-key change-log-mode-map "\C-c\C-t" 'clgrep-title)
+;; 	     (define-key change-log-mode-map "\C-xk" 'memo-kill-buffer)))
+
+;; find-file-existed-complementary ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "find-file-existed-complementary")
+(setq find-file-existed-complementary-alist
+      (append '(("\\.cpp$" . "\\.h$"))
+	      '(("\\.cpp$" . "\\.hpp$"))
+	      find-file-existed-complementary-alist))
+(global-set-key "\C-xf" 'find-file-existed-complementary)
+
+;; navi2ch ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; configuration --> ~/.navi2ch/init.el
+;; (autoload 'navi2ch "navi2ch" "Navigator for 2ch for Emacs" t)
+
+;; ;; text-adjust ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'text-adjust-fill-buffer "text-adjust" "Another fill-buffer" t)
+;; (setq-default kinsoku-ascii t)
+;; (global-set-key "\M-\\" 'text-adjust-fill-buffer)
+
+;; ;; ce-scroll ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "ce-scroll")
+;; (setq ce-smooth-scroll nil)
+
+;; ;; physical-line ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "physical-line")
+;; (physical-line-on) ;; always/all-mode on
+;; ;;(load "another-physical-line")
+
+;; sane-scroll ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "sane-scroll")
+;; (global-set-key "\C-n" 'sane-next-line)
+;; (global-set-key "\C-p" 'sane-previous-line)
+;; (global-set-key "\M-n" 'sane-scroll-up)
+;; (global-set-key "\M-p" 'sane-scroll-down)
+;; (global-unset-key "\C-v")
+;; (global-unset-key "\M-v")
+
+;; if not use sane-scroll ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global-set-key "\M-n" 'scroll-up)
+(global-set-key "\M-p" 'scroll-down)
+(setq vertical-centering-font-regexp ".*")
+;; (setq scroll-conservatively 35
+(setq scroll-conservatively 40
+       scroll-margin 1
+       scroll-step 1)
+(setq show-paren-delay .15)		;for show-paren-mode(0.1:delay=0.1s)
+(setq paren-delay show-paren-delay)	;for mic-paren
+
+;; (defadvice scroll-up (around scroll-up-eob-adv activate)
+;;   "move cursor to end of buffer when look at that."
+;;   (if (= (window-end) (point-max))
+;;       (goto-char (point-max))
+;;     ad-do-it))
+
+;; (defadvice scroll-down (around scroll-down-adv activate)
+;;   "move cursor to beginning of buffer when look at that."
+;;   (condition-case nil
+;;       (if (= (window-start) 1)
+;; 	  (goto-char (point-min))
+;; 	ad-do-it)))
+
+;; tag jump ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; find-tag(etags)
+(defadvice find-tag (after my-find-tag activate)
+  (message "jumped.    return back: S-M-.")
+  (highlight-current-line))
+
+;; pop-tag-mark
+(global-set-key "\M->" '(lambda ()
+			  (interactive)
+			  (let ((buf (current-buffer)))
+			    (pop-tag-mark)
+			    (unless (eq buf (current-buffer))
+			      (when (buffer-modified-p buf)
+				;; force save buffer
+				(switch-to-buffer buf)
+				(save-buffer))
+			      (kill-buffer buf)))
+			  (message "backed")
+			  (highlight-current-line)))
+
+;; tcalc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load-library "tcalc.el")
+;; (defalias 'calc 'tcalc-mode) ;; M-x calc -> toggle tcalc-mode
+
+;; unscroll ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'unscroll "unscroll" "Unscroll" t)
+;; (global-set-key "\C-o" 'unscroll)
+;; (put 'sane-scroll-up 'unscrollable t)
+;; (put 'sane-scroll-down 'unscrollable t)
+
+;; himark ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "himark")
+
+;; bm (another bookmark) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'bm-toggle "bm" "Toggle bookmark in current buffer" t)
+(autoload 'bm-goto-next "bm" "Goto bookmark" t)
+(autoload 'bm-goto-previous "bm" "Goto previous bookmark" t)
+(global-set-key (quote [100663328]) 'bm-toggle)		;; C-S-SPACE
+(global-set-key (quote [33554446]) 'bm-goto-next)	;; C-S-n
+(global-set-key (quote [33554448]) 'bm-goto-previous)	;; C-S-p
+
+;; mic-paren ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;(GNU Emacs supports mic-paren only within a window-system but XEmacs
+;;     supports mic-paren also without X)
+(when (or (string-match "XEmacs\\|Lucid" emacs-version) window-system)
+  (require 'mic-paren) ; loading
+  (paren-activate)     ; activating
+  ;; coloring inside between each parentheses
+  (setq paren-match-face 'region)
+  (setq paren-sexp-mode t)
+  )
+
+(show-paren-mode t)
+;; (add-hook 'c-mode-common-hook
+;;	     (function (lambda ()
+;;		      (paren-toggle-open-paren-context 1))))
+
+
+;; jump to paren
+(require 'mic-paren)
+
+(defvar my-paren-open "\\s(")
+(make-variable-buffer-local 'my-paren-open)
+(defvar my-paren-close "\\s)")
+(make-variable-buffer-local 'my-paren-close)
+
+(defun my-paren (ARG)
+  (interactive "P")
+  (let ((FOL-CHAR (char-to-string (following-char)))
+	(PRE-CHAR (char-to-string (preceding-char))))
+    (save-match-data
+      (cond
+       ((and (string-match my-paren-open FOL-CHAR) (string-match my-paren-close PRE-CHAR))
+;	  (if ARG (mic-paren-forward-sexp) (mic-paren-backward-sexp)))
+	  (if ARG (paren-forward-sexp) (paren-backward-sexp)))
+       ;; ((string-match my-paren-open FOL-CHAR)  (mic-paren-forward-sexp))
+       ;; ((string-match my-paren-close PRE-CHAR) (mic-paren-backward-sexp))
+       ((string-match my-paren-open FOL-CHAR)  (paren-forward-sexp))
+       ((string-match my-paren-close PRE-CHAR) (paren-backward-sexp))
+       (t (re-search-backward my-paren-open))))))
+
+(global-set-key "\M-]" 'my-paren)
+
+;; cwarn ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (global-cwarn-mode 1)
+
+;; grep-edit ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'grep-edit)
+
+;; ;; mmm-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'mmm-mode)
+;; (setq mmm-global-mode 'maybe)
+;; (set-face-background 'mmm-default-submode-face "gray")
+
+;; css-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'css-mode "css-mode")
+(setq auto-mode-alist (cons '("\.css$" . css-mode) auto-mode-alist))
+(setq cssm-indent-function #'cssm-c-style-indenter)
+
+;; php-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;(require 'php-mode)
+;; (autoload 'php-mode "php-mode" nil t)
+;; (setq auto-mode-alist (cons '("\.php$" . php-mode) auto-mode-alist))
+
+;; php & html (buggy a little);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'mmm-php)
+;; (set-face-background 'mmm-default-submode-face "navy")
+
+;; jdee (java development envionment) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'jde-mode "jde" "Java Development Environment for Emacs." t)
+;; (setq auto-mode-alist (cons '("\.java$" . jde-mode) auto-mode-alist))
+
+;; ;; indent setting in jde-mode
+;; (add-hook 'jde-mode-hook
+;;	     '(lambda ()
+;;		(c-set-offset 'arglist-intro '+)
+;;		(c-set-offset 'arglist-close 0)
+;;		(setq indent-tabs-mode nil) ;; whitespace
+;;	       ))
+
+
+;; wdired ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'wdired)
+(add-hook 'dired-mode-hook
+	  '(lambda ()
+	     (define-key dired-mode-map
+	       "\C-c\C-i" 'wdired-change-to-wdired-mode)))
+
+;; ;; sorter for dired ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "sorter")
+
+;; moccur & moccur edit ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(load "moccur")
+
+(require 'color-moccur)
+(require 'moccur-edit)
+(define-key Buffer-menu-mode-map "O" 'Buffer-menu-moccur)
+(add-hook 'dired-mode-hook
+	  '(lambda () (define-key dired-mode-map "O" 'dired-do-moccur)))
+
+; for moccur (not work with moccur-grep)
+(setq *moccur-buffer-name-exclusion-list*
+      '(".+TAGS+" "*Completions*" "*Messages*" "^[ ].+" ".svn"))
+
+;; moccur-grep & moccur-grep-find
+(global-set-key "\M-o" 'moccur-grep-find)
+
+; カーソル付近の単語をデフォルトの検索文字列とする
+(setq moccur-grep-default-word-near-point t)
+
+; *.c 編集中のデフォルトファイルマスク： \.[HhCc]$
+(add-hook 'c-mode-common-hook
+	  '(lambda ()
+	     (setq moccur-grep-default-mask "\\.\[HhCcm\]$")))
+
+;; for color-moccur.el, v 1.48 or later
+(setq kill-buffer-after-dired-do-moccur t)
+
+
+;; colors
+(set-face-background 'moccur-face "pale turquoise")
+(set-face-bold-p 'moccur-face nil)
+(set-face-background 'moccur-edit-face "Pink")
+(set-face-bold-p 'moccur-edit-face nil)
+(set-face-background 'moccur-edit-file-face "Pink")
+(set-face-bold-p 'moccur-edit-file-face nil)
+(set-face-background 'moccur-edit-reject-face "hot pink")
+(set-face-bold-p 'moccur-edit-reject-face nil)
+
+;; all ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'all "all" nil t)
+
+;; redo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when (locate-library "redo")
+  (require 'redo))
+;;  (define-key ctl-x-map (if window-system "U" "r") 'redo)
+;;  (define-key global-map [?\C-.] 'redo))
+
+;; mayu.mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'mayu-mode "mayu-mode" nil t)
+(setq auto-mode-alist (cons '("\.mayu$" . mayu-mode) auto-mode-alist))
+
+;; cygwin32-mount ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'cygwin32-mount)
+
+;; ;; mode-info ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;-(require 'mi-config)
+;-(define-key help-map "F" 'mode-info-describe-function)
+;-(define-key help-map "V" 'mode-info-describe-variable)
+;-(define-key help-map ">" 'mode-info-find-tag)
+;; ;; (define-key global-map "\M-?f" 'mode-info-describe-function)
+;; ;; (define-key global-map "\M-?v" 'mode-info-describe-variable)
+;; ;; (define-key global-map "\M-?." 'mode-info-find-tag)
+;-(require 'mi-fontify)
+
+;; ;; ibuffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'ibuffer)
+;; (setq ibuffer-default-sorting-mode 'alphabetic)
+;; (setq ibuffer-formats '((mark modified read-only " " (name 30 30)
+;;				 " " (size 6 -1) " " (mode 16 16) " " filename)
+;;			   (mark " " (name 30 -1) " " filename)))
+;; (setq ibuffer-never-show-regexps '("\\.el" "messages"))
+;;  (setq ibuffer-directory-abbrev-alist
+;;	  '(("c:/cygwin/home/gnrr" . "HOME")))
+
+;; ;; emacs-w3m ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'w3m "w3m" "Interface for w3m on Emacs." t)
+;; (autoload 'w3m-weather "w3m" "Get weather infomation using w3m." t)
+;; (setq w3m-type "w3m")
+;; (setq w3m-keybinding 'info)
+;; (setq w3m-search-engine-alist
+;;	 '(("google" "http://www.google.com/search?q=%s" nil)
+;;	("google-ja" "http://www.google.com/search?num=100&hl=ja&safe=off&q=%s&lr=lang_ja" shift_jis)))
+;; (setq w3m-search-default-engine "google-ja")
+;; (setq w3m-weather-default-area "大阪府")
+;; (setq w3m-default-display-inline-images t)
+
+;; google ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "google")
+;; (global-set-key "\C-xg" 'google)
+
+;; ;; Wanderlust ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load "mime-setup")
+;; (autoload 'wl "wl" "Wanderlust" t)
+;; (autoload 'wl-draft "wl-draft" "Write-draft-with-Wanderlust." t)
+
+
+;; Mew win32 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Mew Easy Settings (generated automatically)
+;; (autoload 'mew "mew" nil t)
+;; (autoload 'mew-send "mew" nil t)
+;; (autoload 'mew-user-agent-compose "mew" nil t)
+
+;; shell-command ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.namazu.org/~tsuchiya/elisp/#shell-command-with-completion
+(require 'shell-command)
+(shell-command-completion-mode)
+
+;; my-help ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "my-help")
+(setq my-help-directory "~/Dropbox/elisp/myhelp")
+(global-set-key '[f1] 'my-help)
+
+;; ;; tabbed-menu ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'tabbed-menu)
+;; (setq tabbed-menu-item-max 9)     ;; 最大タブ数
+;; (setq tabbed-menu-string-max 17)  ;; 文字数制限
+;; (setq tabbed-menu-add-pos 'right) ;; タブ追加位置
+;; (setq tabbed-menu-fill-space nil) ;; 空白で文字数揃えしない
+;; (setq tabbed-menu-force-hide
+;;       '("^\\([Mm]ew\\|[*][Mm]ew\\|[+]draft\\|[*]navi2ch[ ]\\|[+]ML\\|\\TAGS\\)"
+;; 	"*Help*" "*compilation*" "GNU Emacs"
+;; 	"*navi2ch board*" "*navi2ch article"
+;; 	"+inbox" "+backup" "+draft" "+queue" "+trash"
+;; 	"+postq"
+;; 	" Headings " " Show " " Hide ")
+
+;;       tabbed-menu-force-show
+;;       '("^$"
+;; 	"*scratch*" "*Moccur*"
+;; 	"*navi2ch list*" "*navi2ch message*"
+;; 	" JDE " " Classes " " Java " " Senator " " Jdb ")
+
+;;       tabbed-menu-force-function
+;;       '(lambda (buf x) (and (car-safe x)
+;; 			    (or (member (buffer-name buf) (cdr x))
+;; 				(string-match (car x) (buffer-name buf)))
+;; 			    ))
+;;       )
+
+;; (global-set-key '[24 67108910] 'tabbed-menu-next-buffer) ;; C-x C-.
+;; (global-set-key '[24 67108908] 'tabbed-menu-prev-buffer) ;; C-x C-,
+;; ;; (global-set-key [f5]	  'tabbed-menu-sort-tab)	 ;; ソート
+;; ;; (global-set-key [f6]   'tabbed-menu-change-sort-type) ;; ソート種別の変更
+;; (global-set-key '[67108924] 'tabbed-menu-shift-left)	 ;; C-S-, shift left
+;; (global-set-key '[67108926] 'tabbed-menu-shift-right)	 ;; C-S-. shift right
+
+;; my-switch-to-buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-switch-to-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer)))
+
+(global-set-key "\C-x\C-b" 'my-switch-to-buffer)
+(global-set-key "\C-xb" 'electric-buffer-list)
+
+;; browse-file (bf) mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'bf-mode)
+;; list up file extensions which should be exepted
+(setq bf-mode-except-exts
+      (append '("\\.dump$" "\\.data$")
+	      bf-mode-except-exts))
+(define-key bf-mode-map "j" 'bf-mode-next)
+(define-key bf-mode-map "k" 'bf-mode-previous)
+(setq bf-mode-browsing-size 100000)
+
+;; visible-comment-lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'visible-comment-lines)
+;; (add-hook 'c-mode-common-hook
+;; 	  '(lambda ()
+;; 	     (define-key c-mode-map "\C-xn;" 'visible-comment-lines-mode)))
+
+;; cygwin-mount ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;-(when (and (featurep 'meadow) (locate-library "cygwin-mount"))
+;-  (require 'cygwin-mount)
+;-  (cygwin-mount-activate))
+
+;; gtags ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'gtags-mode "gtags" "" t)
+(setq gtags-mode-hook
+      '(lambda ()
+         (local-set-key "\M-." 'gtags-find-tag)
+         (local-set-key "\M-r" 'gtags-find-rtag)
+         (local-set-key "\M-s" 'gtags-find-symbol)
+         (local-set-key "\M->" 'gtags-pop-stack)
+         ))
+
+(eval-after-load "gtags"
+     '(define-key gtags-select-mode-map "\M-." 'gtags-select-tag))
+(eval-after-load "gtags"
+     '(define-key gtags-select-mode-map "\M->" 'gtags-pop-stack))
+
+(defalias 'gf 'gtags-find-file)
+
+;; at c-source
+(setq c-mode-hook
+   '(lambda ()
+       (gtags-mode 1)
+;;        (gtags-make-complete-list)
+;;        (global-set-key "\C-x\")
+       ))
+
+;; hideshow ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; visible-comment-lines.elがカーソル移動でバグっていたので、こっちを使うことにする
+;
+;-------------------------------------- 
+;; C モード等で関数の中括弧（関数等の中身）を 隠したり、表示したりする
+;;
+;;   hs-hide-block                      C-c @ C-h
+;;   hs-show-block                      C-c @ C-s
+;;   hs-hide-all                        C-c @ C-M-h
+;;   hs-show-all                        C-c @ C-M-s
+;;   hs-hide-level                      C-c @ C-l
+;;   hs-toggle-hiding                   C-c @ C-c
+;;   hs-mouse-toggle-hiding             [(shift mouse-2)]
+;;   hs-hide-initial-comment-block
+;;
+;;Cのソースを開いたら自動的にmodeをon
+(add-hook 'c-mode-common-hook
+	  '(lambda()
+	     (hs-minor-mode 1)))
+
+;; コメントは、隠さず表示する。
+(setq hs-hide-comments-when-hiding-all nil)
+
+;; Lisp mode もそれなりに隠してくれるので、有効にしてみた。
+;; (add-hook 'lisp-interaction-mode-hook
+;;            '(lambda ()
+;;              (setq hs-minor-mode 1)))
+
+;; (add-hook 'emacs-lisp-mode-hook
+;;            '(lambda ()
+;;             (setq hs-minor-mode 1)))
+
+;; 隠した(hide)行は、isearchの対象にしない(outlineモードにも影響)
+(setq search-invisible nil)  ;; 「'open」or「t」
+
+; 全コメントを非表示に
+; M-x hs-hide-all-comments でコメントが全て隠れる。
+; http://sheepman.parfait.ne.jp/20050131.html
+(defvar hs-show-hidden-short-form nil)
+(make-variable-buffer-local 'hs-show-hidden-short-form)
+(defun hs-hide-all-comments ()
+  (interactive)
+  (hs-life-goes-on
+   (message "Hiding all comments ...")
+   (save-excursion
+;;      (hs-flag-region (point-min) (point-max) nil) ; eliminate weirdness
+     (hs-hide-comment-region (point-min) (point-max) nil) ; eliminate weirdness
+     (goto-char (point-min))
+     (let (c-reg (count 0))
+       (while (re-search-forward hs-c-start-regexp (point-max) t)
+	 (if (match-beginning 1) ;; we have found a block beginning
+	     (progn
+	       (goto-char (match-beginning 1))
+	       (hs-hide-block-at-point t)
+	       (message "Hiding ... %d" (setq count (1+ count))))
+	   ;;found a comment
+	   (setq c-reg (hs-inside-comment-p))
+	   (if (and c-reg (car c-reg))
+	       (if (> (count-lines (car c-reg) (nth 1 c-reg))
+		      (if hs-show-hidden-short-form 1 2))
+		   (progn
+		     (hs-hide-block-at-point t c-reg)
+		     (message "Hiding ... %d" (setq count (1+ count))))
+		 (goto-char (nth 1 c-reg))))))))
+;;    (hs-safety-is-job-n)
+)
+  (beginning-of-line)
+  (message "Hiding all comments ... done")
+  (run-hooks 'hs-hide-hook))
+
+;; 全コメント 表示/非表示をトグルに
+(defvar toggle-hs-all-comments-hide-flag nil
+  "state of show/hide state of comment lines. nil:show, t:hide")
+(make-variable-buffer-local 'toggle-hs-all-comments-hide-flag)
+(defun toggle-hs-all-comments ()
+  "toggle hs-hide-all-comment/ hs-show-all"
+  (interactive)
+  (if toggle-hs-all-comments-hide-flag
+      ;t: now hiding
+      (progn
+	(hs-show-all)
+	(message "show all.")
+	(setq toggle-hs-all-comments-hide-flag nil))
+    ; nil: now showing
+    (hs-hide-all-comments)
+    (message "hide all comment.")
+    (setq toggle-hs-all-comments-hide-flag t)))
+
+(add-hook 'c-mode-common-hook
+	  '(lambda ()
+	     (define-key c-mode-map "\C-xn;" 'toggle-hs-all-comments)))
+
+;; hide-ifdef ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq hide-ifdef-lines t)
+(setq hide-ifdef-style 'face) 		;; 'visible or 'face
+
+(defun toggle-hide-ifdef ()
+  (interactive)
+  (unless hide-ifdef-mode
+    (hide-ifdef-mode 1))
+  (if hide-ifdef-hiding
+      (show-ifdefs)
+    (hide-ifdefs)))
+
+(add-hook 'c-mode-hook
+	  '(lambda ()
+;; 	     (define-key c-mode-map "\C-xnj" 'toggle-hide-ifdef))
+	     (define-key c-mode-map "\C-xnj" 'hide-ifdef-toggle-style)
+	     (define-key c-mode-map "\C-c\C-n" 'next-ifdef)
+	     (define-key c-mode-map "\C-c\C-p" 'previous-ifdef)
+	     (hide-ifdef-mode)
+	     (when hide-ifdef-env
+	       (hide-ifdefs))
+	     ))
+
+;; for extremely large source code.
+(setq max-lisp-eval-depth 700)		; default = 300
+
+;; rif ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;??(load "rif")
+;??(setq rif-auto-apply t)
+
+;??(add-hook 'hide-ifdef-mode-hook
+;??	  '(lambda ()
+;??	     (define-key c-mode-map "\C-xns" 'rif-show-symbol-value-at-point))
+;??	  )
+
+;; todays-save-log ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'todays-save-log)
+
+(setq todays-save-log-file-store-directory "~/.todays-save-log/")
+
+
+;; ;; tabbar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'tabbar)
+;; (tabbar-mode)
+;; (setq tabbar-buffer-group-mode t)
+;; (global-set-key [?\C-,] 'tabbar-forward-group)
+;; (global-set-key [?\C-.] 'tabbar-backward-group)
+
+;; csv ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (autoload 'csv-sort-fields "csv"
+;;   "Sort CSV data lexicographically by field." t)
+;; (autoload 'csv-sort-numeric-fields "csv"
+;;   "Sort CSV data numerically by field." t)
+;; (autoload 'csv-kill-fields "csv" "Kill CSV data by field." t)
+;; (autoload 'csv-yank-fields "csv" "Yank CSV data by field." t)
+
+
+;; python-mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar run-python-go-python-interpreter-path
+  "/usr/bin/env python")
+
+(defvar run-python-go-py-out-buffer
+  "py-out")
+
+(defun run-python-go ()
+  (interactive)
+  (when (eq major-mode 'python-mode)
+    (when (buffer-modified-p)
+      (save-buffer))
+    (let ((fn (buffer-file-name))
+		  (buf (current-buffer))
+		  (py-out-buf run-python-go-py-out-buffer))
+      (if fn
+		  (progn   
+			(when (buffer-exists-p py-out-buf)
+			  (save-current-buffer
+				(set-buffer py-out-buf)
+				(erase-buffer)))
+			(start-process-shell-command "py-from-emacs"
+										 py-out-buf
+										 run-python-go-python-interpreter-path fn)
+			(run-python-go-open-py-out-buffer t)
+			(switch-to-buffer-other-window buf))
+	  (message "no file.")))))
+
+
+(defun run-python-go-get-top-error-info ()
+  "dummy for mac"
+  nil)
+
+
+;; for win
+;; (defun run-python-go-get-top-error-info ()
+;;   (let ((filename nil)
+;; 	(line nil)
+;; 	(col nil))
+;;     (save-excursion
+;;       (goto-char (point-min))
+;;       (re-search-forward "\([ ]+File\)\|\(.*[.]py\)" nil nil 2)
+;;       (setq filename (match-string-no-properties 0))
+;;       (re-search-forward "line [0-9]+$")
+;;       (setq line (match-string-no-properties 0))
+;;       (re-search-forward "\\^$")
+;;       (setq line (match-string-no-properties 0))
+;;       (setq col (match-beginning 0)))
+;;     (if (and filename line col)
+;; 	(list filename line col)
+;;       nil)))
+
+(defun run-python-go-open-py-out-buffer (arg)
+  (interactive)
+  (when arg
+    (sit-for 3))
+  (let ((err-info nil))
+    (let ((py-out-buf run-python-go-py-out-buffer))
+      (if (buffer-exists-p py-out-buf)
+		  (progn
+			(save-current-buffer
+			  (switch-to-buffer-other-window py-out-buf)
+			  (set-window-start (get-buffer-window py-out-buf) 0)
+			  (setq err-info (run-python-go-get-top-error-info))
+			  (when err-info
+				;; 	      (find-file (car err-info))
+				(move-to-window-line (nth 1 err-info))
+				(goto-char (+ (point) (nth 2 err-info))))))
+		(message "no py-out buffer.")))))
+
+(add-hook 'python-mode-hook
+	  (lambda ()
+	    (define-key python-mode-map "\C-c\C-c" 'run-python-go)
+	    (define-key python-mode-map "\C-cb" 'run-python-go-open-py-out-buffer)))
+
+;; tags-file-create-recursive  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'tags-file-create-recursive)
+
+;; bak (lazy-backup) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'lazy-backup)
+
+;; デフォルトの拡張子 ("bak")
+;; (setq lazy-backup-default-ext "_")
+
+;; バックアップファイル作成先ディレクトリ
+;; nilの場合は編集中のファイルと同じ場所とみなす
+(setq lazy-backup-directory "~/bak")
+
+
+;; sdic ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.bookshelf.jp/soft/meadow_53.html#SEC769
+
+;;; sdic-mode 用の設定
+(autoload 'sdic-describe-word
+  "sdic" "英単語の意味を調べる" t nil)
+(global-set-key "\C-cW" 'sdic-describe-word)
+
+(defadvice sdic-describe-word (around sdic-describe-word-save-window-adv activate)
+  (let ((cw (selected-window)))
+    ad-do-it
+    (select-window cw)))
+
+(setq sdic-disable-select-window t)
+;; (defadvice sdic-describe-word (around sdic-describe-word-adv activate)
+;;   (let ((w (selected-window)))
+;;     ad-do-it
+;;     (select-window w)))
+:
+(autoload 'sdic-describe-word-at-point
+  "sdic" "カーソルの位置の英単語の意味を調べる" t nil)
+(global-set-key "\C-cw" 'sdic-describe-word-at-point)
+
+;; 英和検索で使用する辞書
+(setq sdic-eiwa-dictionary-list
+      '(
+        (sdicf-client
+         "c:/meadow/packages/lisp/sdic/dic/gene.sdic")
+        (sdicf-client
+         "c:/meadow/packages/lisp/sdic/dic/eedict.sdic")
+        ))
+;; 和英検索で使用する辞書
+(setq sdic-waei-dictionary-list
+      '(
+        (sdicf-client
+         "c:/meadow/packages/lisp/sdic/dic/jedict.sdic")
+        ))
+
+;; 文字色
+;-(setq sdic-face-color "RoyalBlue")
+
+
+;;; override default values ;;;;;;;;;;;;;;;;;;;;;;;;
+;; Command-Key and Option-Key
+(setq ns-command-modifier (quote meta))
+(setq ns-alternate-modifier (quote super))
+
+;; region setting
+(setq transient-mark-mode nil)
+(setq set-mark-default-inactive t)
+
+;;; TIMEZONE String
+(setq system-time-locale "C")
+
+;;; hide title
+(setq inhibit-startup-message t)
+
+
+;;; line number
+(global-linum-mode t)
+(setq linum-format "%5d")
+
+;;; override standard functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; simple.el
+(defun set-mark-command (arg)
+  "Set the mark where point is, or jump to the mark.
+Setting the mark also alters the region, which is the text
+between point and mark; this is the closest equivalent in
+Emacs to what some editors call the \"selection\".
+
+With no prefix argument, set the mark at point, and push the
+old mark position on local mark ring.  Also push the old mark on
+global mark ring, if the previous mark was set in another buffer.
+
+When Transient Mark Mode is off, immediately repeating this
+command activates `transient-mark-mode' temporarily.
+
+With prefix argument \(e.g., \\[universal-argument] \\[set-mark-command]\), \
+jump to the mark, and set the mark from
+position popped off the local mark ring \(this does not affect the global
+mark ring\).  Use \\[pop-global-mark] to jump to a mark popped off the global
+mark ring \(see `pop-global-mark'\).
+
+If `set-mark-command-repeat-pop' is non-nil, repeating
+the \\[set-mark-command] command with no prefix argument pops the next position
+off the local (or global) mark ring and jumps there.
+
+With \\[universal-argument] \\[universal-argument] as prefix
+argument, unconditionally set mark where point is, even if
+`set-mark-command-repeat-pop' is non-nil.
+
+Novice Emacs Lisp programmers often try to use the mark for the wrong
+purposes.  See the documentation of `set-mark' for more information."
+  (interactive "P")
+  (cond ((eq transient-mark-mode 'lambda)
+	 (setq transient-mark-mode nil))
+	((eq (car-safe transient-mark-mode) 'only)
+	 (deactivate-mark)))
+  (cond
+   ((and (consp arg) (> (prefix-numeric-value arg) 4))
+    (push-mark-command nil))
+   ((not (eq this-command 'set-mark-command))
+    (if arg
+	(pop-to-mark-command)
+      (push-mark-command t)))
+   ((and set-mark-command-repeat-pop
+	 (eq last-command 'pop-to-mark-command))
+    (setq this-command 'pop-to-mark-command)
+    (pop-to-mark-command))
+   ((and set-mark-command-repeat-pop
+	 (eq last-command 'pop-global-mark)
+	 (not arg))
+    (setq this-command 'pop-global-mark)
+    (pop-global-mark))
+   (arg
+    (setq this-command 'pop-to-mark-command)
+    (pop-to-mark-command))
+   ;; ((eq last-command 'set-mark-command)
+   ;;  (if (region-active-p)
+   ;;      (progn
+   ;;        (deactivate-mark)
+   ;;        (message "Mark deactivated"))
+   ;;    (activate-mark)
+   ;;    (message "Mark activated")))
+   (t
+    (push-mark-command nil)
+    (if set-mark-default-inactive (deactivate-mark)))))
+
+;; octopress-mode
+;(require 'octopress)
+
+;; vimpulse
+;; (require 'my-vimpulse)
+;; (viper-go-away)
+
+;; applescript
+(autoload 'apples-mode "apples-mode" "Happy AppleScripting!" t)
+(autoload 'apples-open-scratch "apples-mode" "Open scratch buffer for AppleScript." t)
+(add-to-list 'auto-mode-alist '("\\.\\(applescri\\|sc\\)pt\\'" . apples-mode))
+
+
+
+
+;; add new additional elisp packages here ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; by customize ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(mouse-wheel-scroll-amount (quote (1 ((shift) . 1) ((control)))))
+ '(safe-local-variable-values (quote ((syntax . elisp))))
+ '(vc-handled-backends (quote (RCS CVS SCCS SVN))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+;; (add-hook 'after-init-hook (lambda () (my-time-lag)) t) ;; for my-time-lag
+;;; .emacs ends here
+(put 'narrow-to-region 'disabled nil)

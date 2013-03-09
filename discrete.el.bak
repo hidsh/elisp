@@ -1,0 +1,424 @@
+;;;; discrete elisp
+;;;;
+;;;; Filename: discrete.el
+;;;; Last modified: Tue Aug 26 2003 18:18:07 JST
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;		    I WROTE					    ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; toggle-narrowing-region ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar toggle-narrowing-region-window-start nil)
+(defun toggle-narrowing-region (beg end)
+  "Toggle narrowing/widening region."
+  (interactive "r")
+  (if (string-match "<[0-9]* - [0-9]*>" (what-cursor-position))
+      (progn
+	(widen)
+	(set-window-start nil toggle-narrowing-region-window-start)
+	(message "widened."))
+    (progn
+      (setq toggle-narrowing-region-window-start (window-start))
+      (narrow-to-region beg end)
+      (message "narrowed."))))
+(global-set-key "\C-xnn" 'toggle-narrowing-region)
+(global-unset-key "\C-xnw")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; insert-paren-*    [], {}, <>, "", '' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar insert-paren-kaku-state nil)
+(defun insert-paren-kaku ()
+  "Insert paired [] or {} working like insert-parenthesis."
+  (interactive)
+  (if (eq last-command 'insert-paren-kaku)
+      (progn
+	(forward-char -1)
+	(delete-char 2)
+	(if (null insert-paren-kaku-state)
+	    (progn
+	      (insert ?\{)
+	      (save-excursion
+		(insert ?\}))
+	      (setq insert-paren-kaku-state t))
+	  (progn
+	    (insert ?\[)
+	    (save-excursion
+	      (insert ?\]))
+	    (setq insert-paren-kaku-state nil))))
+    (progn
+      (insert ?\[)
+      (save-excursion
+	(insert ?\]))
+      (setq insert-paren-kaku-state nil))))
+(global-set-key "\M-[" 'insert-paren-kaku)
+
+(defvar insert-paren-quote-state nil)
+(defun insert-paren-quote ()
+  "Insert paired single-quote or double-quote working like insert-parenthesis."
+  (interactive)
+  (if (eq last-command 'insert-paren-quote)
+      (progn
+	(forward-char -1)
+	(delete-char 2)
+	(if (null insert-paren-quote-state)
+	    (progn
+	      (insert ?\")
+	      (save-excursion
+		(insert ?\"))
+	      (setq insert-paren-quote-state t))
+	  (progn
+	    (insert ?\')
+	    (save-excursion
+	      (insert ?\'))
+	    (setq insert-paren-quote-state nil))))
+    (progn
+      (insert ?\')
+      (save-excursion
+	(insert ?\'))
+      (setq insert-paren-quote-state nil))))
+(global-set-key "\M-'" 'insert-paren-quote)
+
+(defun insert-paren-gtlt()
+  "Insert paired <> working like insert-parenthesis."
+  (interactive)
+  (insert ?\<)
+  (save-excursion
+    (insert ?\>)))
+(global-set-key "\M-<" 'insert-paren-gtlt)
+(global-unset-key "\M->")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; memo-kill-buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun memo-kill-buffer ()
+  "Kill buffer with automatic save."
+  (interactive)
+  (save-buffer)
+  (kill-buffer-current))
+
+;; (define-key global-map "\en" 'indent-and-next-line)
+;;(define-key change-log-mode-map "\C-x\C-s" 'memo-kill-buffer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; beginning-of-buffer-without-marking ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun beginning-of-buffer-without-marking ()
+  "more simple beginning-of-buffer without marking."
+  (interactive)
+  (goto-char (point-min)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; end-of-buffer-without-marking ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun end-of-buffer-without-marking ()
+  "more simple end-of-buffer without marking."
+  (interactive)
+  (goto-char (point-max)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; another-kill-word ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun another-kill-word ()
+  "For people who dislike working of default kill-word."
+  (interactive)
+  (let ((an nil))
+    (while (looking-at "[a-zA-Z0-9]")
+      (setq an t)
+      (delete-char 1))
+    (if (null an)
+	(let ((ch (following-char))
+	      (rep nil))
+	  (while (char-equal ch (following-char))
+	    (setq rep t)
+	    (delete-char 1))
+	  (if (null rep)
+	      (delete-char 1))))))
+
+(global-set-key "\M-d" 'another-kill-word)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; another-backward-kill-word ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun is-alpha-or-num-p (ch)
+  (if (or (and (>= ch ?a) (<= ch ?z))
+	  (and (>= ch ?A) (<= ch ?Z))
+	  (and (>= ch ?0) (<= ch ?9)))
+      t
+    nil))
+(defun another-backward-kill-word ()
+  "For people who dislike working of default backward-kill-word."
+  (interactive)
+  (let ((an nil))
+    (while (is-alpha-or-num-p (preceding-char))
+      (setq an t)
+      (backward-delete-char 1))
+    (if (null an)
+	(let ((ch (preceding-char))
+	      (rep nil))
+	  (while (char-equal ch (preceding-char))
+	    (setq rep t)
+	    (backward-delete-char 1))
+	  (if (null rep)
+	      (backward-delete-char 1))))))
+
+(global-set-key "\M-h" 'another-backward-kill-word)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; another-forward-word ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun another-forward-word ()
+  "For people who dislike working of default forward-word."
+  (interactive)
+  (let ((skips "[a-zA-Z0-9]"))
+    (while (looking-at skips)
+      (forward-char 1))
+    (skip-chars-forward "- ,.<>(){}+_=!`'~;:&?\n?\t\\*\\^\\\\\"[]")))
+
+(global-set-key "\M-f" 'another-forward-word)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; select previous window ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun other-window-backwards (&optional n)
+  "Select Nth previous window."
+  (interactive "p")
+  (other-window (if n (- n) -1)))
+
+(global-set-key "\C-xp" 'other-window-backwards)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; kill current buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun kill-buffer-current ()
+  "No need to specify buffer name in order to kill current buffer."
+  (interactive)
+  (kill-buffer (buffer-name)))
+
+(global-set-key "\C-xk" 'kill-buffer-current)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; switch to previous buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun return-prev-buffer (b-list)
+  "Return previous buffer excluding *Help* or *Messages* or *etc*..."
+  (while b-list
+    (let* ((buf (car b-list))
+	  (buf-name (buffer-name buf)))
+      (if (string-match "^[\\*]" buf-name)
+	  (bury-buffer buf)))
+    (setq b-list (cdr b-list)))
+  (let* ((cand-buf (other-buffer nil))
+	 (cand-buf-name (buffer-name cand-buf)))
+    (if (or (string-match "^[\\*]" cand-buf-name)
+	    (string-match "Electric Buffer List" cand-buf-name))
+	(get-buffer-create "*scratch*")
+      cand-buf)))
+
+(defun switch-to-previous-buffer (&optional arg)
+  "No need to specify buffer name in order to switch to previous buffer."
+  (interactive "P")
+  (if arg
+      (switch-to-buffer nil) ;; hmmm... i wish i could make default working
+    (let ((buf (return-prev-buffer (buffer-list))))
+      (switch-to-buffer buf))))
+
+(global-set-key "\C-xb" 'switch-to-previous-buffer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; my-undo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-undo-redo (&optional ARG)
+  "This function invocates either undo or redo according to ARG.
+When ARG is nil, undo is called.
+Otherwise,  ARG is t, redo is called."
+  (interactive "*P")
+  (if ARG
+      (redo 1)
+    (undo 1)))
+
+(global-set-key "\C-z" 'my-undo-redo)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; find the next tags ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun find-tag-next ()
+  "Search for another tag that matches the last tagname or regexp used."
+  (interactive)
+  (find-tag tags-file-name t))
+
+(global-set-key "\M-," 'find-tag-next)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; multiply current line. ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun multi-line (&optional ARG)
+  "Multiply current line."
+  (interactive"*p")
+  (let ((cnt 0)
+	(pt (point)))
+    (save-excursion
+	(end-of-line)
+	(copy-region-as-kill (point) (progn
+				       (beginning-of-line)
+				       (point)))
+	(if (null ARG)
+	    (setq ARG 1))
+	(while (< cnt ARG)
+	  (yank)
+	  (newline)
+	  (setq cnt (1+ cnt))))
+    (goto-char pt)))
+
+(global-set-key [?\C-=] 'multi-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;		    SOMEBODY WROTE. THANKS A LOT.		    ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; more easy to switch buffers					    ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; http://www.bookshelf.jp/cgi-bin/goto.cgi?file=meadow&node=my%20bury%20buffer
+(setq my-ignore-buffer-list
+      '("*Help*" "*Compile-Log*" "*Mew completions*" "*Completions*"
+	"*Shell Command Output*" "*Apropos*" "*Buffer List*"
+	"*Messages*"))
+
+(defun my-visible-buffer (blst)
+  (let ((bufn (buffer-name (car blst))))
+    (if (or (= (aref bufn 0) ? ) (member bufn my-ignore-buffer-list))
+	(my-visible-buffer (cdr blst)) (car blst))))
+
+(defun my-grub-buffer ()
+  (interactive)
+  (switch-to-buffer (my-visible-buffer (reverse (buffer-list)))))
+
+(defun my-bury-buffer ()
+  (interactive)
+  (bury-buffer)
+  (switch-to-buffer (my-visible-buffer (buffer-list))))
+
+(global-set-key [?\C-,] 'my-grub-buffer)
+(global-set-key [?\C-.] 'my-bury-buffer)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; for memo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; http://namazu.org/~satoru/unimag/1/
+(defun memo ()
+  (interactive)
+  (let ((add-log-current-defun-function 'ignore)
+	(memo-file "~/memo.txt"))
+    (set-buffer (find-file-noselect memo-file))
+    (add-change-log-entry nil (expand-file-name memo-file))))
+
+(setq user-full-name "Hideaki Shishido")
+(setq user-mail-address "hideaki_sh@ybb.ne.jp")
+(global-set-key"\C-xm" 'memo)
+
+(defun memo-newline ()
+  "New line and indent for memo."
+  (interactive)
+  (newline)
+  (insert "  "))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; インデントして、次の行に移動する ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;http://kwatch.tripod.co.jp/mule/mule.13.html
+(defun indent-and-next-line ()
+  (interactive)
+  (indent-according-to-mode)
+  (next-line 1)
+  (back-to-indentation))
+;; ;;; M-n に割り当てる
+;; (define-key global-map "\en" 'indent-and-next-line)
+(global-set-key "\M-\\" 'indent-and-next-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; open file at near the point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "which")
+(defun browse-file-of-find-file (&optional arg)
+  (interactive "P")
+  (let ((file))
+    (setq file (thing-at-point 'filename))
+    (cond
+     ;; ファイルが存在するか?
+     ((file-exists-p file)
+      ())
+
+     ;; html ファイルなら # を削除する
+     ((and
+       (string-match "htm[l]*#" file)
+       (file-exists-p (concat (substring file 0 (string-match "#" file)) "")))
+      (setq file (concat (substring file 0 (string-match "#" file)) "")))
+
+     ;; which で探してみる
+     ((car (make-which-list file))
+      (setq file (car (make-which-list file))))
+     )
+
+    ;; elisp なら el を開いてほしい
+    (if (and
+	 (string-match "elc" file)
+	 (file-exists-p
+	  (concat (substring file 0 (string-match "elc" file)) "el")))
+	(setq file (concat (substring file 0 (string-match "elc" file)) "el")))
+
+    (if (and (not (string-match "^$" file)) (file-exists-p file))
+	;; file
+	(find-file file)
+;;	 ;; url
+;;	 (if (string-match
+;;	   "\\(ftp\\|http\\)://[^\\.]+\\.[^\\.]+" (thing-at-point 'url))
+;;	     (progn
+;;	       (setq file (thing-at-point 'url))
+;;	       (if (string-match ",.+" file)
+;;		   (setq file (concat
+;;			    (substring file 0 (string-match ",.+" file)) "")))
+;;	       ;;(if arg
+;;	       ;;    (w3m file)
+;;	       (browse-url file)
+;;	       ;;  )
+;;	       )
+      (message "no file and url"))
+    ))
+
+(global-set-key "\M-j" 'browse-file-of-find-file)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; remove all white spaces isn't needed from current buffer ;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; http://kwatch.tripod.co.jp/mule/mule.13.html
+;;; 余分な空白を削除する
+(defun trim-buffer ()
+  "Delete excess white space."
+  (interactive)
+  (save-excursion
+    ;; 行末の空白を削除する
+    (goto-char (point-min))
+    (while (re-search-forward "[ \t]+$" nil t)
+      (replace-match "" nil nil))
+    ;; ファイルの終わりにある空白行を削除する
+    (goto-char (point-max))
+    (delete-blank-lines)
+    (mark-whole-buffer)
+;;     ;; タブに変換できる空白は変換する
+;;     (tabify (region-beginning) (region-end))
+;;     ;; 空白に変換できるタブは変換する
+;;     (untabify (region-beginning) (region-end))
+    ))
+
+;; auto execution when file is saved.
+(add-hook 'write-file-hooks
+	  '(lambda ()
+	     (trim-buffer)))
+;;;
+;;; end of file
+;;;
