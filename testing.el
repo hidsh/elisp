@@ -4,6 +4,63 @@
 ;;;
 
 ;;
+;; my-delete-other-windows --> near the "switching window" at dot.emacs-gnu
+;;
+(defun my-delete-other-windows ()
+  (interactive)
+  (while (not (one-window-p))
+    (let ((buf-name (buffer-name (window-buffer (next-window)))))
+      (when (and (not (string-match "^\*scratch\*$" buf-name))
+                 (string-match "\\(^ .+\\|^\*.\*$\\)" buf-name))
+        (with-selected-window (selected-window)
+          (select-window (next-window))
+          (kill-buffer (window-buffer))))
+      (delete-window (next-window)))))
+
+(global-set-key (kbd "C-1") 'my-delete-other-windows)
+
+
+;;
+;; my-backup-diff
+;;
+(defun my-backup-choose-latest (l)
+  (flet ((get-suffix-string (x)
+            (let* ((ss (substring x (string-match "[0-9]*$" x)))
+                   (s  (if (string< "" ss) (string-to-int ss) -1)))
+              (cons s x))))
+    (let ((lmax '(-2 . nil)))
+      (dolist (e (mapcar 'get-suffix-string l))
+        (when (< (car lmax) (car e))
+          (setq lmax e)))
+      (cdr lmax))))
+
+(defun my-backup-diff-1 (fn)
+  (let* ((fn (buffer-file-name))
+         (l (directory-files (file-name-directory fn) t (format "%s\.%s[0-9]*" (file-name-nondirectory fn) my-backup-default-ext)))
+         (old (my-backup-choose-latest l))
+         (buf-name " diff")
+         (frame-conf (current-frame-configuration))
+         (ret 0))
+    (with-output-to-temp-buffer buf-name
+      (setq ret (call-process "diff" nil buf-name nil "-U 0" old fn)))
+    (if (= ret 0)
+        (progn
+          (kill-buffer buf-name)
+          (set-frame-configuration frame-conf)
+          (message "vs %s: no differences" (file-name-nondirectory old)))
+      (message "vs %s" (file-name-nondirectory old)))))
+
+(defun my-backup-diff ()
+  "カレントバッファと一つ前のバックアップファイルのdiffをとる"
+  (interactive)
+  (let ((fn (buffer-file-name)))
+    (if fn
+        (my-backup-diff-1 fn)
+      (message "no file"))))
+
+(defalias 'bak-diff 'my-backup-diff)
+
+;;
 ;;
 ;;
 (defun eval-region-or-last-sexp ()

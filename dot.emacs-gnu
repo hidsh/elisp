@@ -341,6 +341,7 @@
     (define-key map "n"      'View-scroll-page-backward)
     (define-key map "v" 'eval-region-or-last-sexp)
     (define-key map "/" 'isearch-forward)
+    (define-key map "s" 'isearch-forward)
     map))
 
 
@@ -357,7 +358,8 @@
 ;; 
 ;; switching window
 ;; 
-(defconst toggle-split-window-threshold-width 120)
+(defvar toggle-split-window-hidden-buffer nil)
+(defconst toggle-split-window-threshold-width 150)
 (defun toggle-split-window ()
   (interactive)
   (if (one-window-p)
@@ -366,8 +368,12 @@
             (split-window-horizontally)
           (split-window-vertically))
         (other-window 1)
+        (when (and toggle-split-window-hidden-buffer
+                   (eq last-command 'toggle-split-window))
+          (switch-to-buffer toggle-split-window-hidden-buffer))
         ;; view-mode
         (view-mode-enter))
+    (setq toggle-split-window-hidden-buffer (window-buffer (selected-window)))
     (delete-window)))
 
 (global-set-key (kbd "C-0") 'toggle-split-window)
@@ -403,11 +409,18 @@
 
 
 ;;
-;; bs-cycle-buffer (pre-installed)
+;; bs-mode / bs-cycle-buffer (pre-installed)
 ;;
 (global-set-key [(f11)]       'bs-cycle-previous)
 (global-set-key [(f12)]       'bs-cycle-next)
 (setq bs-cycle-configuration-name "files-and-scratch")
+
+(add-hook 'bs-mode-hook 
+          '(lambda ()
+             (define-key bs-mode-map "j" 'bs-down)
+             (define-key bs-mode-map "k" 'bs-up)
+             (define-key bs-mode-map "/" 'isearch-forward)
+             (define-key bs-mode-map "s" 'isearch-forward)))
 
 
 ;;
@@ -452,7 +465,8 @@
      (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
      (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
      (define-key recentf-dialog-mode-map "n"      'View-scroll-page-backward)
-     (define-key recentf-dialog-mode-map "/" 'isearch-forward)))
+     (define-key recentf-dialog-mode-map "/" 'isearch-forward)
+     (define-key recentf-dialog-mode-map "s" 'isearch-forward)))
 
 (recentf-mode 1)
 (setq recentf-max-menu-items 0)
