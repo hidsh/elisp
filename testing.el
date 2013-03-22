@@ -43,12 +43,17 @@
 (defpowerline powerline-modified
   (if (buffer-modified-p) "mod " ""))
 
-'(
+'( 
 ;; モードラインに現在の関数名を表示
 (which-function-mode 1)
 (set-face-foreground 'which-func "Gray50")
 (set-face-italic-p 'which-func t)
 
+(defpowerline powerline-which-func
+  (progn
+    (which-function-mode 1)
+    which-func-format))
+)
 
 (defpowerline powerline-count-lines-and-chars
   (if (region-active-p)
@@ -57,10 +62,6 @@
               (- (region-end) (region-beginning)))
     ""))
 
-(defpowerline powerline-which-func
-  (progn
-    (which-function-mode 1)
-    which-func-format))
 
 
 (setq-default mode-line-format
