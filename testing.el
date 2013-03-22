@@ -18,9 +18,7 @@
 ;; active
 (set-face-background 'mode-line         "#FF0066")   ; pink
 (set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
-;; (set-face-foreground 'mode-line         "#272821")   ; near-black
 (set-face-background 'powerline-active1 "#FF6699")   ; light-pink
-;; (set-face-foreground 'powerline-active1 "#FFFFDC")   ; near-white
 (set-face-foreground 'powerline-active1 "#272821")   ; near-white
 (set-face-background 'powerline-active2 "#CDC0B0")   ; sand
 (set-face-foreground 'powerline-active2 "#272821")   ; near-black
@@ -33,13 +31,37 @@
 (set-face-background 'powerline-inactive2 "#626262") ; dark-gray
 (set-face-foreground 'powerline-inactive2 "#CCCCCC") ; light-gray
 
-
+;; View mode
 (defpowerline powerline-view
   (when view-mode "View"))
-(setcar (cdr (assq 'view-mode minor-mode-alist)) "")
 
+(add-hook 'view-mode-hook
+          '(lambda ()
+             (setcar (cdr (assq 'view-mode minor-mode-alist)) "")))
+
+;; modified-p
 (defpowerline powerline-modified
   (if (buffer-modified-p) "mod " ""))
+
+'(
+;; モードラインに現在の関数名を表示
+(which-function-mode 1)
+(set-face-foreground 'which-func "Gray50")
+(set-face-italic-p 'which-func t)
+
+
+(defpowerline powerline-count-lines-and-chars
+  (if (region-active-p)
+      (format "(%3d:%4d)"
+              (count-lines (region-beginning) (region-end))
+              (- (region-end) (region-beginning)))
+    ""))
+
+(defpowerline powerline-which-func
+  (progn
+    (which-function-mode 1)
+    which-func-format))
+
 
 (setq-default mode-line-format
 '("%e"
@@ -49,7 +71,7 @@
          (face1 (if active 'powerline-active1 'powerline-inactive1))
          (face2 (if active 'powerline-active2 'powerline-inactive2))
          (lhs (list
-               (powerline-raw "%Z%*" nil 'l)
+               (powerline-raw "%Z" nil 'l)
                ;; (powerline-buffer-size nil 'l)
                (powerline-buffer-id nil 'l)
                (powerline-raw " ")
@@ -65,12 +87,17 @@
                ))
          (rhs (list
                (powerline-raw global-mode-string face2 'r)
+               ;; (powerline-which-func face2 'r)
                (powerline-vc face2)
                (powerline-raw " " face2)
                (powerline-arrow-left face2 face1)
                (powerline-raw " " face1)
                (powerline-narrow face1 'r)
-               (powerline-raw "%4l :%3c" face1 'r)
+               (powerline-count-lines-and-chars face1 'r)
+               (powerline-raw "%4l" face1 'r)
+               (powerline-raw ":" face1)
+               (powerline-raw "%3c" face1 'r)
+               (powerline-raw (format "%6d" (point)) face1 'r)
                (powerline-arrow-left face1 mode-line)
                (powerline-raw " ")
                (powerline-modified)

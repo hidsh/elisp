@@ -83,6 +83,9 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent); Returnキーで改行＋オートインデント
+;; (set-face-attribute 'mode-line          nil :box nil)
+;; (set-face-attribute 'mode-line-inactive nil :box nil)
+(setq scroll-preserve-screen-position t)
 
 ;; line number
 ; (global-linum-mode t)
@@ -145,22 +148,6 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
-
-;; モードラインに現在の関数名を表示
-(which-function-mode 1)
-(set-face-foreground 'which-func "Gray50")
-(set-face-italic-p 'which-func t)
-
-;; モードラインに リージョンの行数と文字数を表示
-(defun count-lines-and-chars ()
-  (if (region-active-p)
-      (format "[%3d:%4d]"
-              (count-lines (region-beginning) (region-end))
-              (- (region-end) (region-beginning)))
-    ""))
-
-(add-to-list 'default-mode-line-format
-             '(:eval (count-lines-and-chars)))
 
 
 ;; prevent annoying message "Text is read only" at mimibuffer
