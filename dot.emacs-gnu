@@ -83,8 +83,8 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
-(set-face-attribute 'mode-line          nil :box nil) ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :box nil)
+(set-face-attribute 'mode-line          nil :height 150 :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :height 150 :box nil)
 (setq scroll-preserve-screen-position t)
 
 ;; line number

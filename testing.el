@@ -6,16 +6,10 @@
 ;;
 ;; powerline - https://github.com/milkypostman/powerline
 ;;
-
-(defun mm ()
-  (interactive)
-  (format "%S" mode-line-format))
-
-
 (require 'powerline)
 (powerline-default)
 
-;; active
+;; active color
 (set-face-background 'mode-line         "#FF0066")   ; pink
 (set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
 (set-face-background 'powerline-active1 "#FF6699")   ; light-pink
@@ -23,7 +17,7 @@
 (set-face-background 'powerline-active2 "#CDC0B0")   ; sand
 (set-face-foreground 'powerline-active2 "#272821")   ; near-black
 
-;; inactive
+;; inactive color
 (set-face-background 'mode-line-inactive  "#CCCC99") ; sand
 (set-face-foreground 'mode-line-inactive  "#272821") ; near-black
 (set-face-background 'powerline-inactive1 "#383838") ; near black
@@ -41,7 +35,7 @@
 
 ;; modified-p
 (defpowerline powerline-modified
-  (if (buffer-modified-p) "mod " ""))
+  (if (buffer-modified-p) "mod" ""))
 
 '( 
 ;; モードラインに現在の関数名を表示
@@ -62,8 +56,6 @@
               (- (region-end) (region-beginning)))
     ""))
 
-
-
 (setq-default mode-line-format
 '("%e"
  (:eval
@@ -71,41 +63,42 @@
          (mode-line (if active 'mode-line 'mode-line-inactive))
          (face1 (if active 'powerline-active1 'powerline-inactive1))
          (face2 (if active 'powerline-active2 'powerline-inactive2))
+         (height 20)
          (lhs (list
                (powerline-raw "%Z" nil 'l)
                ;; (powerline-buffer-size nil 'l)
                (powerline-buffer-id nil 'l)
                (powerline-raw " ")
-               (powerline-arrow-right mode-line face1)
+               (powerline-arrow-right mode-line face1 height)
                (when (boundp 'erc-modified-channels-object)
                  (powerline-raw erc-modified-channels-object face1 'l))
                (powerline-major-mode face1 'l)
                (powerline-process face1)
                (powerline-minor-modes face1 'l)
                (powerline-raw " " face1)
-               (powerline-arrow-right face1 face2)
+               (powerline-arrow-right face1 face2 height)
                (powerline-view face2 'l)
                ))
          (rhs (list
                (powerline-raw global-mode-string face2 'r)
                ;; (powerline-which-func face2 'r)
-               (powerline-vc face2)
-               (powerline-raw " " face2)
-               (powerline-arrow-left face2 face1)
+               (powerline-vc face2 'r)
+               (powerline-arrow-left face2 face1 height)
                (powerline-raw " " face1)
-               (powerline-narrow face1 'r)
+               (powerline-narrow face1)
                (powerline-count-lines-and-chars face1 'r)
                (powerline-raw "%4l" face1 'r)
                (powerline-raw ":" face1)
                (powerline-raw "%3c" face1 'r)
                (powerline-raw (format "%6d" (point)) face1 'r)
-               (powerline-arrow-left face1 mode-line)
+               (powerline-arrow-left face1 mode-line height)
                (powerline-raw " ")
                (powerline-modified)
+               (powerline-raw " ")
                (powerline-raw "%6p" nil 'r)
                ;; (powerline-hud face2 face1)
-               (powerline-raw " ")
-               )))
+               (powerline-raw "    " nil 'r)
+                              )))
     (concat (powerline-render lhs)
             (powerline-fill face2 (powerline-width rhs))
             (powerline-render rhs))))))
