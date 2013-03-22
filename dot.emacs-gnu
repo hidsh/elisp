@@ -34,7 +34,7 @@
 				    (top    . 0)
 				    (left   . 82)
 				    (height . 64)
-				    (width  . 95))
+				    (width  . 100))
 				  default-frame-alist))
 
 ;;;
@@ -80,6 +80,9 @@
 (column-number-mode t)
 (setq parens-require-spaces nil)
 (setq transient-mark-mode nil)
+
+(setq indent-line-function 'indent-relative-maybe)
+(global-set-key "\C-m" 'newline-and-indent); Returnキーで改行＋オートインデント
 
 ;; line number
 ; (global-linum-mode t)
@@ -308,17 +311,20 @@
 (defadvice view-mode-enter (after cursor-type-view activate)
   (setq cursor-type default-cursor-type))
 
+
+(defvar view-mode-enter-exclude-mode-list '(nil org-mode))
+(defun my-view-mode-enter ()
+  (unless (member major-mode view-mode-enter-exclude-mode-list)
+    (view-mode-enter)))
+
 (add-hook 'find-file-hook
-  '(lambda ()
-     (view-mode-enter)))
+  '(lambda () (my-view-mode-enter)))
 
 (add-hook 'after-save-hook
-  '(lambda ()
-     (view-mode-enter)))
+  '(lambda () (my-view-mode-enter)))
 
 (add-hook 'temp-buffer-show-hook
-  '(lambda ()
-	 (view-mode-enter)))
+  '(lambda () (my-view-mode-enter)))
 
 
 ; override keymap
@@ -445,7 +451,7 @@
 ;;
 ;; recent files
 ;;
-(global-set-key "\C-r" 'recentf-open-files)
+(global-set-key "\M-r" 'recentf-open-files)
 
 ;; (defadvice widget-forward (after widget-forward-hl-adv activate)
 ;;   (highlight-current-line))

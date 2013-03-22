@@ -4,6 +4,120 @@
 ;;;
 
 ;;
+;; powerline - https://github.com/milkypostman/powerline
+;;
+
+(defun mm ()
+  (interactive)
+  (format "%S" mode-line-format))
+
+
+(require 'powerline)
+(powerline-default)
+
+;; active
+(set-face-background 'mode-line         "#FF0066")   ; pink
+(set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
+;; (set-face-foreground 'mode-line         "#272821")   ; near-black
+(set-face-background 'powerline-active1 "#FF6699")   ; light-pink
+;; (set-face-foreground 'powerline-active1 "#FFFFDC")   ; near-white
+(set-face-foreground 'powerline-active1 "#272821")   ; near-white
+(set-face-background 'powerline-active2 "#CDC0B0")   ; sand
+(set-face-foreground 'powerline-active2 "#272821")   ; near-black
+
+;; inactive
+(set-face-background 'mode-line-inactive  "#CCCC99") ; sand
+(set-face-foreground 'mode-line-inactive  "#272821") ; near-black
+(set-face-background 'powerline-inactive1 "#383838") ; near black
+(set-face-foreground 'powerline-inactive1 "#CCCCCC") ; light-gray
+(set-face-background 'powerline-inactive2 "#626262") ; dark-gray
+(set-face-foreground 'powerline-inactive2 "#CCCCCC") ; light-gray
+
+
+(defpowerline powerline-view
+  (when view-mode "View"))
+(setcar (cdr (assq 'view-mode minor-mode-alist)) "")
+
+(defpowerline powerline-modified
+  (if (buffer-modified-p) "mod " ""))
+
+(setq-default mode-line-format
+'("%e"
+ (:eval
+  (let* ((active (powerline-selected-window-active))
+         (mode-line (if active 'mode-line 'mode-line-inactive))
+         (face1 (if active 'powerline-active1 'powerline-inactive1))
+         (face2 (if active 'powerline-active2 'powerline-inactive2))
+         (lhs (list
+               (powerline-raw "%Z%*" nil 'l)
+               ;; (powerline-buffer-size nil 'l)
+               (powerline-buffer-id nil 'l)
+               (powerline-raw " ")
+               (powerline-arrow-right mode-line face1)
+               (when (boundp 'erc-modified-channels-object)
+                 (powerline-raw erc-modified-channels-object face1 'l))
+               (powerline-major-mode face1 'l)
+               (powerline-process face1)
+               (powerline-minor-modes face1 'l)
+               (powerline-raw " " face1)
+               (powerline-arrow-right face1 face2)
+               (powerline-view face2 'l)
+               ))
+         (rhs (list
+               (powerline-raw global-mode-string face2 'r)
+               (powerline-vc face2)
+               (powerline-raw " " face2)
+               (powerline-arrow-left face2 face1)
+               (powerline-raw " " face1)
+               (powerline-narrow face1 'r)
+               (powerline-raw "%4l :%3c" face1 'r)
+               (powerline-arrow-left face1 mode-line)
+               (powerline-raw " ")
+               (powerline-modified)
+               (powerline-raw "%6p" nil 'r)
+               ;; (powerline-hud face2 face1)
+               (powerline-raw " ")
+               )))
+    (concat (powerline-render lhs)
+            (powerline-fill face2 (powerline-width rhs))
+            (powerline-render rhs))))))
+
+;;
+;; タイトルバーにバッファ名かファイル名を表示
+;;
+(setq frame-title-format
+      (if (buffer-file-name)
+          (format "%%f - Emacs")
+        (format "%%b - Emacs")))
+
+;;
+;; org-mode and remember
+;;
+(setq remember-data-file "~/memo/remember")    
+
+(require 'org-install)
+(setq org-startup-truncated nil)
+(setq org-return-follows-link t)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(setq org-directory "~/memo/")
+(setq org-default-notes-file (concat org-directory "agenda.org"))
+(setq org-capture-templates
+      '(("t" "Task" entry (file+headline nil "Inbox") "** TODO %?\n   %i\n   %a\n   %t\n   \n")
+        ("b" "Bug"  entry (file+headline nil "Inbox") "** TODO %?   :bug:\n   %i\n   %a\n   %t\n   \n")
+        ("i" "Idea" entry (file+headline nil "Idea")  "** %?\n   %i\n   %a\n   %t\n   \n")))
+
+(add-hook 'org-capture-mode-hook
+          '(lambda ()
+             (view-mode-exit)
+             (widen)
+             (define-key org-capture-mode-map (kbd "q") 'org-capture-finalize)
+             (define-key org-capture-mode-map (kbd "C-x C-k") 'org-capture-kill)))
+
+
+(defalias 'm 'org-capture)
+
+
+;;
 ;; my-delete-other-windows --> near the "switching window" at dot.emacs-gnu
 ;;
 (defun my-delete-other-windows ()
