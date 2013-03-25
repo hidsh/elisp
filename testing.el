@@ -86,7 +86,7 @@
                (powerline-arrow-left face2 face1 height)
                (powerline-raw " " face1)
                (powerline-narrow face1)
-               (powerline-count-lines-and-chars face1 'r)
+               (powerline-count-lines-and-chars face1)
                (powerline-raw "%4l" face1 'r)
                (powerline-raw ":" face1)
                (powerline-raw "%3c" face1 'r)
@@ -95,9 +95,9 @@
                (powerline-raw " ")
                (powerline-modified)
                (powerline-raw " ")
-               (powerline-raw "%6p" nil 'r)
+               (powerline-raw "%6p%8 ")
                ;; (powerline-hud face2 face1)
-               (powerline-raw "    " nil 'r)
+               ;; (powerline-raw "    " nil 'r)
                               )))
     (concat (powerline-render lhs)
             (powerline-fill face2 (powerline-width rhs))
@@ -413,7 +413,7 @@
                              (when (equal line (line-number-at-pos))
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
-
+ 
 )
 
 ;; for python
