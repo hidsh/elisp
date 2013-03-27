@@ -335,6 +335,7 @@
     (define-key map "v" 'eval-region-or-last-sexp)
     (define-key map "/" 'isearch-forward)
     (define-key map "s" 'isearch-forward)
+    (define-key map "q" '(lambda () (interactive) (kill-buffer (buffer-name))))
     map))
 
 
