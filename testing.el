@@ -4,6 +4,19 @@
 ;;;
 
 ;;
+;; 
+;;
+(defun browse-url-at-point ()
+  (interactive)
+  (let ((url-region (bounds-of-thing-at-point 'url)))
+    (when url-region
+      (browse-url (buffer-substring-no-properties (car url-region)
+						  (cdr url-region))))))
+
+(global-set-key "\M-\C-m" 'browse-url-at-point)      ; M-RET
+
+
+;;
 ;; powerline - https://github.com/milkypostman/powerline
 ;;
 (require 'powerline)
