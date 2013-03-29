@@ -86,9 +86,10 @@
 (set-face-attribute 'mode-line          nil :height 150 :box nil) ; モードラインを非3D化
 (set-face-attribute 'mode-line-inactive nil :height 150 :box nil)
 (setq scroll-preserve-screen-position t)
+(setq initial-scratch-message "")
+
 
 ;; line number
-; (global-linum-mode t)
 (setq linum-format "%5d")
 
 
@@ -166,6 +167,8 @@
 (global-set-key (kbd "C-M--") 'text-scale-decrease)
 (global-set-key (kbd "C-M-0") '(lambda () (interactive) (text-scale-set 0)))
 
+;; help
+(define-key help-map "a" 'apropos)
 
 ;;; setting end
 

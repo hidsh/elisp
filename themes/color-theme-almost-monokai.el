@@ -57,7 +57,7 @@
      (region ((t (:background "#095277"))))
      ;; (fringe ((t (:foreground "#adaa89" :background "#36352a"))))
      ;; (linum  ((t (:foreground "#adaa89" :background "#36352a"))))
-     (fringe ((t (:foreground "#adaa89" :background "Black"))))
+     (fringe ((t (:foreground "#89855f" :background "Black"))))
      (linum  ((t (:foreground "#817D67" :background "Black"))))
      ;; (minibuffer-prompt  ((t (:foreground "white" :background "black"))))
      (ido-subdir ((t (:foreground "#F1266F"))))

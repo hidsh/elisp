@@ -4,7 +4,25 @@
 ;;;
 
 ;;
-;; 
+;;
+;;
+(defun save-scratch-buffer ()
+  (interactive)
+  (let ((dir "~/scratch/")
+        (fn (format-time-string "%04Y%02m%02d-%02H%02M%02S.el")))
+    (save-excursion
+      (widen)
+      (write-region (point-min) (point-max) (concat dir fn)))
+    (message "saved: %s%s" dir fn)))
+
+(add-hook 'lisp-interaction-mode-hook
+          (lambda ()
+            (when (string= (buffer-name) "*scratch*")
+              (define-key lisp-interaction-mode-map "\C-x\C-s" 'save-scratch-buffer))))
+
+
+;;
+;; open url string near the point using default www browser
 ;;
 (defun browse-url-at-point ()
   (interactive)
