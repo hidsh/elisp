@@ -7,7 +7,6 @@
 ;;
 ;;
 (defun save-scratch-buffer ()
-  (interactive)
   (let ((dir "~/scratch/")
         (fn (format-time-string "%04Y%02m%02d-%02H%02M%02S.el")))
     (save-excursion
@@ -15,10 +14,15 @@
       (write-region (point-min) (point-max) (concat dir fn)))
     (message "saved: %s%s" dir fn)))
 
+(defun save-buffer-lisp-int ()
+  (interactive)
+  (if (string= (buffer-name) "*scratch*")
+      (save-scratch-buffer)
+    (call-interactively 'my-save-buffer)))
+
 (add-hook 'lisp-interaction-mode-hook
           (lambda ()
-            (when (string= (buffer-name) "*scratch*")
-              (define-key lisp-interaction-mode-map "\C-x\C-s" 'save-scratch-buffer))))
+            (define-key lisp-interaction-mode-map "\C-x\C-s" 'save-buffer-lisp-int)))
 
 
 ;;

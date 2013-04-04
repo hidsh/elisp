@@ -74,7 +74,8 @@
 
 (setq inhibit-startup-message t)
 (blink-cursor-mode 0)
-(setq default-cursor-type 'box)
+;; (setq default-cursor-type 'box)
+(setq default-cursor-type '(hbar . 4))
 (tool-bar-mode -1)
 (setq ring-bell-function 'ignore)
 (column-number-mode t)
@@ -296,25 +297,25 @@
 ;(key-chord-define-global "jk" 'my-toggle-view-mode)
 
 (defadvice view-mode-exit (after cursor-type-edit activate)
-  (setq cursor-type '(hbar . 4)))
+  (setq cursor-type default-cursor-type))
 
 (defadvice view-mode-enter (after cursor-type-view activate)
-  (setq cursor-type default-cursor-type))
+  (setq cursor-type 'box))
 
 
 (defvar view-mode-enter-exclude-mode-list '(nil org-mode))
-(defun my-view-mode-enter ()
-  (unless (member major-mode view-mode-enter-exclude-mode-list)
-    (view-mode-enter)))
+;; (defun my-view-mode-enter ()
+;;   (unless (member major-mode view-mode-enter-exclude-mode-list)
+;;     (view-mode-enter)))
 
-(add-hook 'find-file-hook
-  '(lambda () (my-view-mode-enter)))
+;; (add-hook 'find-file-hook
+;;   '(lambda () (my-view-mode-enter)))
 
-(add-hook 'after-save-hook
-  '(lambda () (my-view-mode-enter)))
+;; (add-hook 'after-save-hook
+;;   '(lambda () (my-view-mode-enter)))
 
-(add-hook 'temp-buffer-show-hook
-  '(lambda () (my-view-mode-enter)))
+;; (add-hook 'temp-buffer-show-hook
+;;   '(lambda () (my-view-mode-enter)))
 
 
 ; override keymap
@@ -342,13 +343,13 @@
     map))
 
 
-(defun my-keyboard-quit ()
-  (interactive)
-  (unless view-mode
-    (view-mode-enter))
-  (keyboard-quit))
+;; (defun my-keyboard-quit ()
+;;   (interactive)
+;;   (unless view-mode
+;;     (view-mode-enter))
+;;   (keyboard-quit))
 
-(global-set-key "\C-g" 'my-keyboard-quit)
+;; (global-set-key "\C-g" 'my-keyboard-quit)
 
 
 
