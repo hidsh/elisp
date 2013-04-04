@@ -4,7 +4,67 @@
 ;;;
 
 ;;
+;; show full path on modeline
 ;;
+
+(defvar mode-line-buffer-fullpath
+              (list 'buffer-file-name
+                    (propertized-buffer-identification "%12f")
+                    (propertized-buffer-identification "%12b")))
+
+(add-hook 'dired-mode-hook
+          (lambda ()
+            ;; TODO: handle (DIRECTORY FILE ...) list value for dired-directory
+            (setq mode-line-buffer-identification
+                  ;; emulate "%17b" (see dired-mode):
+                  '(:eval
+                    (propertized-buffer-identification
+                     (if (< (length default-directory) 17)
+                         (concat default-directory
+                                 (make-string (- 17 (length default-directory))
+                                              ?\s))
+                       default-directory))))))
+
+(setq  mode-line-buffer-default mode-line-buffer-identification)
+
+; not use
+(defun toggle-mode-line-fullpath ()
+  (interactive)
+  (setq mode-line-buffer-identification
+                (if (string= (format "%s" mode-line-buffer-identification)
+                             (format "%s" mode-line-buffer-fullpath))
+                    mode-line-buffer-default
+                  mode-line-buffer-fullpath))
+  ;; (force-mode-line-update)
+  )
+
+; currently using
+(defun show-mode-line-fullpath (event)
+  (interactive "e")
+  (select-window (posn-window (event-start event))) ; activate window
+  (let ((wait-sec 5))
+    (setq mode-line-buffer-identification mode-line-buffer-fullpath)
+    (force-mode-line-update)
+    (my-copy-buffer-file-name)                      ; copy path string to killring
+    (sit-for wait-sec)
+    (setq mode-line-buffer-identification mode-line-buffer-default)
+    (force-mode-line-update)
+    (message "")))
+
+(define-key mode-line-buffer-identification-keymap [mode-line mouse-1] 'show-mode-line-fullpath) ; left click
+
+(set-face-attribute 'mode-line-highlight nil :box nil) ; remove box when hover mouse
+
+
+;;
+;; nop
+;;
+(defun nop ()
+  (interactive))
+
+
+;;
+;; save scratch buffer
 ;;
 (defun save-scratch-buffer ()
   (let ((dir "~/scratch/")

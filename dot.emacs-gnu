@@ -189,6 +189,10 @@
 (auto-install-compatibility-setup)
 
 ;;
+
+
+
+;;
 ;; key-chord
 ;;
 ;; (require 'key-chord)
@@ -450,6 +454,7 @@
 
 (eval-after-load "recentf"
   '(progn
+     (define-key recentf-dialog-mode-map "h" 'backward-char)
      (define-key recentf-dialog-mode-map "j" 'next-line)
      (define-key recentf-dialog-mode-map "k" 'previous-line)
      (define-key recentf-dialog-mode-map "l" 'forward-char)
@@ -636,6 +641,33 @@
 (defadvice dired-up-directory (after kill-up-dired-buffer-after activate)
   (if (eq major-mode 'dired-mode)
       (kill-buffer my-dired-before-buffer)))
+
+(eval-after-load "dired"
+  '(progn
+     (define-key dired-mode-map "f" 'nop)
+     (define-key dired-mode-map "d" 'nop)
+     (define-key dired-mode-map "h" 'backward-char)
+     (define-key dired-mode-map "j" 'next-line)
+     (define-key dired-mode-map "k" 'previous-line)
+     (define-key dired-mode-map "l" 'forward-char)
+     (define-key dired-mode-map "g" 'beginning-of-buffer)
+     (define-key dired-mode-map "G" 'end-of-buffer)
+     (define-key dired-mode-map "a" 'my-beginning-of-line)
+     (define-key dired-mode-map "e" 'end-of-line)
+     ;; (define-key dired-mode-map "w" 'forward-word)
+     ;; (define-key dired-mode-map "b" 'backward-word)
+     (define-key dired-mode-map "o" 'other-window)
+     (define-key dired-mode-map "\C-o" 'other-window)
+     ;; (define-key dired-mode-map [?\ ]    'View-scroll-page-forward)
+     ;; (define-key dired-mode-map [?\S-\ ] 'View-scroll-page-backward)
+     ;; (define-key dired-mode-map "n"      'View-scroll-page-backward)
+     (define-key dired-mode-map "/" 'isearch-forward)
+     (define-key dired-mode-map "s" 'isearch-forward)
+     (define-key dired-mode-map [backspace] 'dired-up-directory)))
+
+;; wdired
+(require 'wdired)
+(define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
 
 
 ;; 簡素な表示
