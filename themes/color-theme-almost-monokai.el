@@ -32,7 +32,8 @@
   (interactive)
   (color-theme-install
    '(color-theme-almost-monokai
-     ((background-color . "#272821")
+     ((background-color . "#24252c")
+     ;; ((background-color . "#1A1E22")
       (foreground-color . "#F8F8F2")
       (cursor-color . "#DAD085"))
      (default ((t (nil))))
@@ -57,8 +58,9 @@
      (region ((t (:background "#095277"))))
      ;; (fringe ((t (:foreground "#adaa89" :background "#36352a"))))
      ;; (linum  ((t (:foreground "#adaa89" :background "#36352a"))))
-     (fringe ((t (:foreground "#89855f" :background "Black"))))
-     (linum  ((t (:foreground "#817D67" :background "Black"))))
+     (fringe ((t (:foreground "#89855f" :background "#111418"))))
+     (linum  ((t (:foreground "#817D67" :background "#111418"))))
+     ;; (linum  ((t (:foreground "#817D67" :background "#202328"))))
      ;; (minibuffer-prompt  ((t (:foreground "white" :background "black"))))
      (ido-subdir ((t (:foreground "#F1266F"))))
     )

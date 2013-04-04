@@ -621,8 +621,8 @@
           (ad-activate func)
           (dired (file-name-directory f)) ;; call dired
           (ad-deactivate func)
-          (ad-disable-advice func class adv))
-          (ad-activate func)
+          (ad-disable-advice func class adv)
+          (ad-activate func))
       (call-interactively 'dired))))
 (defalias 'd 'dired-open-and-move-to-file) ;; M-x d
 
@@ -664,6 +664,9 @@
      (define-key dired-mode-map "/" 'isearch-forward)
      (define-key dired-mode-map "s" 'isearch-forward)
      (define-key dired-mode-map [backspace] 'dired-up-directory)))
+
+
+;(setq dired-listing-switches "-AFLl --group-directories-first")
 
 ;; wdired
 (require 'wdired)

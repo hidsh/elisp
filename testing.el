@@ -41,15 +41,18 @@
 ; currently using
 (defun show-mode-line-fullpath (event)
   (interactive "e")
-  (select-window (posn-window (event-start event))) ; activate window
-  (let ((wait-sec 5))
-    (setq mode-line-buffer-identification mode-line-buffer-fullpath)
-    (force-mode-line-update)
-    (my-copy-buffer-file-name)                      ; copy path string to killring
-    (sit-for wait-sec)
-    (setq mode-line-buffer-identification mode-line-buffer-default)
-    (force-mode-line-update)
-    (message "")))
+  (when (buffer-file-name)
+    (select-window (posn-window (event-start event))) ; activate window
+    (let ((wait-sec 5))
+      (setq mode-line-buffer-identification mode-line-buffer-fullpath)
+      (force-mode-line-update)
+      (my-copy-buffer-file-name)                      ; copy path string to killring
+      (sit-for wait-sec)
+      (setq mode-line-buffer-identification mode-line-buffer-default)
+      (force-mode-line-update)
+      (message ""))))
+  
+    
 
 (define-key mode-line-buffer-identification-keymap [mode-line mouse-1] 'show-mode-line-fullpath) ; left click
 
