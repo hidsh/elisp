@@ -4,6 +4,111 @@
 ;;;
 
 ;;
+;; 全角英数 -> 半角 変換
+;;
+(defun hankaku-eisuu-region (start end)
+ "選択範囲内の全角英数字を半角英数字に変換"
+  (interactive "r")
+  (while (string-match
+          "[０-９Ａ-Ｚａ-ｚ]+"
+          (buffer-substring start end))
+    (save-excursion
+      (japanese-hankaku-region
+       (+ start (match-beginning 0))
+       (+ start (match-end 0))
+       ))))
+
+;;
+(defun hankaku-eisuu-buffer ()
+  "バッファ全体の全角英数字を半角英数字に変換"
+  (interactive)
+  (hankaku-eisuu-region (point-min) (point-max)))
+
+(defalias 'zen-han-eisu 'hankaku-eisuu-buffer)
+
+;;
+;; my-query-replace
+;;
+(defun my-query-replace (arg)
+  (interactive "P")
+  (let ((current-prefix-arg nil))
+    (call-interactively
+     (if arg 'query-replace-regexp 'query-replace))))
+
+(global-set-key "\M-%" 'my-query-replace)
+
+;;
+;; リージョンをMarkdown向けのコードに整形
+;;
+(defun markdown-code-region (beg end)
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (untabify beg end)
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (while (search-forward-regexp "\(^.*\)" nil t)
+        (replace-match (concat "    " (match-string 1)))))))
+
+;;
+;; Python でも scratch-buffer で対話する
+;;
+(defun eval-region-python (beg end)
+  (interactive "r")
+  (insert (with-output-to-string
+            (shell-command-on-region beg end "python" standard-output))
+          "\n"))
+
+; 結果をスクラッチバッファに出さずに、slime っぽく別のウィンドウに表示するのは下記のように。
+; (defun eval-region-python (beg end)
+;   (interactive "r")
+;   (let ((buf "*Py Output*")
+;         (curwin (selected-window)))
+;     (shell-command-on-region beg end "python" buf)
+;     (pop-to-buffer buf)
+;     (select-window curwin)))
+
+
+;;
+;; python (pre-installed python.el)
+;;
+
+; paren completion
+(add-hook 'python-mode-hook
+          (lambda ()
+            (define-key python-mode-map "\"" 'electric-pair)
+            (define-key python-mode-map "\'" 'electric-pair)
+            (define-key python-mode-map "(" 'electric-pair)
+            (define-key python-mode-map "[" 'electric-pair)
+            (define-key python-mode-map "{" 'electric-pair)))
+(defun electric-pair ()
+  "Insert character pair without sournding spaces"
+  (interactive)
+  (let (parens-require-spaces)
+    (insert-pair)))
+
+; auto indent
+(add-hook 'python-mode-hook '(lambda () 
+     (define-key python-mode-map "\C-m" 'newline-and-indent)))
+
+; flymake
+(add-hook 'find-file-hook 'flymake-find-file-hook)
+(when (load "flymake" t)
+  (defun flymake-pyflakes-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "pychecker"  (list local-file))))
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.py\\'" flymake-pyflakes-init)))
+(load-library "flymake-cursor")
+
+;; (global-set-key [f10] 'flymake-goto-prev-error)
+;; (global-set-key [f11] 'flymake-goto-next-error)
+
+;;
 ;; show full path on modeline
 ;;
 
