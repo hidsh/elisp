@@ -14,6 +14,8 @@
 ;;   (define-key ctl-x-map "as" 'auto-save-buffers-toggle)
 ;;
 
+;; 2005-01-16 02:55:33 ファイル保存時のメッセージを出さないように変更 by okuyama
+
 ;; auto-save-buffers で対象とするファイル名の正規表現
 (defvar auto-save-buffers-regexp ""
   "*Regexp that matches `buffer-file-name' to be auto-saved.")
@@ -34,24 +36,41 @@
 (defvar auto-save-buffers-active-p t
   "If non-nil, `auto-save-buffers' saves buffers.")
 
+;; オリジナルの write-region を退避
+(fset 'original-write-region (symbol-function 'write-region))
+
+;; メッセージを出さない write-region を作成
+(defun auto-save-buffers-write-region (start end filename &optional append
+                                             visit lockname mustbenew)
+  (original-write-region start end filename append
+                         (cond ((stringp visit) visit)
+                               ((not visit) nil)
+                               (t 'BeQuiet)) lockname mustbenew))
+
 ;; 省略可能の引数で、include/exclude 用の正規表現を指定できる
 (defun auto-save-buffers (&rest regexps)
   "Save buffers if `buffer-file-name' matches `auto-save-buffers-regexp'."
   (let ((include-regexp (or (car  regexps) auto-save-buffers-regexp))
         (exclude-regexp (or (cadr regexps) auto-save-buffers-exclude-regexp))
         (buffers (buffer-list)))
-    (save-excursion
-      (while buffers
-	(set-buffer (car buffers))
-	(if (and buffer-file-name
-                 auto-save-buffers-active-p 
-		 (buffer-modified-p)
-		 (not buffer-read-only)
-		 (string-match include-regexp buffer-file-name)
-                 (not (string-match exclude-regexp buffer-file-name))
-		 (file-writable-p buffer-file-name))
-	    (save-buffer))
-	(setq buffers (cdr buffers))))))
+    (unwind-protect
+        (save-excursion
+          (fset 'write-region (symbol-function 'auto-save-buffers-write-region))
+          (while buffers
+            (set-buffer (car buffers))
+            (when (and buffer-file-name
+                       auto-save-buffers-active-p
+                       (buffer-modified-p)
+                       (not buffer-read-only)
+                       (string-match include-regexp buffer-file-name)
+                       (not (string-match exclude-regexp buffer-file-name))
+                       (not (buffer-base-buffer)) ;; 基底バッファのみ保存
+                       (file-writable-p buffer-file-name))
+              (basic-save-buffer)
+              (set-visited-file-modtime)
+              (set-buffer-modified-p nil))
+            (setq buffers (cdr buffers))))
+      (fset 'write-region (symbol-function 'original-write-region)))))
 
 ;; auto-save-buffers の on/off をトグルで切り替える
 ;; Based on the code by Yoshihiro (いやな日記 2004-03-23)
@@ -74,4 +93,3 @@
                       (fset 'makefile-warn-suspicious-lines 'ignore))))
 
 (provide 'auto-save-buffers)
-
