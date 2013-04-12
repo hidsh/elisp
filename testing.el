@@ -6,6 +6,24 @@
 ;;;
 
 ;;
+;; zencoding
+;;
+(require 'zencoding-mode)
+(add-hook 'sgml-mode-hook 'zencoding-mode)
+;; (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
+(define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-yas)
+(defalias 'zen 'zencoding-mode)         ; ON/OFF
+
+;; (defun my-zencoding-expand ()
+;;   (interactive)
+;;   (let ((exclude '(nil 10 32)))
+;;     (if (memq (char-before) exclude)
+;;         (indent-for-tab-command)
+;;       (zencoding-expand-yas))))
+
+
+
+;;
 ;; auto-save-buffers
 ;;
 (require 'auto-save-buffers)
@@ -585,8 +603,6 @@
 (require 'flymake)
 
 ;; for javascript
-'(
-
 (setq flymake-js-detect-trailing-comma t)
 
 (defconst flymake-allowed-js-file-name-masks '(("\\.json$" flymake-js-init)
@@ -629,7 +645,7 @@
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
  
-)
+
 
 ;; for python
 

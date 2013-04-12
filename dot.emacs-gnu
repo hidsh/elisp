@@ -212,7 +212,7 @@
 ;; yasnippet
 ;;
 
-;; (require 'yasnippet-bundle)             ; using old version
+(require 'yasnippet-bundle)             ; using old version
 
 ;; current-version (confricts /w my view-mode keybindings)
 ;;
@@ -275,8 +275,8 @@
 (add-hook 'scss-mode-hook 'ac-scss-mode-setup)
 (add-hook 'web-mode-hook 'ac-web-mode-setup)
 (add-hook 'coffee-mode-hook 'ac-coffee-mode-setup)
-(add-hook 'ruby-mode-hook 'ruby-mode-setup)
-(add-hook 'python-mode-hook 'python-mode-setup)
+(add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+(add-hook 'python-mode-hook 'ac-python-mode-setup)
 
 (global-auto-complete-mode t)
 
@@ -289,6 +289,7 @@
       (lambda ()
         (remove-duplicates (mapcan #'yas--table-all-keys (yas--get-snippet-tables)))))
 
+(defalias 'ac 'auto-complete-mode)
 
 ; auto-complete に対応しないモード
 ; (setq ac-modes (append '(js2-mode)))

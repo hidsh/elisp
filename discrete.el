@@ -1290,15 +1290,15 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 ;; create parent directories when writing a new file
 (defvar my-write-file-interactive-arg-active-p nil)
 
-(defun my-write-file-write-proc (path)
-  (if (file-exists-p path)
-      ;同じファイル名が既に存在している場合
-      (progn
-	(message "already exists")
-	(sit-for 5)
-	(my-write-file-interactive-arg path))
-    ;同じファイル名が存在しない場合
-    (write-file path)))
+;; (defun my-write-file-write-proc (path)
+;;   (if (file-exists-p path)
+;;       ;同じファイル名が既に存在している場合
+;;       (progn
+;;         (message "already exists")
+;;         (sit-for 5)
+;;         (my-write-file-interactive-arg path))
+;;     ;同じファイル名が存在しない場合
+;;     (write-file path)))
 
 (defun my-write-file-interactive-arg (&optional initial)
   (let* ((my-write-file-interactive-arg-active-p t)
@@ -1311,7 +1311,7 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 	   (directory (file-name-directory name)))
       (if (file-exists-p directory)
 	  ;ディレクトリがすでに存在している場合
-	  (my-write-file-write-proc name)
+	  (write-file name t)
 	;ディレクトリが存在しない場合
 	(if (create-directory directory)
 	    ;ディレクトリを作れた場合
