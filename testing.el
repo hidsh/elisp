@@ -1,7 +1,19 @@
+;;; -*- coding:utf-8; mode:emacs-lisp -*-
+;;;
 ;;; testing.el --- now testing
 ;;;
 ;;; now testing functions
 ;;;
+
+;;
+;; auto-save-buffers
+;;
+(require 'auto-save-buffers)
+(run-with-idle-timer 1.5 t 'auto-save-buffers)   ; every 1.5sec idle && buffer-modified-p
+
+; 標準の自動バックアップを無効化しておく
+(setq make-backup-files nil) ; e.g. hoge.txt~
+(setq auto-save-default nil) ; e.g. #hoge.txt#
 
 ;;
 ;; 全角英数 -> 半角 変換
@@ -13,7 +25,7 @@
           "[０-９Ａ-Ｚａ-ｚ]+"
           (buffer-substring start end))
     (save-excursion
-      (japanese-hankaku-region
+      (japanese-hankaku-region――
        (+ start (match-beginning 0))
        (+ start (match-end 0))
        ))))
