@@ -27,7 +27,7 @@
 ;; auto-save-buffers
 ;;
 (require 'auto-save-buffers)
-(run-with-idle-timer 1.5 t 'auto-save-buffers)   ; every 1.5sec idle && buffer-modified-p
+(run-with-idle-timer 0.5 t 'auto-save-buffers)   ; every 0.5sec idle && buffer-modified-p
 
 ; 標準の自動バックアップを無効化しておく
 (setq make-backup-files nil) ; e.g. hoge.txt~
@@ -77,8 +77,8 @@
       (untabify beg end)
       (narrow-to-region beg end)
       (goto-char (point-min))
-      (while (search-forward-regexp "\(^.*\)" nil t)
-        (replace-match (concat "    " (match-string 1)))))))
+      (while (search-forward-regexp "\\(^.*\\)" nil t)
+        (replace-match (concat "    " (match-string 0)))))))
 
 ;;
 ;; Python でも scratch-buffer で対話する
