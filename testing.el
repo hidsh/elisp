@@ -33,6 +33,14 @@
 (setq make-backup-files nil) ; e.g. hoge.txt~
 (setq auto-save-default nil) ; e.g. #hoge.txt#
 
+; for undo
+(add-hook 'write-file-hooks 'time-stamp)
+(defadvice time-stamp (around time-stamp-around activate)
+  (let (buffer-undo-list)
+    ad-do-it))
+
+(global-unset-key "\C-x\C-s")           ; save-buffer
+
 ;;
 ;; 全角英数 -> 半角 変換
 ;;
@@ -137,6 +145,9 @@
 
 ;; (global-set-key [f10] 'flymake-goto-prev-error)
 ;; (global-set-key [f11] 'flymake-goto-next-error)
+
+;; ; pdb
+;; (setq gud-key-prefix "\C-x\C-a")
 
 ;;
 ;; show full path on modeline

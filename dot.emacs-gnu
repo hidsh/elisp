@@ -566,14 +566,14 @@
 (setq kill-buffer-after-dired-do-moccur t)
 
 ; colors
-(set-face-background 'moccur-face "pale turquoise")
-(set-face-bold-p 'moccur-face nil)
-(set-face-background 'moccur-edit-face "Pink")
-(set-face-bold-p 'moccur-edit-face nil)
-(set-face-background 'moccur-edit-file-face "Pink")
-(set-face-bold-p 'moccur-edit-file-face nil)
+(set-face-background 'moccur-face             "pale turquoise")
+(set-face-bold-p     'moccur-face             nil)
+(set-face-background 'moccur-edit-face        "Pink")
+(set-face-bold-p     'moccur-edit-face        nil)
+(set-face-background 'moccur-edit-file-face   "Pink")
+(set-face-bold-p     'moccur-edit-file-face   nil)
 (set-face-background 'moccur-edit-reject-face "hot pink")
-(set-face-bold-p 'moccur-edit-reject-face nil)
+(set-face-bold-p     'moccur-edit-reject-face nil)
 
 
 
