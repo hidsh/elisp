@@ -6,6 +6,23 @@
 ;;;
 
 ;;
+;; query-replace in dired
+;;
+(defun my-dired-goto-top ()
+  (goto-char (point-min))
+  (when (re-search-forward "[0-9] \\(\\.\\.\\)$" nil t)
+    (goto-char (match-beginning 1))))
+
+(defun my-query-replace-dired ()
+  (interactive)
+  (my-dired-goto-top)
+  (call-interactively 'my-query-replace)
+  (my-dired-goto-top))
+
+(define-key wdired-mode-map "\M-%" 'my-query-replace-dired)
+
+
+;;
 ;; zencoding
 ;;
 (require 'zencoding-mode)

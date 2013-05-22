@@ -103,6 +103,9 @@
 
 (setq default-truncate-lines t)             ; 折り返しなし
 
+;; c-mode (include tab setting)
+(add-hook 'c-mode-hook
+          (lambda () (c-set-style "stroustrup")))
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
