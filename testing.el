@@ -6,6 +6,12 @@
 ;;;
 
 ;;
+;; disable vc
+;;
+(setq vc-handled-backends '())
+
+
+;;
 ;; query-replace in dired
 ;;
 (defun my-dired-goto-top ()
