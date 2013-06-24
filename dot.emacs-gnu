@@ -259,7 +259,7 @@
 (add-to-list 'ac-modes 'web-mode)
 (add-to-list 'ac-modes 'coffee-mode)
 (add-to-list 'ac-modes 'ruby-mode)
-(add-to-list 'ac-modes 'python-mode)
+;; (add-to-list 'ac-modes 'python-mode)
 
 ;;; ベースとなるソースを指定
 (defvar my-ac-sources
@@ -279,7 +279,7 @@
 (add-hook 'web-mode-hook 'ac-web-mode-setup)
 (add-hook 'coffee-mode-hook 'ac-coffee-mode-setup)
 (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-(add-hook 'python-mode-hook 'ac-python-mode-setup)
+;; (add-hook 'python-mode-hook 'ac-python-mode-setup)
 
 (global-auto-complete-mode t)
 
@@ -390,7 +390,7 @@
   (interactive)
   (unless (one-window-p)
     ;; view-mode
-    (view-mode-enter)
+    ;; (view-mode-enter)
     (other-window 1)))
 
 (global-set-key (kbd "C-o") 'my-other-window)
@@ -422,7 +422,7 @@
 (global-set-key [(f11)]       'bs-cycle-previous)
 (global-set-key [(f12)]       'bs-cycle-next)
 (setq bs-default-configuration "files-and-scratch")
-(setq bs-cycle-configuration-name "all-intern-last")
+(setq bs-cycle-configuration-name "files-and-scratch")
 
 (defun my-bs-toggle-configuration ()
   (interactive)
@@ -665,8 +665,8 @@
      (define-key dired-mode-map "j" 'next-line)
      (define-key dired-mode-map "k" 'previous-line)
      (define-key dired-mode-map "l" 'forward-char)
-     (define-key dired-mode-map "g" 'beginning-of-buffer)
-     (define-key dired-mode-map "G" 'end-of-buffer)
+     ;; (define-key dired-mode-map "g" 'beginning-of-buffer)
+     ;; (define-key dired-mode-map "G" 'end-of-buffer)
      (define-key dired-mode-map "a" 'my-beginning-of-line)
      (define-key dired-mode-map "e" 'end-of-line)
      ;; (define-key dired-mode-map "w" 'forward-word)
@@ -678,7 +678,8 @@
      ;; (define-key dired-mode-map "n"      'View-scroll-page-backward)
      (define-key dired-mode-map "/" 'isearch-forward)
      (define-key dired-mode-map "s" 'isearch-forward)
-     (define-key dired-mode-map [backspace] 'dired-up-directory)))
+     (define-key dired-mode-map [backspace] 'dired-up-directory)
+     (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)))
 
 
 ;(setq dired-listing-switches "-AFLl --group-directories-first")

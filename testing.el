@@ -6,6 +6,21 @@
 ;;;
 
 ;;
+
+;;
+;; replace to discrete.el
+;;
+(defun my-beginning-of-line ()
+ (interactive)
+ (let ((curr (current-column))
+       (ind  (current-indentation)))
+   (cond
+    ((= curr 0)   (move-to-column ind))
+    ((< curr ind) (beginning-of-line))
+    ((> curr ind) (move-to-column ind))
+    (t (beginning-of-line)))))
+
+;;
 ;; disable vc
 ;;
 (setq vc-handled-backends '())
@@ -112,13 +127,30 @@
         (replace-match (concat "    " (match-string 0)))))))
 
 ;;
+;; Ruby でも scratch-buffer で対話する
+;;
+(defun eval-region-ruby (beg end)
+  (insert "\n###\n")
+  (insert (with-output-to-string (shell-command-on-region beg end "ruby" standard-output))
+          "\n"))
+
+;; (add-hook 'ruby-mode-hook
+;;           (lambda ()
+;;             (define-key "\C-x\C-e" 'eval-region-ruby)))
+
+;;
 ;; Python でも scratch-buffer で対話する
 ;;
 (defun eval-region-python (beg end)
-  (interactive "r")
-  (insert (with-output-to-string
-            (shell-command-on-region beg end "python" standard-output))
-          "\n"))
+  (insert "\n###\n")
+  (let ((result (with-output-to-string (shell-command-on-region beg end "python" standard-output))))
+    (insert result "\n")
+    (when (string-match "SyntaxError: Non-ASCII character" result)
+      (insert "You may need: # -*- coding: utf-8 -*-\n"))))
+
+;; (add-hook 'python-mode-hook
+;;           (lambda ()
+;;             (define-key "\C-x\C-e" 'eval-region-python)))
 
 ; 結果をスクラッチバッファに出さずに、slime っぽく別のウィンドウに表示するのは下記のように。
 ; (defun eval-region-python (beg end)
@@ -130,6 +162,22 @@
 ;     (select-window curwin)))
 
 
+;;
+;; メジャーモードによって eval-region を変更
+;;
+(setf eval-region-elisp (symbol-function 'eval-region))
+
+(defun eval-region (beg end)
+  (interactive "r")
+  (funcall (cond ((eq major-mode 'lisp-interaction-mode)
+                  eval-region-elisp)
+                 ((eq major-mode 'emacs-lisp-mode)
+                  eval-region-elisp)
+                 ((eq major-mode 'python-mode)
+                  'eval-region-python)
+                 ((eq major-mode 'ruby-mode)
+                  'eval-region-ruby))
+           beg end))
 ;;
 ;; python (pre-installed python.el)
 ;;
@@ -471,7 +519,7 @@
    (if (region-active-p) 'eval-region
      'eval-last-sexp)))
 
-(global-set-key "\C-x\C-e" 'eval-region-or-last-sexp)
+;; (global-set-key "\C-x\C-e" 'eval-region-or-last-sexp)
 ;(defalias 'ev 'eval-region-or-last-sexp)
 
 ;;
