@@ -6,6 +6,32 @@
 ;;;
 
 ;;
+;; my terminal (shell)
+;;
+(defun term ()
+  (interactive)
+  (let* ((shell-name "*shell*")
+         (shell-win (get-buffer-window shell-name))
+         (shell-buf (get-buffer shell-name)))
+    (if shell-win
+        (select-window shell-win)
+      (unless (one-window-p)
+        (delete-other-windows))
+      (split-window (selected-window) (- (window-height) 15))
+      (select-window (next-window))
+      (if shell-buf
+          (set-window-buffer (selected-window) shell-buf)
+        (shell)))))
+
+(defun term-hide ()
+  (interactive)
+  (if (one-window-p)
+      (kill-buffer (window-buffer (selected-window)))
+    (delete-window (selected-window))))
+  
+(add-hook 'shell-mode-hook
+          '(lambda ()
+             (define-key shell-mode-map "\C-xk" 'term-hide)))
 
 ;;
 ;; replace to discrete.el
