@@ -17,7 +17,7 @@
         (select-window shell-win)
       (unless (one-window-p)
         (delete-other-windows))
-      (split-window (selected-window) (- (window-height) 15))
+      (split-window-below (selected-window) (- (window-height) 15))
       (select-window (next-window))
       (if shell-buf
           (set-window-buffer (selected-window) shell-buf)
