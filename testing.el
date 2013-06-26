@@ -5,6 +5,22 @@
 ;;; now testing functions
 ;;;
 
+
+
+;;
+;; JSON
+;;
+(require 'json-mode)
+(add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
+
+(require 'flymake-json)
+(add-hook 'json-mode-hook 'flymake-json-load)
+
+;; (custom-set-faces
+;;  '(flymake-errline ((((class color)) (:background "red"))))
+;;  '(flymake-warnline ((((class color)) (:background "gold")))))
+
+
 ;;
 ;; my terminal (shell)
 ;;
@@ -14,7 +30,7 @@
          (shell-win (get-buffer-window shell-name))
          (shell-buf (get-buffer shell-name)))
     (if shell-win
-        (select-window shell-win)
+        (term-kill)
       (unless (one-window-p)
         (delete-other-windows))
       (split-window-below (- (window-height) 15))
@@ -25,24 +41,19 @@
     (with-current-buffer shell-name
       (goto-char (point-max)))))
 
-(defun term-hide (&optional arg)
-  (interactive "P")
+(defun term-kill ()
+  (interactive)
   (let* ((shell-buf (get-buffer "*shell*"))
          (shell-proc (get-buffer-process shell-buf)))
-    (if (one-window-p)
-        (progn
-          (kill-process shell-proc)
-          (sit-for 0.5)
-          (kill-buffer shell-buf))
-      (when arg
-        (kill-process shell-proc)
-        (sit-for 0.5)
-        (kill-buffer shell-buf)
+    (kill-process shell-proc)
+    (sit-for 0.5)
+    (kill-buffer shell-buf)
+    (unless (one-window-p)
       (delete-window (selected-window)))))
   
 (add-hook 'shell-mode-hook
           '(lambda ()
-             (define-key shell-mode-map "\C-xk" 'term-hide)))
+             (define-key shell-mode-map "\C-xk" 'term-kill)))
 
 ;;
 ;; replace to discrete.el
@@ -80,14 +91,14 @@
 (define-key wdired-mode-map "\M-%" 'my-query-replace-dired)
 
 
-;;
-;; zencoding
-;;
-(require 'zencoding-mode)
-(add-hook 'sgml-mode-hook 'zencoding-mode)
-;; (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
-(define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-yas)
-(defalias 'zen 'zencoding-mode)         ; ON/OFF
+;; ;;
+;; ;; zencoding
+;; ;;
+;; (require 'zencoding-mode)
+;; (add-hook 'sgml-mode-hook 'zencoding-mode)
+;; ;; (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-line)
+;; (define-key zencoding-mode-keymap (kbd "C-j") 'zencoding-expand-yas)
+;; (defalias 'zen 'zencoding-mode)         ; ON/OFF
 
 ;; (defun my-zencoding-expand ()
 ;;   (interactive)
