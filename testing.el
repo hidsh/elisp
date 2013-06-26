@@ -20,10 +20,10 @@
       (split-window-below (- (window-height) 15))
       (select-window (next-window))
       (if shell-buf
-          (progn
-            (set-window-buffer (selected-window) shell-buf)
-            (goto-char (point-max)))
-        (shell)))))
+          (set-window-buffer (selected-window) shell-buf)
+        (shell)))
+    (with-current-buffer shell-name
+      (goto-char (point-max)))))
 
 (defun term-hide (&optional arg)
   (interactive "P")
