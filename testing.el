@@ -17,17 +17,28 @@
         (select-window shell-win)
       (unless (one-window-p)
         (delete-other-windows))
-      (split-window-below (selected-window) (- (window-height) 15))
+      (split-window-below (- (window-height) 15))
       (select-window (next-window))
       (if shell-buf
-          (set-window-buffer (selected-window) shell-buf)
+          (progn
+            (set-window-buffer (selected-window) shell-buf)
+            (goto-char (point-max)))
         (shell)))))
 
-(defun term-hide ()
-  (interactive)
-  (if (one-window-p)
-      (kill-buffer (window-buffer (selected-window)))
-    (delete-window (selected-window))))
+(defun term-hide (&optional arg)
+  (interactive "P")
+  (let* ((shell-buf (get-buffer "*shell*"))
+         (shell-proc (get-buffer-process shell-buf)))
+    (if (one-window-p)
+        (progn
+          (kill-process shell-proc)
+          (sit-for 0.5)
+          (kill-buffer shell-buf))
+      (when arg
+        (kill-process shell-proc)
+        (sit-for 0.5)
+        (kill-buffer shell-buf)
+      (delete-window (selected-window)))))
   
 (add-hook 'shell-mode-hook
           '(lambda ()
