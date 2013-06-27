@@ -26,18 +26,18 @@
 ;;
 (defun term ()
   (interactive)
-  (let* ((shell-name "*shell*")
-         (shell-win (get-buffer-window shell-name))
-         (shell-buf (get-buffer shell-name)))
-    (if shell-win
-        (term-kill)
-      (unless (one-window-p)
-        (delete-other-windows))
-      (split-window-below (- (window-height) 15))
-      (select-window (next-window))
-      (if shell-buf
-          (set-window-buffer (selected-window) shell-buf)
-        (shell)))
+  (let* ((shell-name "*shell*"))
+    (when (get-buffer-window shell-name)
+      (let* ((shell-buf (get-buffer "*shell*"))
+             (shell-proc (get-buffer-process shell-buf)))
+        (kill-process (get-buffer-process shell-buf))
+      	(sit-for 0.5)
+        (kill-buffer shell-buf)))
+    (unless (one-window-p)
+      (delete-other-windows))
+    (split-window-below (- (window-height) 15))
+    (select-window (next-window))
+    (shell)
     (with-current-buffer shell-name
       (goto-char (point-max)))))
 
