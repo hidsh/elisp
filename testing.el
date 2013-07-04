@@ -5,19 +5,6 @@
 ;;; now testing functions
 ;;;
 
-;;
-;; recentf
-;;
-(defun recentf-set-overlay-directory ()
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "^.+ +\\(.+/\\)$" nil t nil)
-      (overlay-put (make-overlay (match-beginning 1) (match-end 1))
-                   'face `((:foreground ,"#F1266F"))))))
-
-
-(add-hook 'recentf-dialog-mode-hook
-          'recentf-set-overlay-directory)
 
 ;;
 ;; css-mode

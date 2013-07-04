@@ -508,6 +508,12 @@
       (overlay-put (make-overlay (match-beginning 2) (match-end 2))
                    'face `((:foreground ,"#F1266F"))))))
 
+(defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
+  (recentf-cleanup)
+  (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
+    (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
+
+
 ;;
 ;; saveplace
 ;;
