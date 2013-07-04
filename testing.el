@@ -5,7 +5,25 @@
 ;;; now testing functions
 ;;;
 
+;;
+;; recentf
+;;
+(defun recentf-set-overlay-directory ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^.+ +\\(.+/\\)$" nil t nil)
+      (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                   'face `((:foreground ,"#F1266F"))))))
 
+
+(add-hook 'recentf-dialog-mode-hook
+          'recentf-set-overlay-directory)
+
+;;
+;; css-mode
+;;
+(setq cssm-indent-function 'cssm-c-style-indenter)
+(setq cssm-indent-level 4)
 
 ;;
 ;; JSON
@@ -109,23 +127,23 @@
 
 
 
-;;
-;; auto-save-buffers
-;;
-(require 'auto-save-buffers)
-(run-with-idle-timer 0.5 t 'auto-save-buffers)   ; every 0.5sec idle && buffer-modified-p
+;; ;;
+;; ;; auto-save-buffers
+;; ;;
+;; (require 'auto-save-buffers)
+;; (run-with-idle-timer 0.5 t 'auto-save-buffers)   ; every 0.5sec idle && buffer-modified-p
 
-; 標準の自動バックアップを無効化しておく
-(setq make-backup-files nil) ; e.g. hoge.txt~
+;; ; 標準の自動バックアップを無効化しておく
+;; (setq make-backup-files nil) ; e.g. hoge.txt~
 (setq auto-save-default nil) ; e.g. #hoge.txt#
 
-; for undo
-(add-hook 'write-file-hooks 'time-stamp)
-(defadvice time-stamp (around time-stamp-around activate)
-  (let (buffer-undo-list)
-    ad-do-it))
+;; ; for undo
+;; (add-hook 'write-file-hooks 'time-stamp)
+;; (defadvice time-stamp (around time-stamp-around activate)
+;;   (let (buffer-undo-list)
+;;     ad-do-it))
 
-(global-unset-key "\C-x\C-s")           ; save-buffer
+;; (global-unset-key "\C-x\C-s")           ; save-buffer
 
 ;;
 ;; 全角英数 -> 半角 変換
@@ -334,12 +352,19 @@
 ;;
 ;; save scratch buffer
 ;;
+
+;; (defun load-scratch-buffer ()
+;;   (let ((dir "~/scratch/")
+;;         (fn ".latest")
+  
+
 (defun save-scratch-buffer ()
   (let ((dir "~/scratch/")
         (fn (format-time-string "%04Y%02m%02d-%02H%02M%02S.el")))
     (save-excursion
       (widen)
       (write-region (point-min) (point-max) (concat dir fn)))
+    (shell-command-to-string (format "ln -sf %s%s %s.latest" dir fn dir))
     (message "saved: %s%s" dir fn)))
 
 (defun save-buffer-lisp-int ()

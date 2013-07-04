@@ -422,7 +422,7 @@ saving keyboard macros (see `insert-kbd-macro')."
 				    nil prop)
 		   proplen)))))))
 
-(defun css-mode()
+ (defun css-mode()
   "Major mode for editing CSS style sheets.
 \\{cssm-mode-map}"
   (interactive)

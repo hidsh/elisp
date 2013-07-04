@@ -460,12 +460,19 @@
 
 
 ;;
-;; recent files
+;; recentf
 ;;
 (global-set-key "\M-r" 'recentf-open-files)
 
 ;; (defadvice widget-forward (after widget-forward-hl-adv activate)
 ;;   (highlight-current-line))
+
+;; (defun recentf-open-dired ()
+;;   (interactive)
+;;   (kill-buffer (current-buffer))  
+;;   (funcall 'dired (nth (- (line-number-at-pos) 4) recentf-list)))
+
+
 
 (eval-after-load "recentf"
   '(progn
@@ -484,13 +491,22 @@
      (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
      (define-key recentf-dialog-mode-map "n"      'View-scroll-page-backward)
      (define-key recentf-dialog-mode-map "/" 'isearch-forward)
+     ;; (define-key recentf-dialog-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key recentf-dialog-mode-map "s" 'isearch-forward)))
 
 (recentf-mode 1)
-(setq recentf-max-menu-items 0)
+;; (setq recentf-max-menu-items 0)
 (setq recentf-max-saved-items 1000)
 
 (setq recentf-exclude '("\\.emacs-places$"))
+(require 'recentf-ext)
+
+(defadvice recentf-open-files (after recentf-set-overlay-directory-adv activate)
+  (set-buffer "*Open Recent*")
+  (save-excursion
+    (while (re-search-forward "\\(^  \\[[0-9]\\] \\|^  \\)\\(.*/\\)$" nil t nil)
+      (overlay-put (make-overlay (match-beginning 2) (match-end 2))
+                   'face `((:foreground ,"#F1266F"))))))
 
 ;;
 ;; saveplace
@@ -657,6 +673,20 @@
   (if (eq major-mode 'dired-mode)
       (kill-buffer my-dired-before-buffer)))
 
+(defun open-dired-from-recentf (keyword)
+  (interactive "sz: ")
+  (with-temp-buffer
+    (insert (format "%s" recentf-list))
+    (delete-backward-char 1)
+    (goto-char (point-min))
+    (delete-char 1)
+    (while (re-search-forward "\\s-\/" nil t)
+      (replace-match "\n/"))
+    (goto-char (point-min))
+    (search-forward keyword)
+    (dired (file-name-directory (thing-at-point 'line)))
+    ))
+
 (eval-after-load "dired"
   '(progn
      (define-key dired-mode-map "f" 'nop)
@@ -678,7 +708,8 @@
      ;; (define-key dired-mode-map "n"      'View-scroll-page-backward)
      (define-key dired-mode-map "/" 'isearch-forward)
      (define-key dired-mode-map "s" 'isearch-forward)
-     (define-key dired-mode-map [backspace] 'dired-up-directory)
+     (define-key dired-mode-map "z" 'open-dired-from-recentf)
+   (define-key dired-mode-map [backspace] 'dired-up-directory)
      (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)))
 
 
@@ -705,6 +736,8 @@
 ;; enable recursive copy(C) and delete(D)
 (setq dired-recursive-copies 'always)
 (setq dired-recursive-deletes 'always)
+
+(setq ls-lisp-dirs-first t)             ;ディレクトリを上部に表示
 
 
 ;;;

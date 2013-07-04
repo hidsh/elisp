@@ -1945,7 +1945,7 @@ Otherwise,  ARG is t, redo is called."
 ;;@@ face-file edited-today(for dired)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://www.bookshelf.jp/soft/meadow_25.html#SEC261
-(defface face-file-edited-today '((t (:foreground "deep pink"))) nil)
+(defface face-file-edited-today '((t (:foreground "hot pink"))) nil)
 (defvar face-file-edited-today 'face-file-edited-today)
 (defun my-dired-today-search (arg)
   "Fontlock search function for dired."
