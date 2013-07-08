@@ -5,6 +5,22 @@
 ;;; now testing functions
 ;;;
 
+;;
+;; バックアップの保存先を指定
+;;
+(setq backup-directory-alist
+  (cons (cons ".*" (expand-file-name "~/bak"))
+        backup-directory-alist))
+
+(setq auto-save-file-name-transforms
+  `((".*", (expand-file-name "~/bak/") t)))
+
+(setq auto-save-list-file-prefix nil)
+      
+;;
+;; quickrun
+;;
+(require 'quickrun)
 
 ;;
 ;; css-mode
@@ -122,7 +138,7 @@
 
 ;; ; 標準の自動バックアップを無効化しておく
 ;; (setq make-backup-files nil) ; e.g. hoge.txt~
-(setq auto-save-default nil) ; e.g. #hoge.txt#
+;; (setq auto-save-default nil) ; e.g. #hoge.txt#
 
 ;; ; for undo
 ;; (add-hook 'write-file-hooks 'time-stamp)
@@ -131,6 +147,7 @@
 ;;     ad-do-it))
 
 ;; (global-unset-key "\C-x\C-s")           ; save-buffer
+
 
 ;;
 ;; 全角英数 -> 半角 変換
@@ -588,9 +605,12 @@
 (defun my-mark-whole-buffer ()
   "Usefull mark-whole-buffer."
   (interactive)
+  (transient-mark-mode 1)
   (push-mark (point-min))
   (goto-char (point-max))
-  (message "Selected all"))
+  (message "Selected all")
+  (read-event)
+  (transient-mark-mode 0))
 
 (global-set-key "\C-x\C-a" 'my-mark-whole-buffer)
 (global-set-key "\M-a"     'my-mark-whole-buffer)
@@ -639,7 +659,7 @@
 (global-set-key "\M-a" 'my-mark-whole-buffer)
 (global-set-key "\M-c" 'my-meta-c)
 (global-set-key "\M-x" 'my-meta-x)
-(global-set-key "\M-v" 'my-meta-v)
+;; (global-set-key "\M-v" 'my-meta-v)
 
 
 
