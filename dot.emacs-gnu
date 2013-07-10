@@ -472,7 +472,18 @@
 ;;   (kill-buffer (current-buffer))  
 ;;   (funcall 'dired (nth (- (line-number-at-pos) 4) recentf-list)))
 
+(defun recentf-edit-check ()
+  (interactive)
+  (widget-button-press 
+   (save-excursion
+     (beginning-of-line)
+     (forward-char 1)
+     (point))))
 
+(defun recentf-edit-check-and-nextline ()
+  (interactive)
+  (recentf-edit-check)
+  (next-line))
 
 (eval-after-load "recentf"
   '(progn
@@ -487,10 +498,12 @@
      (define-key recentf-dialog-mode-map "w" 'forward-word)
      (define-key recentf-dialog-mode-map "b" 'backward-word)
      (define-key recentf-dialog-mode-map "o" 'other-window)
-     (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
-     (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
-     (define-key recentf-dialog-mode-map "n"      'View-scroll-page-backward)
+     (define-key recentf-dialog-mode-map [?\ ]    'recentf-edit-check-and-nextline)
+     ;; (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
+     ;; (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
+     (define-key recentf-dialog-mode-map "n" 'View-scroll-page-backward)
      (define-key recentf-dialog-mode-map "/" 'isearch-forward)
+     (define-key recentf-dialog-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key recentf-dialog-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key recentf-dialog-mode-map "s" 'isearch-forward)))
 
@@ -509,10 +522,13 @@
                    'face `((:foreground ,"#F1266F"))))))
 
 (defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
-  (recentf-cleanup)
+  ;; (recentf-cleanup)
   (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
     (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
 
+(defadvice recentf-edit-list-validate (after recentf-cleanup-adv activate)
+  (recentf-cleanup)
+  (recentf-cancel-dialog))
 
 ;;
 ;; saveplace
