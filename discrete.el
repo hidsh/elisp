@@ -910,7 +910,7 @@ double quotation characters \(\"\) from given string."
   (insert "\t"))
 
 ;; bind to C-tab
-(global-set-key (quote [C-tab]) 'insert-tab-character)
+;; (global-set-key (quote [C-tab]) 'insert-tab-character)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

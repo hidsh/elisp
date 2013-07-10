@@ -6,6 +6,148 @@
 ;;;
 
 ;;
+;; dired
+;;
+(defun my-dired-exit ()
+  (interactive)
+  (let ((buf (current-buffer)))
+    (unless (one-window-p)
+      (delete-window))
+    (kill-buffer buf)))
+
+(add-hook 'dired-mode-hook
+          '(lambda ()
+             (define-key dired-mode-map (kbd "q") 'my-dired-exit)))
+
+;;
+;; tabbar
+;;
+(require 'tabbar)
+(tabbar-mode 1)
+;; タブ上でマウスホイール操作無効
+(tabbar-mwheel-mode -1)
+
+;; グループ化しない
+(setq tabbar-buffer-groups-function nil)
+
+;; 左に表示されるボタンを無効化
+(dolist (btn '(tabbar-buffer-home-button
+               tabbar-scroll-left-button
+               tabbar-scroll-right-button))
+  (set btn (cons (cons "" nil)
+                 (cons "" nil))))
+
+
+;; タブに表示させるバッファの設定
+(defvar my-tabbar-displayed-buffers
+  '("*scratch*")
+  "*Regexps matches buffer names always included tabs.")
+
+(defun my-tabbar-buffer-list ()
+  "Return the list of buffers to show in tabs.
+Exclude buffers whose name starts with a space or an asterisk.
+The current buffer and buffers matches `my-tabbar-displayed-buffers'
+are always included."
+  (let* ((hides (list ?\  ?\*))
+         (re (regexp-opt my-tabbar-displayed-buffers))
+         (cur-buf (current-buffer))
+         (tabs (delq nil
+                     (mapcar (lambda (buf)
+                               (let ((name (buffer-name buf)))
+                                 (when (or (string-match re name)
+                                           (not (memq (aref name 0) hides)))
+                                   buf)))
+                             (buffer-list)))))
+    ;; Always include the current buffer.
+    (if (memq cur-buf tabs)
+        tabs
+      (cons cur-buf tabs))))
+
+(setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
+
+(global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
+(global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
+
+(defun my-tabbar-buffer-select-tab (event tab)
+  "On mouse EVENT, select TAB."
+  (let ((mouse-button (event-basic-type event))
+        (buffer (tabbar-tab-value tab)))
+    (cond
+     ((eq mouse-button 'mouse-2)
+      (with-current-buffer buffer
+        (kill-buffer)))
+     ((eq mouse-button 'mouse-3)
+      (delete-other-windows))
+     (t
+      (switch-to-buffer buffer)))
+    ;; Don't show groups.
+    (tabbar-buffer-show-groups nil)))
+
+(setq tabbar-help-on-tab-function 'my-tabbar-buffer-help-on-tab)
+(setq tabbar-select-tab-function 'my-tabbar-buffer-select-tab)
+
+;; adding spaces
+(defun tabbar-buffer-tab-label (tab)
+  "Return a label for TAB.
+That is, a string used to represent it on the tab bar."
+  (let ((label  (if tabbar--buffer-show-groups
+                    (format " [%s] " (tabbar-tab-tabset tab))
+                  (format " %s " (tabbar-tab-value tab)))))
+    ;; Unless the tab bar auto scrolls to keep the selected tab
+    ;; visible, shorten the tab label to keep as many tabs as possible
+    ;; in the visible area of the tab bar.
+    (if tabbar-auto-scroll-flag
+        label
+      (tabbar-shorten
+       label (max 1 (/ (window-width)
+                       (length (tabbar-view
+                                (tabbar-current-tabset)))))))))
+
+;; 外観変更
+(set-face-attribute 'tabbar-default nil
+ :family "Lucida Grande" :height 130
+ :background "#bebdbe")
+
+
+(set-face-attribute 'tabbar-unselected nil
+ :background "#bebdbe"
+ :foreground "#101418"
+ :box nil)
+
+(set-face-attribute 'tabbar-selected nil
+ :background "#22232a"
+ :foreground "#e9e9e9"
+ :box nil)
+
+(setq tabbar-separator '(0.2)) ;; タブの長さ
+(set-face-attribute 'tabbar-separator nil
+ :background "#6c6c6c")
+
+;;
+;; 最後のマークに移動
+;;
+(defun move-to-mark ()
+      (interactive)
+      (let ((pos (point)))
+        (goto-char (mark))
+        (push-mark pos)))
+
+(global-set-key "\C-t" 'move-to-mark)
+
+;;
+;; html-mode
+;;
+(setq sgml-electric-tag-pair-mode 1)
+
+(add-hook 'html-mode-hook
+          '(lambda ()
+             (define-key html-mode-map "\M-t" 'sgml-close-tag)
+             (define-key html-mode-map "\M-," 'insert-paren-gtlt)
+             (define-key html-mode-map [M-left]  'sgml-skip-tag-backward)
+             (define-key html-mode-map [M-right] 'sgml-skip-tag-forward)))
+
+
+;;
 ;; バックアップの保存先を指定
 ;;
 (setq backup-directory-alist
@@ -21,6 +163,8 @@
 ;; quickrun
 ;;
 (require 'quickrun)
+
+(defalias 'ql 'quickrun)
 
 ;;
 ;; css-mode
