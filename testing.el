@@ -68,6 +68,9 @@ are always included."
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
+(global-set-key [(f12)]       'tabbar-forward-tab)
+(global-set-key [(f11)]       'tabbar-backward-tab)
+
 (defun my-tabbar-buffer-select-tab (event tab)
   "On mouse EVENT, select TAB."
   (let ((mouse-button (event-basic-type event))
@@ -111,7 +114,7 @@ That is, a string used to represent it on the tab bar."
 
 (set-face-attribute 'tabbar-unselected nil
  :background "#bebdbe"
- :foreground "#101418"
+ :foreground "#3d3d3d"
  :box nil)
 
 (set-face-attribute 'tabbar-selected nil
