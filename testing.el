@@ -17,7 +17,8 @@
 
 (add-hook 'dired-mode-hook
           '(lambda ()
-             (define-key dired-mode-map (kbd "q") 'my-dired-exit)))
+             (define-key dired-mode-map (kbd "q") 'my-dired-exit)
+             (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)))
 
 ;;
 ;; tabbar
