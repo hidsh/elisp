@@ -15,8 +15,15 @@
       (delete-window))
     (kill-buffer buf)))
 
+(defun my-dired-do-trash ()
+  )
+
 (add-hook 'dired-mode-hook
           '(lambda ()
+             (define-key dired-mode-map (kbd "C") 'dired-do-chmod)  ; chmod
+             (define-key dired-mode-map (kbd "m") 'dired-do-rename) ; mv
+             (define-key dired-mode-map (kbd "M") nil)
+             (define-key dired-mode-map (kbd "c") 'dired-do-copy)   ; cp
              (define-key dired-mode-map (kbd "q") 'my-dired-exit)
              (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)))
 
@@ -168,8 +175,16 @@ That is, a string used to represent it on the tab bar."
 ;;
 (require 'quickrun)
 
-(defalias 'ql 'quickrun)
+(defalias 'r 'quickrun)
+;; (defadvice time-stamp (around time-stamp-around activate)
+;;   (let (buffer-undo-list)
+;;     ad-do-it))
 
+(add-hook 'quickrun-after-run-hook
+          '(lambda ()
+             (set-window-start (selected-window) 1)
+             (other-window -1)
+             (quickrun/remove-temp-files)))
 ;;
 ;; css-mode
 ;;
