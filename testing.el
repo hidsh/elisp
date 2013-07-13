@@ -6,6 +6,27 @@
 ;;;
 
 ;;
+;; hilight current-line
+;;
+(defface hlline-face
+  '((((class color)
+      (background dark))
+     (:background "#101418"))
+    (((class color)
+      (background light))
+     (:background "SeaGreen"))
+    (t
+     ()))
+  "Used face hl-line.")
+
+(setq hl-line-face 'hlline-face)
+(global-hl-line-mode)
+
+(defalias 'hilight-current-line 'global-hl-line-mode)
+(defalias 'h 'hilight-current-line)
+
+
+;;
 ;; dired
 ;;
 (defun my-dired-exit ()
