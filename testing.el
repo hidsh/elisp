@@ -11,6 +11,7 @@
 (defface hlline-face
   '((((class color)
       (background dark))
+     ;; (:background "Red"))
      (:background "#101418"))
     (((class color)
       (background light))
