@@ -21,7 +21,7 @@
   "Used face hl-line.")
 
 (setq hl-line-face 'hlline-face)
-(global-hl-line-mode)
+;; (global-hl-line-mode)
 
 (defalias 'hilight-current-line 'global-hl-line-mode)
 (defalias 'h 'hilight-current-line)
@@ -230,36 +230,36 @@ That is, a string used to represent it on the tab bar."
 ;;
 ;; my terminal (shell)
 ;;
-(defun term ()
-  (interactive)
-  (let* ((shell-name "*shell*"))
-    (when (get-buffer-window shell-name)
-      (let* ((shell-buf (get-buffer "*shell*"))
-             (shell-proc (get-buffer-process shell-buf)))
-        (kill-process (get-buffer-process shell-buf))
-      	(sit-for 0.5)
-        (kill-buffer shell-buf)))
-    (unless (one-window-p)
-      (delete-other-windows))
-    (split-window-below (- (window-height) 15))
-    (select-window (next-window))
-    (shell)
-    (with-current-buffer shell-name
-      (goto-char (point-max)))))
-
-(defun term-kill ()
-  (interactive)
-  (let* ((shell-buf (get-buffer "*shell*"))
-         (shell-proc (get-buffer-process shell-buf)))
-    (kill-process shell-proc)
-    (sit-for 0.5)
-    (kill-buffer shell-buf)
-    (unless (one-window-p)
-      (delete-window (selected-window)))))
-  
-(add-hook 'shell-mode-hook
-          '(lambda ()
-             (define-key shell-mode-map "\C-xk" 'term-kill)))
+;; (defun term ()
+;;   (interactive)
+;;   (let* ((shell-name "*shell*"))
+;;     (when (get-buffer-window shell-name)
+;;       (let* ((shell-buf (get-buffer "*shell*"))
+;;              (shell-proc (get-buffer-process shell-buf)))
+;;         (kill-process (get-buffer-process shell-buf))
+;;       	(sit-for 0.5)
+;;         (kill-buffer shell-buf)))
+;;     (unless (one-window-p)
+;;       (delete-other-windows))
+;;     (split-window-below (- (window-height) 15))
+;;     (select-window (next-window))
+;;     (shell)
+;;     (with-current-buffer shell-name
+;;       (goto-char (point-max)))))
+;;
+;; (defun term-kill ()
+;;   (interactive)
+;;   (let* ((shell-buf (get-buffer "*shell*"))
+;;          (shell-proc (get-buffer-process shell-buf)))
+;;     (kill-process shell-proc)
+;;     (sit-for 0.5)
+;;     (kill-buffer shell-buf)
+;;     (unless (one-window-p)
+;;       (delete-window (selected-window)))))
+;;  
+;; (add-hook 'shell-mode-hook
+;;           '(lambda ()
+;;              (define-key shell-mode-map "\C-xk" 'term-kill)))
 
 ;;
 ;; replace to discrete.el

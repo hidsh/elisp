@@ -24,6 +24,29 @@
 
 ;;; Code:
 
+;;;
+;;; open terminal
+;;;
+(defun open-terminal-1 (dir)
+  (let ((script (format (concat
+                         "tell application \"Terminal\"\n"
+                         "    activate"
+                         "    do script with command \"cd %s\"\n"
+                         "end tell\n")
+                        dir)))
+    (start-process "osascript-getinfo" nil "osascript" "-e" script)))
+
+(defun open-terminal ()
+  (interactive)
+  (let* ((fn (buffer-file-name))
+         (dir (cond ((string= major-mode "dired-mode") dired-directory)
+                    ((and fn (file-exists-p fn)) (file-name-directory fn))
+                    (t "~"))))
+    (open-terminal-1 dir)))
+
+(defalias 'term 'open-terminal)
+
+
 ;;; 
 ;;; open finder
 ;;; 
