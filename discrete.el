@@ -887,22 +887,6 @@ double quotation characters \(\"\) from given string."
 ;; (global-set-key "\M-\C-m" 'newline)		    ; alt + enter
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;@@ my-beginning-of-line
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun my-beginning-of-line ()
- (interactive)
- (let ((before (point))
-    (after))
-   (save-excursion
-     (setq after (progn (back-to-indentation)
-             (point))))
-   (if (= before after)
-    (beginning-of-line)
-     (goto-char after))))
-
-(global-set-key "\C-a" 'my-beginning-of-line)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ insert-tab-character
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun insert-tab-character ()

@@ -31,9 +31,9 @@
   (let ((script (format (concat
                          "tell application \"Terminal\"\n"
                          "    activate"
-                         "    do script with command \"cd %s\"\n"
+                         "    do script with command \" cd %s \" \n"
                          "end tell\n")
-                        dir)))
+                        (concat "\\\"" dir "\\\""))))
     (start-process "osascript-getinfo" nil "osascript" "-e" script)))
 
 (defun open-terminal ()

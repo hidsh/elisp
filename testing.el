@@ -30,6 +30,8 @@
 ;;
 ;; dired
 ;;
+(setq delete-by-moving-to-trash t)
+
 (defun my-dired-exit ()
   (interactive)
   (let ((buf (current-buffer)))
@@ -37,8 +39,15 @@
       (delete-window))
     (kill-buffer buf)))
 
-(defun my-dired-do-trash ()
-  )
+(defun my-beginning-of-line-dired ()
+ (interactive)
+ (let ((curr (current-column))
+       (ind  47))
+   (cond
+    ((= curr 0)   (move-to-column ind))
+    ((< curr ind) (beginning-of-line))
+    ((> curr ind) (move-to-column ind))
+    (t (beginning-of-line)))))
 
 (add-hook 'dired-mode-hook
           '(lambda ()
@@ -47,13 +56,15 @@
              (define-key dired-mode-map (kbd "M") nil)
              (define-key dired-mode-map (kbd "c") 'dired-do-copy)   ; cp
              (define-key dired-mode-map (kbd "q") 'my-dired-exit)
-             (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)))
+             (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)
+             (define-key dired-mode-map "\C-a" 'my-beginning-of-line-dired)))
 
 ;;
 ;; tabbar
 ;;
-(require 'tabbar)
+(require 'tabbar+)
 (tabbar-mode 1)
+
 ;; タブ上でマウスホイール操作無効
 (tabbar-mwheel-mode -1)
 
@@ -98,8 +109,11 @@ are always included."
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-(global-set-key [(f12)]       'tabbar-forward-tab)
-(global-set-key [(f11)]       'tabbar-backward-tab)
+(global-set-key [f12]       'tabbar-forward-tab)
+(global-set-key [f11]       'tabbar-backward-tab)
+
+(global-set-key [(meta f12)]       'tabbar+move-right)
+(global-set-key [(meta f11)]       'tabbar+move-left)
 
 (defun my-tabbar-buffer-select-tab (event tab)
   "On mouse EVENT, select TAB."
@@ -273,6 +287,11 @@ That is, a string used to represent it on the tab bar."
     ((< curr ind) (beginning-of-line))
     ((> curr ind) (move-to-column ind))
     (t (beginning-of-line)))))
+
+(global-set-key "\C-a" 'my-beginning-of-line)
+
+
+
 
 ;;
 ;; disable vc
