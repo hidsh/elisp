@@ -44,7 +44,8 @@
                     (t "~"))))
     (open-terminal-1 dir)))
 
-(defalias 'term 'open-terminal)
+(setf term-orig (symbol-function 'term))
+(fset 'term 'open-terminal)
 
 
 ;;; 
