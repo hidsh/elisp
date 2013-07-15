@@ -6,6 +6,15 @@
 ;;;
 
 ;;
+;; sgml-close-tag
+;;
+(defadvice sgml-close-tag (around back-adv activate)
+  (let ((pt (point)))
+    ad-do-it
+    (goto-char pt)))
+
+
+;;
 ;; hilight current-line
 ;;
 (defface hlline-face
@@ -813,9 +822,12 @@ That is, a string used to represent it on the tab bar."
   (push-mark (point-min))
   (goto-char (point-max))
   (message "Selected all")
-  (read-event)
-  (transient-mark-mode 0))
-
+  (let ((ch (read-event)))
+    (transient-mark-mode 0)
+    ;; (cond ((= ch ?c) (message "!!!A"))
+          ;; ((= ch ?b) (message "!!!B"))
+          ;; (t (message "!!!X"))))    
+))
 (global-set-key "\C-x\C-a" 'my-mark-whole-buffer)
 (global-set-key "\M-a"     'my-mark-whole-buffer)
 
