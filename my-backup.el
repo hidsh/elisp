@@ -149,7 +149,10 @@ nilの場合は編集中のファイルと同じ場所とみなす。")
 	; ｶﾚﾝﾄﾊﾞｯﾌｧを書き出しているわけではない。
 	(copy-file (expand-file-name (buffer-file-name)) bak-filename)
 	(message (format "backup --> \"%s\""
-			 (file-name-nondirectory bak-filename)))))))
+                     (if my-backup-directory
+                          (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
+                            (abbreviate-file-name bak-filename))
+                       (concat "./" (file-name-nondirectory bak-filename)))))))))
 
 
 (defun my-backup-dired-list ()

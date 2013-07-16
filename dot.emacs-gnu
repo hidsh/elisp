@@ -240,6 +240,7 @@
 ;; my-backup
 ;;
 (require 'my-backup)
+(setq my-backup-directory "~/bak")
 
 ;;
 ;; auto-complete
