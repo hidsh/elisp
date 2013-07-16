@@ -6,6 +6,12 @@
 ;;;
 
 ;;
+;; JS2
+;;
+(autoload 'js2-mode "js2" nil t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+
+;;
 ;; sgml-close-tag
 ;;
 (defadvice sgml-close-tag (around back-adv activate)
@@ -221,15 +227,20 @@ That is, a string used to represent it on the tab bar."
 (require 'quickrun)
 
 (defalias 'r 'quickrun)
-;; (defadvice time-stamp (around time-stamp-around activate)
-;;   (let (buffer-undo-list)
-;;     ad-do-it))
+;; (defadvice quickrun/make-sentinel (around back-window-adv activate)
+;;   (ignore-errors
+;;     (unwind-protect ad-do-it
+;;       (set-window-start (selected-window) 1)
+;;       (other-window -1)
+;;       (quickrun/remove-temp-files))))
+
 
 (add-hook 'quickrun-after-run-hook
           '(lambda ()
              (set-window-start (selected-window) 1)
              (other-window -1)
              (quickrun/remove-temp-files)))
+
 ;;
 ;; css-mode
 ;;
@@ -506,7 +517,6 @@ That is, a string used to represent it on the tab bar."
 ;;
 ;; show full path on modeline
 ;;
-
 (defvar mode-line-buffer-fullpath
               (list 'buffer-file-name
                     (propertized-buffer-identification "%12f")
@@ -1023,14 +1033,6 @@ That is, a string used to represent it on the tab bar."
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
  
-
-
-;; for python
-
-
-;;
-;;
-;;
 
 (provide 'testing)
 ;;; testing.el ends here
