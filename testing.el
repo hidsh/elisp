@@ -6,6 +6,30 @@
 ;;;
 
 ;;
+;; web-mode
+;;
+(require 'web-mode)
+
+;; (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+;; (add-hook 'web-mode-hook
+;;           '(lambda ()
+;;              (define-key web-mode-map "\M-]" 'web-mode-tag-match)
+;;              (define-key web-mode-map "\M-\C-]" 'my-paren)
+;;              (define-key web-mode-map "\M-d") 'web-mode-element-delete))
+
+(defun my-paren-auto ()
+  (interactive)
+  (let ((pr '(?\( ?\[ ?\{))
+        (pl '(?\) ?\] ?\})))
+    (if (or (memq (char-after) pr) (memq (char-before) pl))
+        (call-interactively 'my-paren)
+      (call-interactively 'web-mode-tag-match))))
+
+(add-hook 'html-mode-hook
+          '(lambda ()
+             (define-key html-mode-map "\M-]" 'my-paren-auto)))
+
+;;
 ;; JS2
 ;;
 (autoload 'js2-mode "js2" nil t)
