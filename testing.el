@@ -148,11 +148,11 @@ are always included."
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-(global-set-key [f12]       'tabbar-forward-tab)
-(global-set-key [f11]       'tabbar-backward-tab)
+(global-set-key [f12]        'tabbar-forward-tab)
+(global-set-key [f11]        'tabbar-backward-tab)
 
-(global-set-key [(meta f12)]       'tabbar+move-right)
-(global-set-key [(meta f11)]       'tabbar+move-left)
+(global-set-key [(meta f12)] 'tabbar+move-right)
+(global-set-key [(meta f11)] 'tabbar+move-left)
 
 (defun my-tabbar-buffer-select-tab (event tab)
   "On mouse EVENT, select TAB."
@@ -197,7 +197,7 @@ That is, a string used to represent it on the tab bar."
 
 (set-face-attribute 'tabbar-unselected nil
  :background "#bebdbe"
- :foreground "#3d3d3d"
+ :foreground "#313131"
  :box nil)
 
 (set-face-attribute 'tabbar-selected nil
@@ -515,8 +515,9 @@ That is, a string used to represent it on the tab bar."
 ;;     (insert-pair)))
 
 ; auto indent
-(add-hook 'python-mode-hook '(lambda () 
-     (define-key python-mode-map "\C-m" 'newline-and-indent)))
+(add-hook 'python-mode-hook '(lambda ()
+                               (setq python-indent 4)
+                               (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
 ;; ; flymake
 ;; (add-hook 'find-file-hook 'flymake-find-file-hook)
