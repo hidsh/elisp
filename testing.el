@@ -6,6 +6,22 @@
 ;;;
 
 ;;
+;; ql
+;;
+(defun ql ()
+  (interactive)
+  (let ((fn (buffer-file-name)))
+    (when fn
+      (start-process "ql-file" nil "qlmanage" "-p" fn))))
+
+;;
+;; keyboad macro
+;;
+(defalias 'macro-record-start 'start-kbd-macro)
+(defalias 'macro-record-end   'end-kbd-macro)
+(defalias 'macro-call         'call-last-kbd-macro) ; e.g. C-u 4 M-x macro-call
+
+;;
 ;; web-mode
 ;;
 (require 'web-mode)
@@ -32,7 +48,7 @@
 ;;
 ;; JS2
 ;;
-(autoload 'js2-mode "js2" nil t)
+(require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;;
@@ -47,23 +63,28 @@
 ;;
 ;; hilight current-line
 ;;
-(defface hlline-face
-  '((((class color)
-      (background dark))
+(defface my-line-face
+  '((((class color) (background dark))
      ;; (:background "Red"))
-     (:background "#101418"))
-    (((class color)
-      (background light))
-     (:background "SeaGreen"))
+     (:background "#101418")
+     (:underline t))
+    (((class color) (background light))
+     (:background "SeaGreen")
+     (:underline t))
     (t
      ()))
   "Used face hl-line.")
 
-(setq hl-line-face 'hlline-face)
+(setq hl-line-face 'my-line-face)
 ;; (global-hl-line-mode)
 
 (defalias 'hilight-current-line 'global-hl-line-mode)
 (defalias 'h 'hilight-current-line)
+
+(defadvice recenter-top-bottom (after hilight-cursor-adv activate)
+  (hl-line-mode 1)
+  (sit-for 10)
+  (hl-line-mode -1))
 
 
 ;;

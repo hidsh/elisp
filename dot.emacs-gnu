@@ -593,7 +593,7 @@
 
 ; for moccur (not work with moccur-grep)
 (setq *moccur-buffer-name-exclusion-list*
-      '(".+TAGS+" "*Completions*" "*Messages*" "^[ ].+" ".svn"))
+      '(".+TAGS+" "*Completions*" "*Messages*" "^[ ].+" ".svn" ".pyc" ".elc"))
 
 ; moccur-grep & moccur-grep-find
 (global-set-key "\M-o" 'moccur-grep-find)
