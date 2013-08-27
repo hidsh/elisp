@@ -220,21 +220,22 @@
 
 ;; current-version (confricts /w my view-mode keybindings)
 ;;
-(add-to-list 'load-path "~/elisp/yasnippet")
-(require 'yasnippet)
-(setq yas-snippet-dirs
-      '("~/elisp/yasnippet/snippets-g" ;; 作成するスニペットはここに入る
-        "~/elisp/yasnippet/snippets"   ;; 最初から入っていたスニペット(省略可能)
-        ))
-(yas-global-mode 1)
-(custom-set-variables '(yas-trigger-key "TAB"))
 
-;; 既存スニペットを挿入する
-(define-key yas-minor-mode-map (kbd "C-x i i") 'yas-insert-snippet)
-;; 新規スニペットを作成するバッファを用意する
-(define-key yas-minor-mode-map (kbd "C-x i n") 'yas-new-snippet)
-;; 既存スニペットを閲覧・編集する
-(define-key yas-minor-mode-map (kbd "C-x i v") 'yas-visit-snippet-file)
+;; (add-to-list 'load-path "~/elisp/yasnippet")
+;; (require 'yasnippet)
+;; (setq yas-snippet-dirs
+;;       '("~/elisp/yasnippet/snippets-g" ;; 作成するスニペットはここに入る
+;;         "~/elisp/yasnippet/snippets"   ;; 最初から入っていたスニペット(省略可能)
+;;         ))
+;; (yas-global-mode 1)
+;; (custom-set-variables '(yas-trigger-key "TAB"))
+
+;; ;; 既存スニペットを挿入する
+;; (define-key yas-minor-mode-map (kbd "C-x i i") 'yas-insert-snippet)
+;; ;; 新規スニペットを作成するバッファを用意する
+;; (define-key yas-minor-mode-map (kbd "C-x i n") 'yas-new-snippet)
+;; ;; 既存スニペットを閲覧・編集する
+;; (define-key yas-minor-mode-map (kbd "C-x i v") 'yas-visit-snippet-file)
 
 ;;
 ;; my-backup
