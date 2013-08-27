@@ -465,7 +465,7 @@
 ;;
 ;; recentf
 ;;
-(global-set-key "\M-r" 'recentf-open-files)
+;; (global-set-key "\M-r" 'recentf-open-files)
 
 ;; (defadvice widget-forward (after widget-forward-hl-adv activate)
 ;;   (highlight-current-line))
@@ -475,63 +475,63 @@
 ;;   (kill-buffer (current-buffer))  
 ;;   (funcall 'dired (nth (- (line-number-at-pos) 4) recentf-list)))
 
-(defun recentf-edit-check ()
-  (interactive)
-  (widget-button-press 
-   (save-excursion
-     (beginning-of-line)
-     (forward-char 1)
-     (point))))
+;; (defun recentf-edit-check ()
+;;   (interactive)
+;;   (widget-button-press 
+;;    (save-excursion
+;;      (beginning-of-line)
+;;      (forward-char 1)
+;;      (point))))
 
-(defun recentf-edit-check-and-nextline ()
-  (interactive)
-  (recentf-edit-check)
-  (next-line))
+;; (defun recentf-edit-check-and-nextline ()
+;;   (interactive)
+;;   (recentf-edit-check)
+;;   (next-line))
 
-(eval-after-load "recentf"
-  '(progn
-     (define-key recentf-dialog-mode-map "h" 'backward-char)
-     (define-key recentf-dialog-mode-map "j" 'next-line)
-     (define-key recentf-dialog-mode-map "k" 'previous-line)
-     (define-key recentf-dialog-mode-map "l" 'forward-char)
-     (define-key recentf-dialog-mode-map "g" 'beginning-of-buffer)
-     (define-key recentf-dialog-mode-map "G" 'end-of-buffer)
-     (define-key recentf-dialog-mode-map "a" 'my-beginning-of-line)
-     (define-key recentf-dialog-mode-map "e" 'end-of-line)
-     (define-key recentf-dialog-mode-map "w" 'forward-word)
-     (define-key recentf-dialog-mode-map "b" 'backward-word)
-     (define-key recentf-dialog-mode-map "o" 'other-window)
-     (define-key recentf-dialog-mode-map [?\ ]    'recentf-edit-check-and-nextline)
-     ;; (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
-     ;; (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
-     (define-key recentf-dialog-mode-map "n" 'View-scroll-page-backward)
-     (define-key recentf-dialog-mode-map "/" 'isearch-forward)
-     (define-key recentf-dialog-mode-map "\M-e" 'recentf-edit-list)
-     ;; (define-key recentf-dialog-mode-map "\M-\C-m" 'recentf-open-dired)
-     (define-key recentf-dialog-mode-map "s" 'isearch-forward)))
+;; (eval-after-load "recentf"
+;;   '(progn
+;;      (define-key recentf-dialog-mode-map "h" 'backward-char)
+;;      (define-key recentf-dialog-mode-map "j" 'next-line)
+;;      (define-key recentf-dialog-mode-map "k" 'previous-line)
+;;      (define-key recentf-dialog-mode-map "l" 'forward-char)
+;;      (define-key recentf-dialog-mode-map "g" 'beginning-of-buffer)
+;;      (define-key recentf-dialog-mode-map "G" 'end-of-buffer)
+;;      (define-key recentf-dialog-mode-map "a" 'my-beginning-of-line)
+;;      (define-key recentf-dialog-mode-map "e" 'end-of-line)
+;;      (define-key recentf-dialog-mode-map "w" 'forward-word)
+;;      (define-key recentf-dialog-mode-map "b" 'backward-word)
+;;      (define-key recentf-dialog-mode-map "o" 'other-window)
+;;      (define-key recentf-dialog-mode-map [?\ ]    'recentf-edit-check-and-nextline)
+;;      ;; (define-key recentf-dialog-mode-map [?\ ]    'View-scroll-page-forward)
+;;      ;; (define-key recentf-dialog-mode-map [?\S-\ ] 'View-scroll-page-backward)
+;;      (define-key recentf-dialog-mode-map "n" 'View-scroll-page-backward)
+;;      (define-key recentf-dialog-mode-map "/" 'isearch-forward)
+;;      (define-key recentf-dialog-mode-map "\M-e" 'recentf-edit-list)
+;;      ;; (define-key recentf-dialog-mode-map "\M-\C-m" 'recentf-open-dired)
+;;      (define-key recentf-dialog-mode-map "s" 'isearch-forward)))
 
-(recentf-mode 1)
+;; (recentf-mode 1)
 ;; (setq recentf-max-menu-items 0)
-(setq recentf-max-saved-items 8000)
+;; (setq recentf-max-saved-items 8000)
 
-(setq recentf-exclude '("\\.emacs-places$"))
-(require 'recentf-ext)
+;; (setq recentf-exclude '("\\.emacs-places$"))
+;; (require 'recentf-ext)
 
-(defadvice recentf-open-files (after recentf-set-overlay-directory-adv activate)
-  (set-buffer "*Open Recent*")
-  (save-excursion
-    (while (re-search-forward "\\(^  \\[[0-9]\\] \\|^  \\)\\(.*/\\)$" nil t nil)
-      (overlay-put (make-overlay (match-beginning 2) (match-end 2))
-                   'face `((:foreground ,"#F1266F"))))))
+;; (defadvice recentf-open-files (after recentf-set-overlay-directory-adv activate)
+;;   (set-buffer "*Open Recent*")
+;;   (save-excursion
+;;     (while (re-search-forward "\\(^  \\[[0-9]\\] \\|^  \\)\\(.*/\\)$" nil t nil)
+;;       (overlay-put (make-overlay (match-beginning 2) (match-end 2))
+;;                    'face `((:foreground ,"#F1266F"))))))
 
-(defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
-  ;; (recentf-cleanup)
-  (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
-    (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
+;; (defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
+;;   ;; (recentf-cleanup)
+;;   (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
+;;     (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
 
-(defadvice recentf-edit-list-validate (after recentf-cleanup-adv activate)
-  (recentf-cleanup)
-  (recentf-cancel-dialog))
+;; (defadvice recentf-edit-list-validate (after recentf-cleanup-adv activate)
+;;   (recentf-cleanup)
+;;   (recentf-cancel-dialog))
 
 ;;
 ;; saveplace

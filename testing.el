@@ -2,8 +2,50 @@
 ;;;
 ;;; testing.el --- now testing
 ;;;
-;;; now testing functions
-;;;
+
+;;
+;; my-recentf
+;;
+(require 'my-recentf)
+(recentf-mode 1)                        ; for recentf-list
+
+     (define-key my-recentf-mode-map "h" 'backward-char)
+     (define-key my-recentf-mode-map "j" 'next-line)
+     (define-key my-recentf-mode-map "k" 'previous-line)
+     (define-key my-recentf-mode-map "l" 'forward-char)
+     (define-key my-recentf-mode-map "g" 'beginning-of-buffer)
+     (define-key my-recentf-mode-map "G" 'end-of-buffer)
+     (define-key my-recentf-mode-map "a" 'my-beginning-of-line)
+     (define-key my-recentf-mode-map "e" 'end-of-line)
+     (define-key my-recentf-mode-map "w" 'forward-word)
+     (define-key my-recentf-mode-map "b" 'backward-word)
+     (define-key my-recentf-mode-map "o" 'other-window)
+     (define-key my-recentf-mode-map [?\ ]    'View-scroll-page-forward)
+     (define-key my-recentf-mode-map [?\S-\ ] 'View-scroll-page-backward)
+     (define-key my-recentf-mode-map "n" 'View-scroll-page-backward)
+     (define-key my-recentf-mode-map "/" 'isearch-forward)
+     ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
+     ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
+     (define-key my-recentf-mode-map "s" 'isearch-forward)
+     (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
+     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)
+
+
+(setq my-recentf-directory-face `((:foreground ,"#F1266F")))
+
+(setq recentf-max-saved-items 8000)     ;TODO
+(setq recentf-exclude '("\\.emacs-places$"))
+
+; TODO
+;; (defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
+;;   ;; (recentf-cleanup)
+;;   (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
+;;     (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
+
+;; (defadvice recentf-edit-list-validate (after recentf-cleanup-adv activate)
+;;   (recentf-cleanup)
+;;   (recentf-cancel-dialog))
+
 
 ;;
 ;; ql
@@ -191,8 +233,8 @@ are always included."
 
 (setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
 
-(global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
-(global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
+;; (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
+;; (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
 (global-set-key [f12]        'tabbar-forward-tab)
 (global-set-key [f11]        'tabbar-backward-tab)
