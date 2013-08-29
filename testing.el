@@ -5,7 +5,14 @@
 ;;
 ;; カーソル行をハイライト
 ;;
-(setq global-hl-line-sticky-flag t)
+(defalias 'h 'hl-line-mode)
+(global-hl-line-mode 0)
+(set-face-background 'hl-line "black")
+
+;; global-hl-line-mode するとスクロールがガクガクするので、バッファ開くときに個別に hl-line-mode を add-hook する
+(dolist (hook '(my-recentf-mode-hook find-file-hook dired-mode-hook))
+  (add-hook hook '(lambda () (hl-line-mode 1))))
+
 
 ;;
 ;; oblosete な関数を無効化する
@@ -45,6 +52,8 @@
 
 (setq recentf-max-saved-items 8000)     ;TODO
 (setq recentf-exclude '("\\.emacs-places$"))
+(require 'recentf-ext)
+
 
 ; TODO
 ;; (defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
@@ -111,32 +120,6 @@
     ad-do-it
     (goto-char pt)))
 
-
-;;
-;; hilight current-line
-;;
-(defface my-line-face
-  '((((class color) (background dark))
-     ;; (:background "Red"))
-     (:background "#101418")
-     (:underline t))
-    (((class color) (background light))
-     (:background "SeaGreen")
-     (:underline t))
-    (t
-     ()))
-  "Used face hl-line.")
-
-(setq hl-line-face 'my-line-face)
-;; (global-hl-line-mode)
-
-(defalias 'hilight-current-line 'global-hl-line-mode)
-(defalias 'h 'hilight-current-line)
-
-(defadvice recenter-top-bottom (after hilight-cursor-adv activate)
-  (hl-line-mode 1)
-  (sit-for 10)
-  (hl-line-mode -1))
 
 
 ;;
@@ -416,12 +399,6 @@ That is, a string used to represent it on the tab bar."
 ;; (add-hook 'shell-mode-hook
 ;;           '(lambda ()
 ;;              (define-key shell-mode-map "\C-xk" 'term-kill)))
-
-;;
-;; oblosete な関数を無効化する
-;;
-(defmacro make-local-hook (vars))
-
 
 ;;
 ;; replace to discrete.el

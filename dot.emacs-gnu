@@ -546,12 +546,12 @@
 ;;
 (when (or (string-match "XEmacs\\|Lucid" emacs-version) window-system)
   (require 'mic-paren) ; loading
-  (paren-activate)     ; activating
-  ;; coloring inside between each parentheses
-  (setq paren-match-face 'region)
+  (setq paren-match-face 'region)  ;; coloring inside between each parentheses
   (setq paren-sexp-mode t)
-  )
-
+  (setq show-paren-delay 0.05)
+  (setq paren-delay 0.05)
+  (paren-activate))
+  
 (show-paren-mode t)
 ;; (add-hook 'c-mode-common-hook
 ;;	     (function (lambda ()
@@ -559,8 +559,6 @@
 
 
 ;; jump to paren
-(require 'mic-paren)
-
 (defvar my-paren-open "\\s(")
 (make-variable-buffer-local 'my-paren-open)
 (defvar my-paren-close "\\s)")
@@ -569,7 +567,7 @@
 (defun my-paren (ARG)
   (interactive "P")
   (let ((FOL-CHAR (char-to-string (following-char)))
-	(PRE-CHAR (char-to-string (preceding-char))))
+        (PRE-CHAR (char-to-string (preceding-char))))
     (save-match-data
       (cond
        ((and (string-match my-paren-open FOL-CHAR) (string-match my-paren-close PRE-CHAR))
@@ -630,23 +628,23 @@
      (set-face-underline-p 'moccur-current-line-face nil)
      (set-face-background  'moccur-current-line-face "black")))
 
-;;
-;; hippie-expand
-;;
-(setq hippie-expand-try-functions-list
-      '(
-        try-expand-dabbrev
-        try-expand-dabbrev-all-buffers
-;;         try-expand-dabbrev-from-kill
-        try-complete-file-name-partially
-        try-complete-file-name
-;;         try-expand-list try-expand-line
-;;         try-complete-lisp-symbol-partially
-;;         try-complete-lisp-symbol
-;;         try-expand-all-abbrevs
-))
+;; ;;
+;; ;; hippie-expand
+;; ;;
+;; (setq hippie-expand-try-functions-list
+;;       '(
+;;         try-expand-dabbrev
+;;         try-expand-dabbrev-all-buffers
+;; ;;         try-expand-dabbrev-from-kill
+;;         try-complete-file-name-partially
+;;         try-complete-file-name
+;; ;;         try-expand-list try-expand-line
+;; ;;         try-complete-lisp-symbol-partially
+;; ;;         try-complete-lisp-symbol
+;; ;;         try-expand-all-abbrevs
+;; ))
 
-;; (global-set-key "\M-/" 'hippie-expand)
+;; ;; (global-set-key "\M-/" 'hippie-expand)
 
 ;;
 ;; re-builder
