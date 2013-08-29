@@ -2,6 +2,16 @@
 ;;;
 ;;; testing.el --- now testing
 ;;;
+;;
+;; カーソル行をハイライト
+;;
+(setq global-hl-line-sticky-flag t)
+
+;;
+;; oblosete な関数を無効化する
+;;
+(defmacro make-local-hook (vars))
+
 
 ;;
 ;; my-recentf
