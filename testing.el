@@ -408,6 +408,12 @@ That is, a string used to represent it on the tab bar."
 ;;              (define-key shell-mode-map "\C-xk" 'term-kill)))
 
 ;;
+;; oblosete な関数を無効化する
+;;
+(defmacro make-local-hook (vars))
+
+
+;;
 ;; replace to discrete.el
 ;;
 (defun my-beginning-of-line ()
