@@ -723,7 +723,7 @@ That is, a string used to represent it on the tab bar."
 (set-face-background 'mode-line         "#FF0066")   ; pink
 (set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
 (set-face-background 'powerline-active1 "#FF6699")   ; light-pink
-(set-face-foreground 'powerline-active1 "#272821")   ; near-white
+(set-face-foreground 'powerline-active1 "#272821")   ; near-black
 (set-face-background 'powerline-active2 "#CDC0B0")   ; sand
 (set-face-foreground 'powerline-active2 "#272821")   ; near-black
 

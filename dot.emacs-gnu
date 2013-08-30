@@ -77,8 +77,12 @@
 
 (setq inhibit-startup-message t)
 (blink-cursor-mode 0)
-;; (setq default-cursor-type 'box)
-(setq default-cursor-type '(hbar . 4))
+;; (setq default-cursor-type '(hbar . 4))
+(setq default-cursor-type 'box)
+;; (set-cursor-color "#FF0066")
+;; (set-cursor-color "#FF6699")
+;; (set-cursor-color "#CCCC99")
+(set-cursor-color "#f3f3f3")
 (tool-bar-mode -1)
 (setq ring-bell-function 'ignore)
 (column-number-mode t)
@@ -313,7 +317,7 @@
   (setq cursor-type default-cursor-type))
 
 (defadvice view-mode-enter (after cursor-type-view activate)
-  (setq cursor-type 'box))
+  (setq cursor-type 'hollow))
 
 
 (defvar view-mode-enter-exclude-mode-list '(nil org-mode))
