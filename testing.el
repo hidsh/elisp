@@ -55,17 +55,6 @@
 (require 'recentf-ext)
 
 
-; TODO
-;; (defadvice recentf-open-files (before recentf-abbrev-file-name-adv activate)
-;;   ;; (recentf-cleanup)
-;;   (let ((directory-abbrev-alist `((,(concat "\\`" (getenv "HOME")) . "~"))))
-;;     (setq recentf-list (mapcar #'(lambda (x) (abbreviate-file-name x)) recentf-list))))
-
-;; (defadvice recentf-edit-list-validate (after recentf-cleanup-adv activate)
-;;   (recentf-cleanup)
-;;   (recentf-cancel-dialog))
-
-
 ;;
 ;; ql
 ;;
