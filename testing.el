@@ -26,6 +26,8 @@
 (require 'my-recentf)
 (recentf-mode 1)                        ; for recentf-list
 
+(add-hook 'my-recentf-mode-hook
+          '(lambda ()
      (define-key my-recentf-mode-map "h" 'backward-char)
      (define-key my-recentf-mode-map "j" 'next-line)
      (define-key my-recentf-mode-map "k" 'previous-line)
@@ -34,18 +36,16 @@
      (define-key my-recentf-mode-map "G" 'end-of-buffer)
      (define-key my-recentf-mode-map "a" 'my-beginning-of-line)
      (define-key my-recentf-mode-map "e" 'end-of-line)
-     (define-key my-recentf-mode-map "w" 'forward-word)
-     (define-key my-recentf-mode-map "b" 'backward-word)
-     (define-key my-recentf-mode-map "o" 'other-window)
-     (define-key my-recentf-mode-map [?\ ]    'View-scroll-page-forward)
-     (define-key my-recentf-mode-map [?\S-\ ] 'View-scroll-page-backward)
-     (define-key my-recentf-mode-map "n" 'View-scroll-page-backward)
+     ;; (define-key my-recentf-mode-map "w" 'my-recentf-enter-edit-mode)  ; why doesnot work??
+     (define-key my-recentf-mode-map [?\ ]    'scroll-up-command)
+     (define-key my-recentf-mode-map [?\S-\ ] 'scroll-down-command)
+     (define-key my-recentf-mode-map "n" 'scroll-down-command)
      (define-key my-recentf-mode-map "/" 'isearch-forward)
      ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key my-recentf-mode-map "s" 'isearch-forward)
      (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
-     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)
+     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)))
 
 
 (setq my-recentf-directory-face `((:foreground ,"#F1266F")))
