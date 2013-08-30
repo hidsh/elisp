@@ -2,6 +2,17 @@
 ;;;
 ;;; testing.el --- now testing
 ;;;
+
+;;
+;; bs-show w/ arg
+;;
+(defvar my-bs-show-window-conf nil)
+(defun my-bs-show ()
+  (interactive)
+  (bs-show 1))
+
+(global-set-key "\C-x\C-b" 'my-bs-show)
+
 ;;
 ;; カーソル行をハイライト
 ;;
