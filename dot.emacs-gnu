@@ -82,7 +82,7 @@
 ;; (set-cursor-color "#FF0066")
 ;; (set-cursor-color "#FF6699")
 ;; (set-cursor-color "#CCCC99")
-(set-cursor-color "#f3f3f3")
+;; (set-cursor-color "#f3f3f3")
 (tool-bar-mode -1)
 (setq ring-bell-function 'ignore)
 (column-number-mode t)
@@ -615,6 +615,9 @@
 
 ; for color-moccur.el, v 1.48 or later
 (setq kill-buffer-after-dired-do-moccur t)
+(setq moccur-kill-moccur-buffer t)
+(setq moccur-following-mode-toggle nil)
+
 
 ; colors
 (set-face-background 'moccur-face             "pale turquoise")
@@ -629,6 +632,16 @@
 (eval-after-load "color-moccur"
   '(progn
      (define-key moccur-mode-map "w" 'moccur-edit-mode-in)
+     (define-key moccur-mode-map [down] 'next-line)
+     (define-key moccur-mode-map [up] 'previous-line)
+     (define-key moccur-mode-map "n" 'next-line)
+     (define-key moccur-mode-map "p" 'previous-line)
+     (define-key moccur-mode-map "j" 'next-line)
+     (define-key moccur-mode-map "k" 'previous-line)
+     (define-key moccur-mode-map "h" 'backward-char)
+     (define-key moccur-mode-map "l" 'forward-char)
+     (define-key moccur-mode-map "\M-n" 'scroll-up-command)
+     (define-key moccur-mode-map "\M-p" 'scroll-down-command)
      (set-face-underline-p 'moccur-current-line-face nil)
      (set-face-background  'moccur-current-line-face "black")))
 

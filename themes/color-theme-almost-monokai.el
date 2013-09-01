@@ -34,7 +34,7 @@
    '(color-theme-almost-monokai
      ((background-color . "#22232A")
       (foreground-color . "#F8F8F2")
-      (cursor-color . "#DAD085"))
+      (cursor-color . "#F8F8F2"))
      (default ((t (nil))))
 ;     (modeline ((t (:background "white" :foreground "black" :box (:line-width 1 :style released-button)))))
      (modeline ((t (:background "#CCCC99" :foreground "#272821" :box (:line-width 1 :style released-button)))))
