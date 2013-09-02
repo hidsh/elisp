@@ -3,6 +3,37 @@
 ;;; testing.el --- now testing
 ;;;
 
+
+;;
+;; my-end-of-line
+;;
+(defun skip-backward-comment-and-space ()
+  (let* ((bol (save-excursion (beginning-of-line) (point)))
+         (b 0))
+    (end-of-line)
+    (while (and (<= bol (point))
+                (or (member (get-text-property (point) 'face) '(font-lock-comment-face font-lock-comment-delimiter-face))
+                    (= 0 (syntax-class (syntax-after (point))))))    ; white space
+      (backward-char 1)
+      (setq b 1))         
+    (forward-char b)))           
+
+(defun my-end-of-line ()
+  "本文末尾 -> コメント始まり -> end of line　の順に移動"
+  (interactive)
+  (let* ((curr (point))
+         (tail (save-excursion (skip-backward-comment-and-space) (point)))
+         (eol (save-excursion (end-of-line) (point)))
+         (com (save-excursion (beginning-of-line) (comment-search-forward eol t) (point))))                 ;; hoge         
+    (cond
+     ((< curr tail) (goto-char tail))
+     ((< curr com) (goto-char com))
+     ((= curr eol) (goto-char tail))
+     (t (end-of-line)))))
+
+(global-set-key "\C-e" 'my-end-of-line)
+
+
 ;;
 ;; 変数をハイライト
 ;; (emacs 24.3.50 では標準に組み込まれる予定)
@@ -423,8 +454,6 @@ That is, a string used to represent it on the tab bar."
     (t (beginning-of-line)))))
 
 (global-set-key "\C-a" 'my-beginning-of-line)
-
-
 
 
 ;;
