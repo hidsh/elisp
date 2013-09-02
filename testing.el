@@ -53,15 +53,19 @@
 (defun my-end-of-line ()
   "本文末尾 -> end of line　の順に移動"
   (interactive)
-  (let* ((curr (point))
-         (tail (save-excursion (skip-backward-comment-and-space) (point)))
-         (eol (save-excursion (end-of-line) (point)))
-         (com (save-excursion (beginning-of-line) (comment-search-forward eol t) (point))))                 ;; hoge         
-    (cond
-     ((< curr tail) (goto-char tail))
-     ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動
-     ((= curr eol) (goto-char tail))
-     (t (end-of-line)))))
+    (let* ((curr (point))
+           bol eol tail com)
+      (save-excursion
+        (setq bol  (progn (beginning-of-line) (point)))
+        (setq eol  (progn (end-of-line) (point)))
+        (setq tail (progn (skip-backward-comment-and-space) (point)))
+        (setq com  (progn (beginning-of-line) (comment-search-forward eol t) (point))))
+      (cond
+       ((= tail bol) (end-of-line))
+       ((< curr tail) (goto-char tail))
+       ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動
+       ((= curr eol) (goto-char tail))
+       (t (end-of-line)))))
 
 (global-set-key "\C-e" 'my-end-of-line)
 
