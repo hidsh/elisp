@@ -4,6 +4,15 @@
 ;;;
 
 ;;
+;; 変数をハイライト
+;; (emacs 24.3.50 では標準に組み込まれる予定)
+(require 'auto-highlight-symbol)
+(global-auto-highlight-symbol-mode t)
+(setq ahs-idle-interval 0.5)
+(custom-set-variables '(ahs-default-range (quote ahs-range-whole-buffer))) ; C-x C-a: replace all
+
+
+;;
 ;; bs-show w/ arg
 ;;
 (defvar my-bs-show-window-conf nil)
