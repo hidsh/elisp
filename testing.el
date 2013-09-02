@@ -3,10 +3,42 @@
 ;;; testing.el --- now testing
 ;;;
 
+;;
+;; my-just-one-space
+;;
+(defun delete-spaces-after-point ()
+  (while (= 0 (syntax-class (syntax-after (point))))
+    (delete-char 1)))
+
+(defun count-white-spaces-at-point ()
+  (let ((bol (save-excursion (beginning-of-line) (point)))
+        (eol (save-excursion (end-of-line) (point)))
+        (nl 0)
+        (nr 0))
+    (save-excursion
+      (while (and (= 0 (syntax-class (syntax-after (point)))) (< (point) eol))
+        (incf nr)
+        (forward-char 1))
+      (while (and (= 0 (syntax-class (syntax-after (1- (point))))) (< bol (point)))
+        (incf nl)
+        (backward-char 1)))
+    (+ nl nr)))
+
+(defun my-just-one-space ()
+  (interactive)
+  (cond ((and (not (eq last-command 'my-just-one-space)) (= (char-after) ?\ ))
+         (delete-spaces-after-point))
+        ((= (count-white-spaces-at-point) 1)
+         (backward-delete-char 1))
+        (t
+         (just-one-space))))
+
+(global-set-key "\M- " 'my-just-one-space)
 
 ;;
 ;; my-end-of-line
 ;;
+(require 'newcomment)                   ; for comment-search-forward
 (defun skip-backward-comment-and-space ()
   (let* ((bol (save-excursion (beginning-of-line) (point)))
          (b 0))
@@ -19,7 +51,7 @@
     (forward-char b)))           
 
 (defun my-end-of-line ()
-  "本文末尾 -> コメント始まり -> end of line　の順に移動"
+  "本文末尾 -> end of line　の順に移動"
   (interactive)
   (let* ((curr (point))
          (tail (save-excursion (skip-backward-comment-and-space) (point)))
@@ -27,7 +59,7 @@
          (com (save-excursion (beginning-of-line) (comment-search-forward eol t) (point))))                 ;; hoge         
     (cond
      ((< curr tail) (goto-char tail))
-     ((< curr com) (goto-char com))
+     ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動
      ((= curr eol) (goto-char tail))
      (t (end-of-line)))))
 

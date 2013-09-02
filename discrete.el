@@ -1497,18 +1497,18 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ my-just-one-space
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar my-just-one-space-state nil)
-(defun my-just-one-space ()
-  (interactive)
-  (if (and (eq last-command 'my-just-one-space) (null my-just-one-space-state))
-      (progn
-	(backward-delete-char 1)
-	(setq my-just-one-space-state t))
-    (progn
-      (just-one-space)
-      (setq my-just-one-space-state nil))))
+;; (defvar my-just-one-space-state nil)
+;; (defun my-just-one-space ()
+;;   (interactive)
+;;   (if (and (eq last-command 'my-just-one-space) (null my-just-one-space-state))
+;;       (progn
+;; 	(backward-delete-char 1)
+;; 	(setq my-just-one-space-state t))
+;;     (progn
+;;       (just-one-space)
+;;       (setq my-just-one-space-state nil))))
 
-(global-set-key "\M- " 'my-just-one-space)
+;; (global-set-key "\M- " 'my-just-one-space)
 ;; (global-set-key "\C- " 'my-just-one-space)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
