@@ -15,6 +15,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ common functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun minibuffer-p (&optional window)
+  (unless window (setq window (selected-window)))
+  (eq window (minibuffer-window (window-frame window))))
+
 (defun get-max-string-length-in-list (list)
   "return maximum value of string length in list"
   (let ((max 0))
