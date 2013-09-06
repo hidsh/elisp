@@ -137,10 +137,10 @@
 
 (defun my-recentf-enter-edit-mode ()
   (interactive)
-  (use-local-map my-recentf-edit-map)
   (setq buffer-read-only nil)
   (set-buffer-modified-p nil)
-  (view-mode-exit)
+  (view-mode-exit t)
+  (use-local-map my-recentf-edit-map)
   (message "entered to edit mode."))
 
 (defun my-recentf-exit-edit-mode ()
@@ -153,11 +153,11 @@
         (my-recentf-set-directory-face)
         (goto-char (point-min))
         (set-buffer-modified-p nil)
-        (setq buffer-read-only t)
-        (use-local-map my-recentf-mode-map)
+        ;; (setq buffer-read-only t)
         (message "exit from edit mode, saved."))
-    (message "exit from edit mode.")
-    (view-mode-enter)))
+    (message "exit from edit mode."))
+  (view-mode-enter)
+  (use-local-map my-recentf-mode-map))
   
 
 (defun my-recentf ()
