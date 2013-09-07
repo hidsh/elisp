@@ -61,12 +61,12 @@
   (save-excursion
     (setq bol  (progn (beginning-of-line) (point)))
     (setq eol  (progn (end-of-line) (point)))
-    (setq tail (progn (skip-backward-comment-and-space) (point)))
-    (setq com  (progn (beginning-of-line) (comment-search-forward eol t) (point))))
+    (setq tail (progn (skip-backward-comment-and-space) (point))))
+    ;; (setq com  (progn (beginning-of-line) (comment-search-forward eol t) (point)))) ; コメントの先頭位置 *
   (cond
    ((= tail bol) (end-of-line))
    ((< curr tail) (goto-char tail))
-   ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動
+   ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動 *
    ((= curr eol) (goto-char tail))
    (t (end-of-line)))))
 
