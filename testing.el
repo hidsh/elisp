@@ -22,6 +22,11 @@
 (require 'melpa)
 
 ;;
+;; find-file-find
+;;
+(require 'find-file-find)
+
+;;
 ;; nxml-mode の変なキーバインドをはずす
 ;;
 (require 'nxml-mode)
@@ -304,7 +309,7 @@
 
 ;; タブに表示させるバッファの設定
 (defvar my-tabbar-displayed-buffers
-  '("*scratch*")
+  '("*scratch*" "*Moccur*")
   "*Regexps matches buffer names always included tabs.")
 
 (defun my-tabbar-buffer-list ()
