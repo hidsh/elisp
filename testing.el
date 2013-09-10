@@ -3,7 +3,27 @@
 ;;; testing.el --- now testing
 ;;;
 
+;;
+;; melpa
+;;
+;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
+;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
+;;    M-x package-install                 パッケージ名を指定してインストール
+(require 'package)
+
+; Add package-archives
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+; Initialize
+(package-initialize)
+
+; melpa.el
+(require 'melpa)
+
+;;
 ;; nxml-mode の変なキーバインドをはずす
+;;
 (require 'nxml-mode)
 (define-key nxml-mode-map "\M-h" nil)
 
@@ -57,24 +77,22 @@
 (defun my-end-of-line-1 ()
   "本文末尾 -> end of line　の順に移動"
   (let* ((curr (point))
-    bol eol tail com)
+    tail com)
   (save-excursion
-    (setq bol  (progn (beginning-of-line) (point)))
-    (setq eol  (progn (end-of-line) (point)))
     (setq tail (progn (skip-backward-comment-and-space) (point))))
     ;; (setq com  (progn (beginning-of-line) (comment-search-forward eol t) (point)))) ; コメントの先頭位置 *
   (cond
-   ((= tail bol) (end-of-line))
+   ((= tail (line-beginning-position)) (end-of-line))
    ((< curr tail) (goto-char tail))
    ;; ((< curr com) (goto-char com))   ; コメントの先頭に移動 *
-   ((= curr eol) (goto-char tail))
+   ((= curr (line-end-position)) (goto-char tail))
    (t (end-of-line)))))
 
 (defun my-end-of-line ()
   (interactive)
-  (if (minibuffer-p)
-      (end-of-line)
-    (my-end-of-line-1)))
+  (cond ((minibuffer-p) (end-of-line))
+        ((= (line-end-position) (point-max)) (end-of-line))
+        (t (my-end-of-line-1))))
 
 (global-set-key "\C-e" 'my-end-of-line)
 
