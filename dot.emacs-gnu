@@ -64,8 +64,8 @@
 (global-set-key "\M-9" 'insert-parentheses)
 (global-set-key "\M-P" 'beginning-of-buffer)
 (global-set-key "\M-N" 'end-of-buffer)
-(global-set-key "\M-p" 'View-scroll-page-backward)
-(global-set-key "\M-n" 'View-scroll-page-forward)
+;; (global-set-key "\M-p" 'View-scroll-page-backward)
+;; (global-set-key "\M-n" 'View-scroll-page-forward)
 
 ;;;
 ;;; setting

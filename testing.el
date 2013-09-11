@@ -3,23 +3,44 @@
 ;;; testing.el --- now testing
 ;;;
 
+;; 
+;; ace-jump-mode
 ;;
-;; melpa
+(require 'ace-jump-mode)
+
+(defun add-keys-to-ace-jump-mode (prefix c &optional mode)
+  (define-key global-map
+    (read-kbd-macro (concat prefix (string c)))
+    `(lambda ()
+       (interactive)
+       (funcall (if (eq ',mode 'word)
+                    #'ace-jump-word-mode
+                  #'ace-jump-char-mode) ,c))))
+
+(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-" c))
+(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-" c))
+(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c 'word))
+(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c 'word))
+(loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
+
 ;;
-;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
-;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
-;;    M-x package-install                 パッケージ名を指定してインストール
-(require 'package)
+;; スクロール
+;;
+(defun my-scroll-down ()
+  (interactive)
+  (if (> (window-start) (point-min))
+      (scroll-down-command)
+    (goto-char (point-min))))
 
-; Add package-archives
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(defun my-scroll-up ()
+  (interactive)
+  (if (< (window-end) (point-max))
+      (scroll-up-command)
+    (goto-char (point-max))))
 
-; Initialize
-(package-initialize)
+(global-set-key "\M-p" 'my-scroll-down)
+(global-set-key "\M-n" 'my-scroll-up)
 
-; melpa.el
-(require 'melpa)
 
 ;;
 ;; find-file-find
@@ -110,6 +131,13 @@
 (setq ahs-idle-interval 0.5)
 (custom-set-variables '(ahs-default-range (quote ahs-range-whole-buffer))) ; C-x C-a: replace all
 
+(defun toggle-auto-highlight-symbol ()
+  (interactive)
+  (if auto-highlight-symbol-mode
+      (setq auto-highlight-symbol-mode nil)
+    (setq auto-highlight-symbol-mode t)))
+
+(defalias 'v 'toggle-auto-highlight-symbol)
 
 ;;
 ;; bs-show w/ arg
@@ -1245,6 +1273,31 @@ That is, a string used to represent it on the tab bar."
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
  
+;;
+;; melpa
+;;
+;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
+;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
+;;    M-x package-install                 パッケージ名を指定してインストール
+(require 'package)
+
+; Add package-archives
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+; Initialize
+(package-initialize)
+
+; melpa.el
+(require 'melpa)
+
+;;
+;; 田キーをhyperに
+;;
+(setq mac-option-modifier 'hyper)
+
+;; (global-set-key (kbd "H-b") 'backward-word) ; H is for hyper
+
 
 (provide 'testing)
 ;;; testing.el ends here
