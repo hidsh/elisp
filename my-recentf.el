@@ -28,6 +28,8 @@
     (define-key map "\C-xk"     'my-recentf-kill-buffer)
     (define-key map "q"         'my-recentf-kill-buffer)
     (define-key map "\C-x\C-q"  'my-recentf-enter-edit-mode)
+    (define-key map "\C-s"      'my-recentf-isearch-forward)
+    (define-key map "\C-r"      'my-recentf-isearch-backward)
     (setq my-recentf-mode-map map)))
 
 (defvar my-recentf-edit-map nil)
@@ -159,6 +161,15 @@
   (view-mode-enter)
   (use-local-map my-recentf-mode-map))
   
+(defun my-recentf-isearch-forward ()
+  (let ((isearch-mode-map (copy-keymap isearch-mode-map)))
+    (define-key isearch-mode-map    [return] 'my-recentf-action-key-enter)
+    (call-interactively 'isearch-forward)))
+
+(defun my-recentf-isearch-backward ()
+  (let ((isearch-mode-map (copy-keymap isearch-mode-map)))
+    (define-key isearch-mode-map    [return] 'my-recentf-action-key-enter)
+    (call-interactively 'isearch-backward)))
 
 (defun my-recentf ()
   (interactive)
