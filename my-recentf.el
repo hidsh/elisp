@@ -162,11 +162,13 @@
   (use-local-map my-recentf-mode-map))
   
 (defun my-recentf-isearch-forward ()
+  (interactive)
   (let ((isearch-mode-map (copy-keymap isearch-mode-map)))
     (define-key isearch-mode-map    [return] 'my-recentf-action-key-enter)
     (call-interactively 'isearch-forward)))
 
 (defun my-recentf-isearch-backward ()
+  (interactive)
   (let ((isearch-mode-map (copy-keymap isearch-mode-map)))
     (define-key isearch-mode-map    [return] 'my-recentf-action-key-enter)
     (call-interactively 'isearch-backward)))
