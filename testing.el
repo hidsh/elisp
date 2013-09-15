@@ -71,6 +71,12 @@
 (global-set-key "\M-p" 'my-scroll-down)
 (global-set-key "\M-n" 'my-scroll-up)
 
+(substitute-key-definition 'scroll-up-command   'my-scroll-up   (current-global-map))
+(substitute-key-definition 'scroll-down-command 'my-scroll-down (current-global-map))
+
+(substitute-key-definition 'View-scroll-page-forward  'my-scroll-up   view-mode-map)
+(substitute-key-definition 'View-scroll-page-backward 'my-scroll-down view-mode-map)
+
 
 ;;
 ;; find-file-find
