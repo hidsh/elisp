@@ -2396,6 +2396,7 @@ Otherwise,  ARG is t, redo is called."
 (setq auto-insert-alist
       (nconc '(
                ("\\.py$" . ["template.py" my-template])
+               ("\\.html$" . ["template.html" my-template])
                ;; ("\\.cpp$" . ["template.cpp" my-template])
                ;; ("\\.h$"   . ["template.h" my-template])
                ) auto-insert-alist))

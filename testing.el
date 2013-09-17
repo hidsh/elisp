@@ -4,6 +4,12 @@
 ;;;
 
 ;;
+;; minibuffer history
+;;
+(define-key minibuffer-local-map "\C-n" 'next-history-element)
+(define-key minibuffer-local-map "\C-p" 'previous-history-element)
+
+;;
 ;; white-space
 ;;
 (global-whitespace-mode 1)
@@ -33,7 +39,7 @@
                   indentation empty space-after-tab tab-mark))
   (setq whitespace-style (delq d whitespace-style)))
 
-
+;;
 ;; ace-jump-mode
 ;;
 (require 'ace-jump-mode)
