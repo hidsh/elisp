@@ -41,13 +41,35 @@
         (t (message "canceled"))))
 
 (defun my-open-at-point-finder (path)
-  (shell-command (concat "osascript -e '"
-                         "tell application \"Finder\"\n"
-                         "  make new Finder window\n"
-                         "  activate\n"
-                         "  select POSIX file \"" path "\"\n"
-                         "end tell'"))
+  (let* ((dir (file-name-directory path))
+         (file (file-name-nondirectory path))
+         (script (concat
+                  "tell application \"Finder\"\n"
+                  "    make new Finder window to (POSIX file \"" dir "\")\n" 
+                  "    set frontmost to true\n"
+                  "    select POSIX file \"" path "\"\n"
+                  "end tell")))
+    (shell-command (concat "osascript -e '" script "'")))
   (message ""))
+
+(defun open-finder-1 (dir file)
+  (let ((script
+		 (if file
+			 (concat
+			  "tell application \"Finder\"\n"
+			  "    set frontmost to true\n"
+			  "    make new Finder window to (POSIX file \"" dir "\")\n" 
+			  "    select file \"" file "\"\n"
+			  "end tell\n")
+		   (concat
+			"tell application \"Finder\"\n"
+			"    set frontmost to true\n"
+			"    make new Finder window to {path to desktop folder}\n"
+			"end tell\n"))))
+    (start-process "osascript-getinfo" nil "osascript" "-e" script)))
+
+
+
 
 (global-set-key "\M-j" 'my-open-at-point) ; overwrite browse-url-of-find-file @discrete.el
 
