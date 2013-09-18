@@ -12,12 +12,12 @@
          (file (bounds-of-thing-at-point 'filename))
          (path (expand-file-name (if file (buffer-substring-no-properties (car file) (cdr file)) "~"))))
     (cond (url (browse-url  (buffer-substring-no-properties (car url) (cdr url))))
-          ((and file (file-directory-p path))
-           (call-interactively 'my-open-at-point-dir))
-          (file
-           (if (file-exists-p path)
-               (call-interactively 'my-open-at-point-file)
-             (message "not found:%s" path)))
+          ((and file (file-directory-p path)) (call-interactively 'my-open-at-point-dir))
+          (file (if (file-exists-p path)
+                    (call-interactively 'my-open-at-point-file)
+                  (message "not found:%s" path)))
+          ((string= (buffer-name) "*scratch*") (let ((path "~/scratch/"))
+                                                 (call-interactively 'my-open-at-point-dir)))
           ((not (buffer-file-name)) (message "This buffer has no file"))
           ((eq major-mode 'html-mode) (call-interactively 'my-open-at-point-finder))
           (t (my-open-at-point-finder (buffer-file-name))))))
@@ -51,25 +51,6 @@
                   "end tell")))
     (shell-command (concat "osascript -e '" script "'")))
   (message ""))
-
-(defun open-finder-1 (dir file)
-  (let ((script
-		 (if file
-			 (concat
-			  "tell application \"Finder\"\n"
-			  "    set frontmost to true\n"
-			  "    make new Finder window to (POSIX file \"" dir "\")\n" 
-			  "    select file \"" file "\"\n"
-			  "end tell\n")
-		   (concat
-			"tell application \"Finder\"\n"
-			"    set frontmost to true\n"
-			"    make new Finder window to {path to desktop folder}\n"
-			"end tell\n"))))
-    (start-process "osascript-getinfo" nil "osascript" "-e" script)))
-
-
-
 
 (global-set-key "\M-j" 'my-open-at-point) ; overwrite browse-url-of-find-file @discrete.el
 
