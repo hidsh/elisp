@@ -4,6 +4,54 @@
 ;;;
 
 ;;
+;; my-open-at-point
+;;
+(defun my-open-at-point ()
+  (interactive)
+  (let ((url (bounds-of-thing-at-point 'url))
+        (file (bounds-of-thing-at-point 'filename)))
+    (cond 
+          (url (browse-url  (buffer-substring-no-properties (car url) (cdr url))))
+          ((and file (file-directory-p (buffer-substring-no-properties (car file) (cdr file)))) (call-interactively 'my-open-at-point-dir))
+          (file
+           (let ((path (expand-file-name (buffer-substring-no-properties (car file) (cdr file)))))
+             (if (file-exists-p path)
+                 (call-interactively 'my-open-at-point-file)
+               (message "not found:%s" path))))
+          ((not (buffer-file-name)) (message "This buffer has no file"))
+          ((eq major-mode 'html-mode) (call-interactively 'my-open-at-point-finder))
+          (t (my-open-at-point-finder (buffer-file-name))))))
+
+(defun my-open-at-point-dir (key)
+  (interactive "copen by (d)ired or (f)inder?")
+  (cond ((eq key ?d) (dired path))
+        ((eq key ?f) (my-open-at-point-finder path))
+        (t (message "canceled"))))
+
+(defun my-open-at-point-file (key)
+  (interactive "copen by (e)macs or (f)inder?")
+  (cond ((eq key ?e) (find-file path))
+        ((eq key ?f) (my-open-at-point-finder path))
+        (t (message "canceled"))))
+
+(defun my-open-at-point-html (key)
+  (interactive "copen THIS FILE by (w)eb-browser or (f)inder?")
+  (cond ((eq key ?w) (browse-url (buffer-file-name)))
+        ((eq key ?f) (my-open-at-point-finder (buffer-file-name)))
+        (t (message "canceled"))))
+
+(defun my-open-at-point-finder (path)
+  (shell-command (concat "osascript -e '"
+                         "tell application \"Finder\"\n"
+                         "  make new Finder window\n"
+                         "  activate\n"
+                         "  select POSIX file \"" path "\"\n"
+                         "end tell'"))
+  (message ""))
+
+(global-set-key "\M-j" 'my-open-at-point) ; overwrite browse-url-of-find-file @discrete.el
+
+;;
 ;; minibuffer history
 ;;
 (define-key minibuffer-local-map "\C-n" 'next-history-element)
