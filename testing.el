@@ -19,7 +19,7 @@
           ((string= (buffer-name) "*scratch*") (let ((path "~/scratch/"))
                                                  (call-interactively 'my-open-at-point-dir)))
           ((not (buffer-file-name)) (message "This buffer has no file"))
-          ((eq major-mode 'html-mode) (call-interactively 'my-open-at-point-finder))
+          ((eq major-mode 'html-mode) (call-interactively 'my-open-at-point-html))
           (t (my-open-at-point-finder (buffer-file-name))))))
 
 (defun my-open-at-point-dir (key)
@@ -35,8 +35,8 @@
         (t (message "canceled"))))
 
 (defun my-open-at-point-html (key)
-  (interactive "copen THIS FILE by (w)eb-browser or (f)inder?")
-  (cond ((eq key ?w) (browse-url (buffer-file-name)))
+  (interactive "copen THIS FILE by (b)rowser or (f)inder?")
+  (cond ((eq key ?b) (browse-url (buffer-file-name)))
         ((eq key ?f) (my-open-at-point-finder (buffer-file-name)))
         (t (message "canceled"))))
 

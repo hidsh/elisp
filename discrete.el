@@ -646,7 +646,7 @@ double quotation characters \(\"\) from given string."
       (gtags-find-file-from-memo)))
 
 
-(define-key text-mode-map "\M-j" 'my-open-file-at-point)
+;; (define-key text-mode-map "\M-j" 'my-open-file-at-point)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ daily-memo
