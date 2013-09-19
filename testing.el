@@ -4,6 +4,16 @@
 ;;;
 
 ;;
+;;
+;;
+(defun my-goto-line ()
+  (interactive)
+  (call-interactively 'goto-line)
+  (recenter))
+
+(global-set-key "\M-g" 'my-goto-line)
+
+;;
 ;; my-open-at-point
 ;;
 (defun my-open-at-point ()
