@@ -281,10 +281,10 @@
      (define-key my-recentf-mode-map [?\ ]    'scroll-up-command)
      (define-key my-recentf-mode-map [?\S-\ ] 'scroll-down-command)
      (define-key my-recentf-mode-map "n" 'scroll-down-command)
-     (define-key my-recentf-mode-map "/" 'isearch-forward)
+     (define-key my-recentf-mode-map "/" 'my-recentf-isearch-forward)
+     (define-key my-recentf-mode-map "s" 'my-recentf-isearch-forward)
      ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
-     (define-key my-recentf-mode-map "s" 'isearch-forward)
      (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
      (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)))
 
