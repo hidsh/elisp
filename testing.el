@@ -4,7 +4,12 @@
 ;;;
 
 ;;
+;; ESC : hyper
 ;;
+(define-key local-function-key-map [escape] 'event-apply-hyper-modifier)
+
+;;
+;; my-customized-goto-line
 ;;
 (defun my-goto-line ()
   (interactive)
