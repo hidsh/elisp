@@ -4,6 +4,11 @@
 ;;;
 
 ;;
+;; cursor-color
+;;
+;; (custom-set-faces '(cursor ((t (:background "#F92672")))))
+
+;;
 ;; ESC : hyper
 ;;
 (define-key local-function-key-map [escape] 'event-apply-hyper-modifier)
