@@ -4,16 +4,6 @@
 ;;;
 
 ;;
-;; cursor-color
-;;
-;; (custom-set-faces '(cursor ((t (:background "#F92672")))))
-
-;;
-;; ESC : hyper
-;;
-(define-key local-function-key-map [escape] 'event-apply-hyper-modifier)
-
-;;
 ;; my-customized-goto-line
 ;;
 (defun my-goto-line ()
@@ -1408,9 +1398,21 @@ That is, a string used to represent it on the tab bar."
 ;;
 ;; 田キーをhyperに
 ;;
-(setq mac-option-modifier 'hyper)
+;;(setq mac-option-modifier 'hyper)
 
-;; (global-set-key (kbd "H-b") 'backward-word) ; H is for hyper
+;;
+;; ESCキーをhyperに
+;;
+(define-key local-function-key-map [escape] 'event-apply-hyper-modifier)
+
+(global-set-key (kbd "H-p") 'beginning-of-buffer)
+(global-set-key (kbd "H-n") 'end-of-buffer)
+
+;;
+;; cursor-color
+;;
+(custom-set-faces '(cursor ((t (:background "#F92672")))))
+
 
 
 (provide 'testing)

@@ -821,7 +821,7 @@
 ;;; hooks and advices
 ;;;
 
-;; 先頭に#!があるファイルを保存時に実行権をつける
+;; 先頭行に#!があるファイルを保存時に実行権をつける
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 
