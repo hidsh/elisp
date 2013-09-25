@@ -4,6 +4,19 @@
 ;;;
 
 ;;
+;; my-kill-buffer
+;;
+(defun my-kill-buffer (arg)
+  (interactive "P")
+  (if arg
+      (dolist (b (buffer-list))
+        (kill-buffer b))
+    (kill-buffer (buffer-name))))
+
+(global-set-key "\C-xk" 'my-kill-buffer)
+
+
+;;
 ;; my-customized-goto-line
 ;;
 (defun my-goto-line ()

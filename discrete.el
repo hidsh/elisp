@@ -1781,16 +1781,6 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 (global-set-key "\C-xp" 'other-window-backwards)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;@@ kill current buffer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun kill-buffer-current ()
-  "No need to specify buffer name in order to kill current buffer."
-  (interactive)
-  (kill-buffer (buffer-name)))
-
-(global-set-key "\C-xk" 'kill-buffer-current)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ switch to previous buffer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun return-prev-buffer (b-list)
