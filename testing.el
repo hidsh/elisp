@@ -4,7 +4,7 @@
 ;;;
 
 ;;
-;; color directory string for completion
+;; color directory string in completion buffer
 ;;
 (defadvice completion-list-mode-finish (after filename-completeion-adv activate)
   (when minibuffer-completing-file-name
