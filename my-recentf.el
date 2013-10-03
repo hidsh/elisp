@@ -14,9 +14,13 @@
 
 
 (defvar my-recentf-mode-hook nil)
-(defvar my-recentf-buf-name "*my-recentf*")
 (defvar my-recentf-directory-face nil)
+
+;; internal-variable
+(defvar my-recentf-buf-name "*my-recentf*")
 (defvar my-recentf-window-conf nil)
+(defvar my-recentf-list-old nil)
+(defvar my-recentf-cursor-type nil)
 
 ;;
 ;; keymap
@@ -24,6 +28,7 @@
 (defvar my-recentf-mode-map nil)
 (unless my-recentf-mode-map
   (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map view-mode-map)
     (define-key map [return]    'my-recentf-action-key-enter)
     (define-key map "\C-xk"     'my-recentf-kill-buffer)
     (define-key map "q"         'my-recentf-kill-buffer)
@@ -44,11 +49,15 @@
 ;; util
 ;;
 (defun my-recentf-enumulate-file-path ()
-  ;; (let ((l recentf-list))
-  (let ((l (remove-duplicates (my-recentf-subst-tilda (my-recentf-truenames
-                                                       (my-recentf-delete-not-exist
-                                                        (my-recentf-delete-disused recentf-list))))
-                              :from-end t :test #'string=)))
+    
+  (let* ((diff-list (if (equal my-recentf-list-old recentf-list)
+                        '()
+                      (set-difference  recentf-list my-recentf-list-old)))
+         (l (remove-duplicates (append my-recentf-list-old
+                                       (my-recentf-subst-tilda (my-recentf-truenames
+                                                                (my-recentf-delete-not-exist
+                                                                 (my-recentf-delete-disused diff-list)))))
+                               :from-end t :test #'string=)))
     (mapc #'(lambda (x) (insert x "\n")) l)
     (setq recentf-list l)))
 
@@ -131,10 +140,7 @@
 
 (defun my-recentf-kill-buffer ()
   (interactive)
-  ;; (setq recentf-list (remove-duplicates (my-recentf-subst-tilda (my-recentf-truenames
-  ;;                                                      (my-recentf-delete-not-exist
-  ;;                                                       (my-recentf-delete-disused recentf-list))))
-  ;;                             :from-end t :test #'string=))
+  (setq my-recentf-list-old recentf-list)
   (kill-buffer my-recentf-buf-name)
   (set-window-configuration my-recentf-window-conf))
 
@@ -142,7 +148,7 @@
   (interactive)
   (setq buffer-read-only nil)
   (set-buffer-modified-p nil)
-  (view-mode-exit t)
+  (setq cursor-type my-recentf-cursor-type)
   (use-local-map my-recentf-edit-map)
   (message "entered to edit mode."))
 
@@ -159,7 +165,8 @@
         ;; (setq buffer-read-only t)
         (message "exit from edit mode, saved."))
     (message "exit from edit mode."))
-  (view-mode-enter)
+  (setq buffer-read-only t)
+  (setq cursor-type 'hollow)
   (use-local-map my-recentf-mode-map))
   
 (defun my-recentf-isearch-forward ()
@@ -184,8 +191,7 @@
   (my-recentf-set-directory-face)
   (goto-char (point-min))
   (set-buffer-modified-p nil)
-  (setq buffer-read-only t)
-  (view-mode-enter)
+    ;; (view-mode-enter)
   (my-recentf-mode)
   (delete-other-windows)
   (switch-to-buffer my-recentf-buf-name))
@@ -198,6 +204,9 @@
   (setq need-not-save t)
   (setq auto-save nil)
   (setq kept-undo-information t)
+  (setq buffer-read-only t)
+  (setq my-recentf-cursor-type cursor-type)
+  (setq cursor-type 'hollow)
   ;(make-local-variable 'highlight-keyword)
   ;(setq highlight-keyword nil)
   (run-hooks 'my-recentf-mode-hook))
