@@ -431,16 +431,15 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
      (define-key my-recentf-mode-map "a" 'my-beginning-of-line)
      (define-key my-recentf-mode-map "e" 'end-of-line)
      ;; (define-key my-recentf-mode-map "w" 'my-recentf-enter-edit-mode)  ; why doesnot work??
-     (define-key my-recentf-mode-map [?\ ]    'scroll-up-command)
-     (define-key my-recentf-mode-map [?\S-\ ] 'scroll-down-command)
-     (define-key my-recentf-mode-map "n" 'scroll-down-command)
+     (define-key my-recentf-mode-map [?\ ]    'my-scroll-up)
+     (define-key my-recentf-mode-map [?\S-\ ] 'my-scroll-down)
+     (define-key my-recentf-mode-map "n" 'my-scroll-down)
      (define-key my-recentf-mode-map "/" 'my-recentf-isearch-forward)
      (define-key my-recentf-mode-map "s" 'my-recentf-isearch-forward)
      ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
      (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)))
-
 
 (setq my-recentf-directory-face `((:foreground ,"#F1266F")))
 
