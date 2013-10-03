@@ -293,6 +293,7 @@
 ;;; C-n / C-p で選択
 (setq ac-use-menu-map t)
 
+(push 'ac-source-filename ac-sources)
 
 ;;; yasnippetのbindingを指定するとエラーが出るので回避する方法。
 (setf (symbol-function 'yas-active-keys)
