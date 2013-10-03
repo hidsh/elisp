@@ -372,6 +372,10 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 
 (defalias 'v 'toggle-auto-highlight-symbol)
 
+(set-face-background 'ahs-plugin-whole-buffer-face "deep sky blue")
+(set-face-foreground 'ahs-plugin-whole-buffer-face "white")
+
+
 ;;
 ;; bs-show w/ arg
 ;;
