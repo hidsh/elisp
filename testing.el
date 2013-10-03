@@ -557,10 +557,10 @@ That is, a string used to represent it on the tab bar."
 ;;
 ;; html-mode
 ;;
-(setq sgml-electric-tag-pair-mode 1)
 
 (add-hook 'html-mode-hook
           '(lambda ()
+             (setq sgml-electric-tag-pair-mode 1)
              (define-key html-mode-map "\M-t" 'sgml-close-tag)
              (define-key html-mode-map "\M-," 'insert-paren-gtlt)
              (define-key html-mode-map [M-left]  'sgml-skip-tag-backward)
