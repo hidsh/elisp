@@ -1064,7 +1064,7 @@ That is, a string used to represent it on the tab bar."
     (save-excursion
       (widen)
       (write-region (point-min) (point-max) (concat dir fn)))
-    (shell-command-to-string (format "ln -sf %s%s %s.latest" dir fn dir))
+    (shell-command-to-string (format "ln -sf %s%s %slatest.el" dir fn dir))
     (message "saved: %s%s" dir fn)))
 
 (defun save-buffer-lisp-int ()
@@ -1077,6 +1077,18 @@ That is, a string used to represent it on the tab bar."
           (lambda ()
             (define-key lisp-interaction-mode-map "\C-x\C-s" 'save-buffer-lisp-int)))
 
+(defun scratch-load-latest ()
+  (interactive)
+  (when (string= (buffer-name) "*scratch*")
+    (erase-buffer)
+    (let* ((path "~/scratch/latest.el")
+           (truename (file-chase-links path)))
+      (if (and (file-exists-p path)
+               (file-exists-p truename))
+          (progn
+            (insert-file path)
+            (message "loaded latest:%s" truename))
+        (message "not exists:%s" path)))))
 
 ;;
 ;; open url string near the point using default www browser
