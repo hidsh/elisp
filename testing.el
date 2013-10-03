@@ -4,6 +4,16 @@
 ;;;
 
 ;;
+;; color directory string for completion
+;;
+(defadvice completion-list-mode-finish (after filename-completeion-adv activate)
+  (when minibuffer-completing-file-name
+    (save-excursion
+      (while (re-search-forward "\\([^\n\t]+/\\)" nil t nil)
+        (overlay-put (make-overlay (match-beginning 1) (match-end 1))
+                     'face dired-directory-face)))))
+
+;;
 ;; diff-buffers
 ;;
 (defalias 'diff-buffers 'ediff-buffers)
