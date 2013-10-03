@@ -44,6 +44,7 @@
 ;; util
 ;;
 (defun my-recentf-enumulate-file-path ()
+  ;; (let ((l recentf-list))
   (let ((l (remove-duplicates (my-recentf-subst-tilda (my-recentf-truenames
                                                        (my-recentf-delete-not-exist
                                                         (my-recentf-delete-disused recentf-list))))
@@ -58,18 +59,12 @@
       (overlay-put (make-overlay (match-beginning 1) (match-end 1))
                    'face my-recentf-directory-face))))
 
-(defun my-recentf-get-current-line ()
-  (save-excursion
-    (let ((beg (progn (beginning-of-line) (point)))
-          (end (progn (end-of-line) (point))))
-      (buffer-substring-no-properties beg end))))
-
 (defun my-recentf-find-file ()
-    (let ((fn (my-recentf-get-current-line)))
+    (let ((fn (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
       (if (file-exists-p fn)
           (progn
             ;; (my-recentf-update-list fn)
-            (kill-buffer my-recentf-buf-name)
+            (my-recentf-kill-buffer)
             (find-file fn))
           (message (concat "not found: " fn)))))
 
@@ -132,8 +127,14 @@
                                           (my-recentf-delete-empty-line (my-recentf-create-list))))))
                                         :from-end t :test #'string=)))
 
+
+
 (defun my-recentf-kill-buffer ()
   (interactive)
+  ;; (setq recentf-list (remove-duplicates (my-recentf-subst-tilda (my-recentf-truenames
+  ;;                                                      (my-recentf-delete-not-exist
+  ;;                                                       (my-recentf-delete-disused recentf-list))))
+  ;;                             :from-end t :test #'string=))
   (kill-buffer my-recentf-buf-name)
   (set-window-configuration my-recentf-window-conf))
 
