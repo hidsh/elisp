@@ -4,6 +4,13 @@
 ;;;
 
 ;;
+;; help-mode
+;;
+(add-hook 'help-mode-hook
+          '(lambda ()
+             (view-mode 1)))
+
+;;
 ;; slime
 ;;
 (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
