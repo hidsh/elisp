@@ -4,6 +4,11 @@
 ;;;
 
 ;;
+;; diff-buffers
+;;
+(defalias 'diff-buffers 'ediff-buffers)
+
+;;
 ;; fixed comment-indent @ newcomment.el.gz
 ;;
 
