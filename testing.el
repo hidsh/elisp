@@ -84,7 +84,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 	    (skip-chars-backward " \t")
 	    (unless (bolp)
 	      ;; (setq indent (max indent (1+ (current-column))))))
-	      (setq indent (max indent (1+ comment-column)))))                           ; <<---- !!!
+	      (setq indent (max indent comment-column))))                           ; <<---- !!!
 	  ;; If that's different from comment's current position, change it.
 	  (unless (= (current-column) indent)
 	    (delete-region (point) (progn (skip-chars-backward " \t") (point)))
@@ -97,7 +97,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 (require 'popwin)
 (setq display-buffer-function 'popwin:display-buffer)
-(push '("*Apropos*") popwin:special-display-config)                 ;; Apropos                
+(push '("*Apropos*") popwin:special-display-config)                       ;; Apropos
 
 ;;
 ;; slime
@@ -113,7 +113,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;; (slime-setup  '(slime-repl slime-asdf slime-fancy slime-banner))
 (slime-setup  '(slime-repl slime-fancy slime-banner))
 
-(push '("*slime-apropos*") popwin:special-display-config)                 ;; Apropos                
+(push '("*slime-apropos*") popwin:special-display-config)                 ;; Apropos
 (push '("*slime-macroexpansion*") popwin:special-display-config)          ;; Macroexpand
 (push '("*slime-description*") popwin:special-display-config)             ;; Help
 (push '("*slime-compilation*" :noselect t) popwin:special-display-config) ;; Compilation
