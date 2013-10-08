@@ -342,7 +342,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                     (= 0 (syntax-class (syntax-after (point))))))    ; white space
       (backward-char 1)
       (setq b 1))         
-    (forward-char b)))           
+    (forward-char b)))
 
 (defun my-end-of-line-1 ()
   "本文末尾 -> end of line　の順に移動"
