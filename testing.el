@@ -333,10 +333,11 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 (require 'newcomment)                   ; for comment-search-forward
 (defun skip-backward-comment-and-space ()
-  (let* ((bol (save-excursion (beginning-of-line) (point)))
+  (let* ((bol (line-beginning-position))
          (b 0))
     (end-of-line)
     (while (and (<= bol (point))
+                (< (point-min) bol)
                 (or (member (get-text-property (point) 'face) '(font-lock-comment-face font-lock-comment-delimiter-face))
                     (= 0 (syntax-class (syntax-after (point))))))    ; white space
       (backward-char 1)
