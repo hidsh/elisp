@@ -2,11 +2,11 @@
 ;;;
 ;;; dot.emacs-gnu
 ;;;
-;;; for gnu-macs on mac
+;;; for gnu-emacs on mac
 ;;;
 ;;;
 
-(message "loading dot.emacs-gnu")
+(message "loading dot.emacs-linux")
 
 ;;;
 ;;; themes
@@ -23,10 +23,10 @@
 ;;;
 ;;; font
 ;;;
-(set-face-attribute 'default nil :family "menlo" :height 140) 
-(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-(add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
+;; (set-face-attribute 'default nil :family "menlo" :height 140) 
+;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+;; (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
 
 
 ;;;
@@ -34,9 +34,9 @@
 ;;;
 (setq default-frame-alist (append '(
 				    (top    . 0)
-				    (left   . 82)
+				    (left   . 0)
 				    (height . 64)
-				    (width  . 100))
+				    (width  . 90))
 				  default-frame-alist))
 
 ;;;
@@ -91,8 +91,8 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
-(set-face-attribute 'mode-line          nil :height 150 :box nil) ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :height 150 :box nil)
+(set-face-attribute 'mode-line          nil :height 100 :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :height 100 :box nil)
 (setq scroll-preserve-screen-position t)
 (setq initial-scratch-message "")
 
@@ -132,25 +132,8 @@
 (set-keyboard-coding-system 'utf-8)
 (set-clipboard-coding-system 'utf-8)
 
-;; http://sakito.jp/emacs/emacsshell.html#id7
-(cond ((or (eq window-system 'mac) (eq window-system 'ns))
-       ;; mac os x の hfs+ ファイルフォーマットではファイル名は nfd (の様な物)で扱うため以下の設定をする必要がある
-       (require 'ucs-normalize)
-       (setq file-name-coding-system 'utf-8-hfs)
-       (setq locale-coding-system 'utf-8-hfs))
-      (or (eq system-type 'cygwin) (eq system-type 'windows-nt)
-          (setq file-name-coding-system 'utf-8)
-          (setq locale-coding-system 'utf-8)
-          ;; もしコマンドプロンプトを利用するなら sjis にする
-          ;; (setq file-name-coding-system 'sjis)
-          ;; (setq locale-coding-system 'sjis)
-          ;; 古い cygwin だと euc-jp にする
-          ;; (setq file-name-coding-system 'euc-jp)
-          ;; (setq locale-coding-system 'euc-jp)
-          )
-      (t
-       (setq file-name-coding-system 'utf-8)
-       (setq locale-coding-system 'utf-8)))
+(setq file-name-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
 
 ;; kill-ringに同じ内容を重複して入れない
 (defadvice kill-new (before ys:no-kill-new-duplication activate)
@@ -861,5 +844,5 @@
 ;;; my-additional elisp
 ;;;
 (load-library "discrete")
-(load-library "mac")
+(load-library "linux")
 (load-library "testing")

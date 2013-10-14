@@ -102,32 +102,33 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 ;; slime
 ;;
-(add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
-(setq slime-lisp-implementations
-     `((sbcl ("/opt/local/bin/sbcl"))
-       (abcl ("/opt/local/bin/abcl"))
-       (clisp ("/opt/local/bin/clisp"))))
+(when (eq system-type 'darwin)
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
+  (setq slime-lisp-implementations
+        `((sbcl ("/opt/local/bin/sbcl"))
+          (abcl ("/opt/local/bin/abcl"))
+          (clisp ("/opt/local/bin/clisp"))))
 
-(setq slime-default-lisp 'clisp)
-(require 'slime)
-;; (slime-setup  '(slime-repl slime-asdf slime-fancy slime-banner))
-(slime-setup  '(slime-repl slime-fancy slime-banner))
+  (setq slime-default-lisp 'clisp)
+  (require 'slime)
+  ;; (slime-setup  '(slime-repl slime-asdf slime-fancy slime-banner))
+  (slime-setup  '(slime-repl slime-fancy slime-banner))
 
-(push '("*slime-apropos*") popwin:special-display-config)                 ;; Apropos
-(push '("*slime-macroexpansion*") popwin:special-display-config)          ;; Macroexpand
-(push '("*slime-description*") popwin:special-display-config)             ;; Help
-(push '("*slime-compilation*" :noselect t) popwin:special-display-config) ;; Compilation
-(push '("*slime-xref*") popwin:special-display-config)                    ;; Cross-reference
-(push '(sldb-mode :stick t) popwin:special-display-config)                ;; Debugger
-(push '(slime-repl-mode) popwin:special-display-config)                   ;; REPL
-(push '(slime-connection-list-mode) popwin:special-display-config)        ;; Connections
+  (push '("*slime-apropos*") popwin:special-display-config)                 ;; Apropos
+  (push '("*slime-macroexpansion*") popwin:special-display-config)          ;; Macroexpand
+  (push '("*slime-description*") popwin:special-display-config)             ;; Help
+  (push '("*slime-compilation*" :noselect t) popwin:special-display-config) ;; Compilation
+  (push '("*slime-xref*") popwin:special-display-config)                    ;; Cross-reference
+  (push '(sldb-mode :stick t) popwin:special-display-config)                ;; Debugger
+  (push '(slime-repl-mode) popwin:special-display-config)                   ;; REPL
+  (push '(slime-connection-list-mode) popwin:special-display-config)        ;; Connections
 
 
 
-(let ((hooks '(help-mode-hook apropos-mode-hook)))
-  (dolist (h hooks)
-    (add-hook h '(lambda () (view-mode 1)))))
-
+  (let ((hooks '(help-mode-hook apropos-mode-hook)))
+    (dolist (h hooks)
+      (add-hook h '(lambda () (view-mode 1)))))
+)
 
 ;;
 ;; my-kill-buffer
@@ -562,116 +563,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
              (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)
              (define-key dired-mode-map "\C-a" 'my-beginning-of-line-dired)))
 
-;;
-;; tabbar
-;;
-(require 'tabbar+)
-(tabbar-mode 1)
-
-;; タブ上でマウスホイール操作無効
-(tabbar-mwheel-mode -1)
-
-;; グループ化しない
-(setq tabbar-buffer-groups-function nil)
-
-;; 左に表示されるボタンを無効化
-(dolist (btn '(tabbar-buffer-home-button
-               tabbar-scroll-left-button
-               tabbar-scroll-right-button))
-  (set btn (cons (cons "" nil)
-                 (cons "" nil))))
-
-
-;; タブに表示させるバッファの設定
-(defvar my-tabbar-displayed-buffers
-  '("*scratch*" "*Moccur*")
-  "*Regexps matches buffer names always included tabs.")
-
-(defun my-tabbar-buffer-list ()
-  "Return the list of buffers to show in tabs.
-Exclude buffers whose name starts with a space or an asterisk.
-The current buffer and buffers matches `my-tabbar-displayed-buffers'
-are always included."
-  (let* ((hides (list ?\  ?\*))
-         (re (regexp-opt my-tabbar-displayed-buffers))
-         (cur-buf (current-buffer))
-         (tabs (delq nil
-                     (mapcar (lambda (buf)
-                               (let ((name (buffer-name buf)))
-                                 (when (or (string-match re name)
-                                           (not (memq (aref name 0) hides)))
-                                   buf)))
-                             (buffer-list)))))
-    ;; Always include the current buffer.
-    (if (memq cur-buf tabs)
-        tabs
-      (cons cur-buf tabs))))
-
-(setq tabbar-buffer-list-function 'my-tabbar-buffer-list)
-
-;; (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
-;; (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
-
-(global-set-key [f12]        'tabbar-forward-tab)
-(global-set-key [f11]        'tabbar-backward-tab)
-
-(global-set-key [(meta f12)] 'tabbar+move-right)
-(global-set-key [(meta f11)] 'tabbar+move-left)
-
-(defun my-tabbar-buffer-select-tab (event tab)
-  "On mouse EVENT, select TAB."
-  (let ((mouse-button (event-basic-type event))
-        (buffer (tabbar-tab-value tab)))
-    (cond
-     ((eq mouse-button 'mouse-2)
-      (with-current-buffer buffer
-        (kill-buffer)))
-     ((eq mouse-button 'mouse-3)
-      (delete-other-windows))
-     (t
-      (switch-to-buffer buffer)))
-    ;; Don't show groups.
-    (tabbar-buffer-show-groups nil)))
-
-(setq tabbar-help-on-tab-function 'my-tabbar-buffer-help-on-tab)
-(setq tabbar-select-tab-function 'my-tabbar-buffer-select-tab)
-
-;; adding spaces
-(defun tabbar-buffer-tab-label (tab)
-  "Return a label for TAB.
-That is, a string used to represent it on the tab bar."
-  (let ((label  (if tabbar--buffer-show-groups
-                    (format " [%s] " (tabbar-tab-tabset tab))
-                  (format " %s " (tabbar-tab-value tab)))))
-    ;; Unless the tab bar auto scrolls to keep the selected tab
-    ;; visible, shorten the tab label to keep as many tabs as possible
-    ;; in the visible area of the tab bar.
-    (if tabbar-auto-scroll-flag
-        label
-      (tabbar-shorten
-       label (max 1 (/ (window-width)
-                       (length (tabbar-view
-                                (tabbar-current-tabset)))))))))
-
-;; 外観変更
-(set-face-attribute 'tabbar-default nil
- :family "Lucida Grande" :height 130
- :background "#bebdbe")
-
-
-(set-face-attribute 'tabbar-unselected nil
- :background "#bebdbe"
- :foreground "#313131"
- :box nil)
-
-(set-face-attribute 'tabbar-selected nil
- :background "#22232a"
- :foreground "#e9e9e9"
- :box nil)
-
-(setq tabbar-separator '(0.2)) ;; タブの長さ
-(set-face-attribute 'tabbar-separator nil
- :background "#6c6c6c")
 
 ;;
 ;; 最後のマークに移動
@@ -1120,103 +1011,105 @@ That is, a string used to represent it on the tab bar."
 ;;
 ;; powerline - https://github.com/milkypostman/powerline
 ;;
-(require 'powerline)
-(powerline-default)
+(when (eq system-type 'darwin)
+  (require 'powerline)
+  (powerline-default)
 
-;; active color
-(set-face-background 'mode-line         "#FF0066")   ; pink
-(set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
-(set-face-background 'powerline-active1 "#FF6699")   ; light-pink
-(set-face-foreground 'powerline-active1 "#272821")   ; near-black
-(set-face-background 'powerline-active2 "#CDC0B0")   ; sand
-(set-face-foreground 'powerline-active2 "#272821")   ; near-black
+  ;; active color
+  (set-face-background 'mode-line         "#FF0066")   ; pink
+  (set-face-foreground 'mode-line         "#FFFFDC")   ; near-white
+  (set-face-background 'powerline-active1 "#FF6699")   ; light-pink
+  (set-face-foreground 'powerline-active1 "#272821")   ; near-black
+  (set-face-background 'powerline-active2 "#CDC0B0")   ; sand
+  (set-face-foreground 'powerline-active2 "#272821")   ; near-black
 
-;; inactive color
-(set-face-background 'mode-line-inactive  "#CCCC99") ; sand
-(set-face-foreground 'mode-line-inactive  "#272821") ; near-black
-(set-face-background 'powerline-inactive1 "#383838") ; near black
-(set-face-foreground 'powerline-inactive1 "#CCCCCC") ; light-gray
-(set-face-background 'powerline-inactive2 "#626262") ; dark-gray
-(set-face-foreground 'powerline-inactive2 "#CCCCCC") ; light-gray
+  ;; inactive color
+  (set-face-background 'mode-line-inactive  "#CCCC99") ; sand
+  (set-face-foreground 'mode-line-inactive  "#272821") ; near-black
+  (set-face-background 'powerline-inactive1 "#383838") ; near black
+  (set-face-foreground 'powerline-inactive1 "#CCCCCC") ; light-gray
+  (set-face-background 'powerline-inactive2 "#626262") ; dark-gray
+  (set-face-foreground 'powerline-inactive2 "#CCCCCC") ; light-gray
 
-;; View mode
-(defpowerline powerline-view
-  (when view-mode "View"))
+  ;; View mode
+  (defpowerline powerline-view
+    (when view-mode "View"))
 
-(add-hook 'view-mode-hook
-          '(lambda ()
-             (setcar (cdr (assq 'view-mode minor-mode-alist)) "")))
+  (add-hook 'view-mode-hook
+            '(lambda ()
+               (setcar (cdr (assq 'view-mode minor-mode-alist)) "")))
 
-;; modified-p
-(defpowerline powerline-modified
-  (if (buffer-modified-p) "mod" ""))
+  ;; modified-p
+  (defpowerline powerline-modified
+    (if (buffer-modified-p) "mod" ""))
 
-'( 
-;; モードラインに現在の関数名を表示
-(which-function-mode 1)
-(set-face-foreground 'which-func "Gray50")
-(set-face-italic-p 'which-func t)
-
-(defpowerline powerline-which-func
-  (progn
+  '( 
+    ;; モードラインに現在の関数名を表示
     (which-function-mode 1)
-    which-func-format))
+    (set-face-foreground 'which-func "Gray50")
+    (set-face-italic-p 'which-func t)
+
+    (defpowerline powerline-which-func
+      (progn
+        (which-function-mode 1)
+        which-func-format))
+    )
+
+  (defpowerline powerline-count-lines-and-chars
+    (if (region-active-p)
+        (format "(%3d:%4d)"
+                (count-lines (region-beginning) (region-end))
+                (- (region-end) (region-beginning)))
+      ""))
+
+  (setq-default mode-line-format
+                '("%e"
+                  (:eval
+                   (let* ((active (powerline-selected-window-active))
+                          (mode-line (if active 'mode-line 'mode-line-inactive))
+                          (face1 (if active 'powerline-active1 'powerline-inactive1))
+                          (face2 (if active 'powerline-active2 'powerline-inactive2))
+                          (height 20)
+                          (lhs (list
+                                (powerline-raw "%Z" nil 'l)
+                                ;; (powerline-buffer-size nil 'l)
+                                (powerline-buffer-id nil 'l)
+                                (powerline-raw " ")
+                                (powerline-arrow-right mode-line face1 height)
+                                (when (boundp 'erc-modified-channels-object)
+                                  (powerline-raw erc-modified-channels-object face1 'l))
+                                (powerline-major-mode face1 'l)
+                                (powerline-process face1)
+                                (powerline-minor-modes face1 'l)
+                                (powerline-raw " " face1)
+                                (powerline-arrow-right face1 face2 height)
+                                (powerline-view face2 'l)
+                                ))
+                          (rhs (list
+                                (powerline-raw global-mode-string face2 'r)
+                                ;; (powerline-which-func face2 'r)
+                                (powerline-vc face2 'r)
+                                (powerline-arrow-left face2 face1 height)
+                                (powerline-raw " " face1)
+                                (powerline-narrow face1)
+                                (powerline-count-lines-and-chars face1)
+                                (powerline-raw "%4l" face1 'r)
+                                (powerline-raw ":" face1)
+                                (powerline-raw "%3c" face1 'r)
+                                (powerline-raw (format "%6d" (point)) face1 'r)
+                                (powerline-arrow-left face1 mode-line height)
+                                (powerline-raw " ")
+                                (powerline-modified)
+                                (powerline-raw " ")
+                                (powerline-raw "%6p%8 ")
+                                ;; (powerline-hud face2 face1)
+                                ;; (powerline-raw "    " nil 'r)
+                                )))
+                     (concat (powerline-render lhs)
+                             (powerline-fill face2 (powerline-width rhs))
+                             (powerline-render rhs))))))
+
 )
-
-(defpowerline powerline-count-lines-and-chars
-  (if (region-active-p)
-      (format "(%3d:%4d)"
-              (count-lines (region-beginning) (region-end))
-              (- (region-end) (region-beginning)))
-    ""))
-
-(setq-default mode-line-format
-'("%e"
- (:eval
-  (let* ((active (powerline-selected-window-active))
-         (mode-line (if active 'mode-line 'mode-line-inactive))
-         (face1 (if active 'powerline-active1 'powerline-inactive1))
-         (face2 (if active 'powerline-active2 'powerline-inactive2))
-         (height 20)
-         (lhs (list
-               (powerline-raw "%Z" nil 'l)
-               ;; (powerline-buffer-size nil 'l)
-               (powerline-buffer-id nil 'l)
-               (powerline-raw " ")
-               (powerline-arrow-right mode-line face1 height)
-               (when (boundp 'erc-modified-channels-object)
-                 (powerline-raw erc-modified-channels-object face1 'l))
-               (powerline-major-mode face1 'l)
-               (powerline-process face1)
-               (powerline-minor-modes face1 'l)
-               (powerline-raw " " face1)
-               (powerline-arrow-right face1 face2 height)
-               (powerline-view face2 'l)
-               ))
-         (rhs (list
-               (powerline-raw global-mode-string face2 'r)
-               ;; (powerline-which-func face2 'r)
-               (powerline-vc face2 'r)
-               (powerline-arrow-left face2 face1 height)
-               (powerline-raw " " face1)
-               (powerline-narrow face1)
-               (powerline-count-lines-and-chars face1)
-               (powerline-raw "%4l" face1 'r)
-               (powerline-raw ":" face1)
-               (powerline-raw "%3c" face1 'r)
-               (powerline-raw (format "%6d" (point)) face1 'r)
-               (powerline-arrow-left face1 mode-line height)
-               (powerline-raw " ")
-               (powerline-modified)
-               (powerline-raw " ")
-               (powerline-raw "%6p%8 ")
-               ;; (powerline-hud face2 face1)
-               ;; (powerline-raw "    " nil 'r)
-                              )))
-    (concat (powerline-render lhs)
-            (powerline-fill face2 (powerline-width rhs))
-            (powerline-render rhs))))))
-
 ;;
 ;; タイトルバーにバッファ名かファイル名を表示
 ;;
@@ -1538,18 +1431,19 @@ That is, a string used to represent it on the tab bar."
 ;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
 ;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
 ;;    M-x package-install                 パッケージ名を指定してインストール
-(require 'package)
+(when (eq system-type 'darwin)
+  (require 'package)
 
-; Add package-archives
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+                                        ; Add package-archives
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
-; Initialize
-(package-initialize)
+                                        ; Initialize
+  (package-initialize)
 
-; melpa.el
-(require 'melpa)
-
+                                        ; melpa.el
+  (require 'melpa)
+)
 ;;
 ;; 田キーをhyperに
 ;;

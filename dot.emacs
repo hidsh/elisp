@@ -5,9 +5,9 @@
 
 
 (load
- (if (featurep 'aquamacs)
-     "dot.emacs-aquamacs"               ; for aquamacs
-     "dot.emacs-gnu"))                  ; for gnu-emacs
+ (cond ((featurep 'aquamacs) "dot.emacs-aquamacs")
+       ((eq system-type 'gnu/linux) "dot.emacs-linux")
+       (t "dot.emacs-mac")))
 
 
 (custom-set-variables
