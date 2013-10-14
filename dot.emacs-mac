@@ -861,5 +861,5 @@
 ;;; my-additional elisp
 ;;;
 (load-library "discrete")
-;; (load-library "mac")
+(load-library "mac")
 (load-library "testing")
