@@ -4,6 +4,13 @@
 ;;;
 
 ;;
+;; show ascii table
+;;
+(defun ascii ()
+  (interactive)
+  (list-charset-chars 'ascii))
+
+;;
 ;; color directory string in completion buffer
 ;;
 (defadvice completion-list-mode-finish (after filename-completeion-adv activate)
