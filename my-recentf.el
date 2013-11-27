@@ -49,7 +49,6 @@
 ;; util
 ;;
 (defun my-recentf-enumulate-file-path ()
-    
   (let* ((diff-list (if (equal my-recentf-list-old recentf-list)
                         '()
                       (set-difference  recentf-list my-recentf-list-old)))
@@ -134,7 +133,8 @@
 (defun my-recentf-save ()
   (setq recentf-list (remove-duplicates (my-recentf-directory-trail-slash (my-recentf-truenames (my-recentf-subst-tilda (my-recentf-delete-not-exist
                                           (my-recentf-delete-empty-line (my-recentf-create-list))))))
-                                        :from-end t :test #'string=)))
+                                        :from-end t :test #'string=))
+  (setq my-recentf-list-old recentf-list))
 
 
 
