@@ -1,8 +1,8 @@
 ;;
 ;; provisional
 ;;
-(global-set-key "\M-n" 'scroll-up)
-(global-set-key "\M-p" 'scroll-down)
+(defalias 'scroll-up-command 'scroll-up)     ; for emacs23
+(defalias 'scroll-down-command 'scroll-down) ; for emacs23
 
 
 ;;
@@ -58,7 +58,7 @@
 
 ;; タブに表示させるバッファの設定
 (defvar my-tabbar-displayed-buffers
-  '("*scratch*" "*Moccur*")
+  '("*scratch*" "*Moccur*" "*eshell*")
   "*Regexps matches buffer names always included tabs.")
 
 (defun my-tabbar-buffer-list ()
@@ -143,6 +143,6 @@ That is, a string used to represent it on the tab bar."
  :foreground "#e9e9e9"
  :box nil)
 
-(setq tabbar-separator '(0.2)) ;; タブの長さ
+(setq tabbar-separator '(0.1)) ;; タブの長さ
 (set-face-attribute 'tabbar-separator nil
  :background "#6c6c6c")
