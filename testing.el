@@ -4,6 +4,53 @@
 ;;;
 
 ;;
+;; c-mode compile
+;;  [F7]でコンパイル(バッファを全部保存して，make all します)
+;;  [F4]でコンパイルエラー行へジャンプ
+;;  [F1]でカーソル下の単語について マニュアルを開く
+;;  SHIFT+[F7] でリビルド(make clean all)
+;;  SHIFT+[F4] で一つ前のエラー行へジャンプ
+;;
+(setq auto-mode-alist
+      (append '(("\\.C$"  . c++-mode)
+                ("\\.cc$" . c++-mode)
+                ("\\.cpp$". c++-mode)
+                ("\\.hh$" . c++-mode)
+                ("\\.c$"  . c-mode)
+                ("\\.h$"  . c++-mode))
+              auto-mode-alist))
+
+(add-hook 'c-mode-common-hook
+     '(lambda ()
+        (require 'vc-hooks)
+        (setq completion-mode t)
+        ;; make のオプションは聞いてこない
+        (setq compilation-read-command nil)
+        ;; make するとき 全バッファを自動的にsaveする
+        (setq compilation-ask-about-save nil)
+        (define-key c-mode-base-map [f1] 'manual-entry)
+        (define-key c-mode-base-map [f4] 'next-error)
+        (define-key c-mode-base-map [(shift f4)] 'previous-error)
+         (define-key c-mode-base-map [f7] 'compile)
+        (define-key c-mode-base-map [(shift f7)] 
+          '(lambda () 
+             (interactive)
+             ;;(require 'compile)
+             ;;(save-some-buffers (not compilation-ask-about-save) nil)
+             (compile-internal "make clean all" "No more errors")))
+      ))
+
+;; 
+;; auto highlihgt symbol
+;;
+(global-unset-key [M-right])
+(global-unset-key [M-left])
+
+(global-set-key [M-up] 'ahs-backward)
+(global-set-key [M-down] 'ahs-forward)
+
+
+;;
 ;; show ascii table
 ;;
 (defun ascii ()
@@ -549,12 +596,13 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 (defun my-dired-open ()
   (interactive)
   (let ((exts-ql   '("jpeg" "jpg" "png" "gif"))
-        (exts-open '("avi" "mkv" "mp4" "pdf")))
+        (exts-open '("avi" "mkv" "mp4" "pdf"))
+        (ext (file-name-extension (dired-get-file-for-visit))))
      (cond ((file-accessible-directory-p (dired-get-file-for-visit))
             (call-interactively 'dired-find-alternate-file))
-           ((member (downcase (file-name-extension (dired-get-file-for-visit))) exts-ql)
+           ((and ext (member (downcase ext) exts-ql))
             (funcall 'quicklook-file (dired-get-file-for-visit)))
-           ((member (downcase (file-name-extension (dired-get-file-for-visit))) exts-open)
+           ((and ext (member (downcase ext) exts-open))
             (funcall 'open-mac (dired-get-file-for-visit)))
            (t
             (call-interactively 'dired-find-file-other-window)))))
