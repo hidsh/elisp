@@ -305,6 +305,8 @@
 ; auto-complete に対応しないモード
 ; (setq ac-modes (append '(js2-mode)))
 
+(setq ac-ignore-case nil)     ; 大文字・小文字を区別する
+
 ;;
 ;; view-mode
 ;;
