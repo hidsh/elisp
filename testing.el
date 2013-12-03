@@ -4,6 +4,14 @@
 ;;;
 
 ;;
+;; expand-region
+;;
+;; (add-to-list 'load-path "~/elisp/expand-region/")
+;; (require 'expand-region)
+;; (global-set-key "\M-=" 'er/expand-region)  ; win + =
+
+
+;;
 ;; c-mode compile
 ;;  [F7]でコンパイル(バッファを全部保存して，make all します)
 ;;  [F4]でコンパイルエラー行へジャンプ
