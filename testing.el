@@ -819,11 +819,12 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 (defun hankaku-eisuu-region (start end)
  "選択範囲内の全角英数字を半角英数字に変換"
   (interactive "r")
+  (require 'japan-util)
   (while (string-match
           "[０-９Ａ-Ｚａ-ｚ]+"
           (buffer-substring start end))
     (save-excursion
-      (japanese-hankaku-region――
+      (japanese-hankaku-region
        (+ start (match-beginning 0))
        (+ start (match-end 0))
        ))))
