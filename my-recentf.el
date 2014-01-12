@@ -52,13 +52,13 @@
   (let* ((diff-list (if (equal my-recentf-list-old recentf-list)
                         '()
                       (set-difference  recentf-list my-recentf-list-old)))
-         (l (remove-duplicates (append my-recentf-list-old
-                                       (my-recentf-subst-tilda (my-recentf-truenames
+         (l (remove-duplicates (append (my-recentf-subst-tilda (my-recentf-truenames
                                                                 (my-recentf-delete-not-exist
-                                                                 (my-recentf-delete-disused diff-list)))))
+                                                                 (my-recentf-delete-disused diff-list))))
+                                       my-recentf-list-old)
                                :from-end t :test #'string=)))
     (mapc #'(lambda (x) (insert x "\n")) l)
-    (setq recentf-list l)))
+    (setq my-recentf-list-old l)))
 
 (defun my-recentf-set-directory-face ()
   (when my-recentf-directory-face
