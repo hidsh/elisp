@@ -3,6 +3,39 @@
 ;;; testing.el --- now testing
 ;;;
 
+;; package.el
+;;
+;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
+;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
+;;    M-x package-install                 パッケージ名を指定してインストール
+(when (eq system-type 'darwin)
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+  (setq package-user-dir "~/elisp/elpa/")
+  (package-initialize)
+  ;; (require 'melpa)
+)
+
+
+;;
+;; jedi for python
+;;
+;; (add-to-list load-path "~/elisp/elpa/epc-20130803.2228")
+(require 'epc)
+(require 'auto-complete-config)
+(require 'python)
+
+;;;;; PYTHONPATH上のソースコードがauto-completeの補完対象になる ;;;;;
+;; (setenv "PYTHONPATH" "/usr/local/lib/python2.7/site-packages")
+(setenv "PYTHONPATH" "/opt/local/lib/python2.7/site-packages")
+(require 'jedi)
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
+
+
+
 ;;
 ;; expand-region
 ;;
@@ -429,8 +462,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 
 (global-set-key "\C-e" 'my-end-of-line)
 
-
-;;
 ;; 変数をハイライト
 ;; (emacs 24.3.50 では標準に組み込まれる予定)
 (require 'auto-highlight-symbol)
@@ -932,9 +963,9 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;     (insert-pair)))
 
 ; auto indent
-(add-hook 'python-mode-hook '(lambda ()
-                               (setq python-indent 4)
-                               (define-key python-mode-map "\C-m" 'newline-and-indent)))
+;; (add-hook 'python-mode-hook '(lambda ()
+;;                                (setq python-indent 4)
+;;                                (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
 ;; ; flymake
 ;; (add-hook 'find-file-hook 'flymake-find-file-hook)
@@ -1488,26 +1519,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                              (when (equal line (line-number-at-pos))
                                (previous-error)))))
 (global-set-key "\C-cd" 'flymake-display-err-menu-for-current-line)
- 
-;;
-;; melpa
-;;
-;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
-;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
-;;    M-x package-install                 パッケージ名を指定してインストール
-(when (eq system-type 'darwin)
-  (require 'package)
 
-                                        ; Add package-archives
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
-                                        ; Initialize
-  (package-initialize)
-
-                                        ; melpa.el
-  (require 'melpa)
-)
 ;;
 ;; 田キーをhyperに
 ;;

@@ -176,10 +176,10 @@
 ;;;
 ;;; auto-install
 ;;;
-(add-to-list 'load-path "~/elisp/auto-install/")
-(require 'auto-install)
-(setq auto-install-directory "~/elisp/auto-install/")
-(auto-install-compatibility-setup)
+;; (add-to-list 'load-path "~/elisp/auto-install/")
+;; (require 'auto-install)
+;; (setq auto-install-directory "~/elisp/auto-install/")
+;; (auto-install-compatibility-setup)
 
 ;;
 
