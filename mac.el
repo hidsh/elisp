@@ -159,8 +159,10 @@ That is, a string used to represent it on the tab bar."
 (defun open-terminal ()
   (interactive)
   (let* ((fn (buffer-file-name))
-         (dir (cond ((string= major-mode "dired-mode") dired-directory)
-                    ((and fn (file-exists-p fn)) (file-name-directory fn))
+         (dir (cond ((string= major-mode "dired-mode")
+                     dired-directory)
+                    ((and fn (file-exists-p fn))
+                     (file-name-directory fn))
                     (t "~"))))
     (open-terminal-1 dir)))
 
