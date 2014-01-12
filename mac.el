@@ -153,7 +153,8 @@ That is, a string used to represent it on the tab bar."
                          "    activate"
                          "    do script with command \" cd %s \" \n"
                          "end tell\n")
-                        (concat "\\\"" dir "\\\""))))
+                        ;; (concat "\\\"" dir "\\\""))))
+                        dir)))
     (start-process "osascript-getinfo" nil "osascript" "-e" script)))
 
 (defun open-terminal ()
