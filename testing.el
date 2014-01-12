@@ -17,7 +17,6 @@
   ;; (require 'melpa)
 )
 
-
 ;;
 ;; jedi for python
 ;;
@@ -699,6 +698,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 (require 'quickrun)
 
+(defalias 'run 'quickrun)
 (defalias 'r 'quickrun)
 ;; (defadvice quickrun/make-sentinel (around back-window-adv activate)
 ;;   (ignore-errors
