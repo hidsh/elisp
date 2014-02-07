@@ -3,6 +3,11 @@
 ;;; testing.el --- now testing
 ;;;
 
+;;
+;; disable menu key
+;;
+(global-unset-key "\M-`")               ; menu keys
+
 ;; package.el
 ;;
 ;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
