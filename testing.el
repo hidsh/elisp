@@ -4,6 +4,13 @@
 ;;;
 
 ;;
+;;
+;;
+(add-hook 'find-file-hook
+     '(lambda ()
+        (toggle-read-only)))
+
+;;
 ;; disable menu key
 ;;
 (global-unset-key "\M-`")               ; menu keys
@@ -527,8 +534,8 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
      (define-key my-recentf-mode-map "l" 'forward-char)
      (define-key my-recentf-mode-map "g" 'beginning-of-buffer)
      (define-key my-recentf-mode-map "G" 'end-of-buffer)
-     (define-key my-recentf-mode-map "a" 'my-beginning-of-line)
-     (define-key my-recentf-mode-map "e" 'end-of-line)
+     (define-key my-recentf-mode-map "0" 'my-beginning-of-line)
+     (define-key my-recentf-mode-map "4" 'end-of-line)
      ;; (define-key my-recentf-mode-map "w" 'my-recentf-enter-edit-mode)  ; why doesnot work??
      (define-key my-recentf-mode-map [?\ ]    'my-scroll-up)
      (define-key my-recentf-mode-map [?\S-\ ] 'my-scroll-down)
