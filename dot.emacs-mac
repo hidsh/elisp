@@ -38,6 +38,11 @@
 				    (height . 64)
 				    (width  . 110))
 				  default-frame-alist))
+;;;
+;;; modifier keys
+;;;
+(when (eq system-type 'darwin)
+  (setq ns-command-modifier (quote meta)))
 
 ;;;
 ;;; unbinding and key binding
@@ -347,8 +352,8 @@
     (define-key map "l" 'forward-char)
     (define-key map "g" 'beginning-of-buffer)
     (define-key map "G" 'end-of-buffer)
-    (define-key map "a" 'my-beginning-of-line)
-    (define-key map "e" 'end-of-line)
+    (define-key map "0" 'my-beginning-of-line)
+    (define-key map "4" 'end-of-line)
     (define-key map "w" 'forward-word)
     (define-key map "b" 'backward-word)
     (define-key map "i" 'toggle-read-only)

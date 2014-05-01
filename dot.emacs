@@ -2,7 +2,7 @@
 (message "loading dot.emacs")
 
 (setq load-path (append '("~/Dropbox/elisp") load-path))
-
+(setq default-directory "~/")
 
 (load
  (cond ((featurep 'aquamacs) "dot.emacs-aquamacs")
