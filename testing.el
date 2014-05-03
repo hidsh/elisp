@@ -9,11 +9,15 @@
 (add-hook 'find-file-hook
      '(lambda ()
         (toggle-read-only)))
-     '(lambda ()
-        (require 'vc-hooks)
-        (setq completion-mode t)
 
-(global-set-key [backspace] '(lambda () (interactive) (toggle-read-only) (message ""))) ; del key
+(defun my-bs ()
+  (interactive)
+  (if (minibufferp)
+      (call-interactively 'backward-delete-char-untabify)
+    (toggle-read-only))
+  (message ""))
+
+(global-set-key [backspace] 'my-bs) ; del key
 
 ;;
 ;; disable menu key
@@ -48,8 +52,6 @@
 (require 'jedi)
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)
-
-
 
 
 ;;
