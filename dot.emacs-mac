@@ -19,7 +19,6 @@
 ;; (require 'color-theme-zenburn) (color-theme-zenburn)
 (require 'color-theme-almost-monokai) (color-theme-almost-monokai)
 
-
 ;;;
 ;;; font
 ;;;
@@ -29,15 +28,6 @@
 (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
 
 
-;;;
-;;; window size and position
-;;;
-(setq default-frame-alist (append '(
-				    (top    . 0)
-				    (left   . 82)
-				    (height . 64)
-				    (width  . 110))
-				  default-frame-alist))
 ;;;
 ;;; modifier keys
 ;;;
@@ -88,7 +78,9 @@
 ;; (set-cursor-color "#FF6699")
 ;; (set-cursor-color "#CCCC99")
 ;; (set-cursor-color "#f3f3f3")
-(tool-bar-mode -1)
+;(tool-bar-mode -1)
+
+
 (setq ring-bell-function 'ignore)
 (column-number-mode t)
 (setq parens-require-spaces nil)
@@ -870,3 +862,15 @@
 (load-library "discrete")
 (load-library "mac")
 (load-library "testing")
+
+;;;
+;;; window size and position
+;;;
+;; (tool-bar-mode 0)
+(setq default-frame-alist (append '(
+				    (top    . 0)
+				    (left   . 82)
+				    (height . 64)
+				    (width  . 110))
+				  default-frame-alist))
+(tool-bar-mode 0)

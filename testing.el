@@ -9,6 +9,11 @@
 (add-hook 'find-file-hook
      '(lambda ()
         (toggle-read-only)))
+     '(lambda ()
+        (require 'vc-hooks)
+        (setq completion-mode t)
+
+(global-set-key [backspace] '(lambda () (interactive) (toggle-read-only) (message ""))) ; del key
 
 ;;
 ;; disable menu key
@@ -208,6 +213,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 ;; slime
 ;;
+(when nil
 (when (eq system-type 'darwin)
   (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
   (setq slime-lisp-implementations
@@ -234,6 +240,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
   (let ((hooks '(help-mode-hook apropos-mode-hook)))
     (dolist (h hooks)
       (add-hook h '(lambda () (view-mode 1)))))
+)
 )
 
 ;;
