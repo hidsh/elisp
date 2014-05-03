@@ -4,7 +4,13 @@
 ;;;
 
 ;;
+;; font size (SHIFT +/-)
 ;;
+(global-set-key "\M-+" 'text-scale-increase)
+(global-set-key "\M-_" 'text-scale-decrease)
+
+;;
+;; toggle-read-only
 ;;
 (add-hook 'find-file-hook
      '(lambda ()
@@ -12,12 +18,14 @@
 
 (defun my-bs ()
   (interactive)
-  (if (minibufferp)
-      (call-interactively 'backward-delete-char-untabify)
-    (toggle-read-only))
+  (if buffer-file-name
+    (toggle-read-only)
+    (call-interactively 'backward-delete-char-untabify))
   (message ""))
 
+;; (global-set-key (kbd "M-DEL") 'my-bs) ; del key
 (global-set-key [backspace] 'my-bs) ; del key
+
 
 ;;
 ;; disable menu key
@@ -66,7 +74,7 @@
 ;; c-mode compile
 ;;  [F7]でコンパイル(バッファを全部保存して，make all します)
 ;;  [F4]でコンパイルエラー行へジャンプ
-;;  [F1]でカーソル下の単語について マニュアルを開く
+;;  [F1]でカーソル下の単語について マニュアルを開く <-- disabled
 ;;  SHIFT+[F7] でリビルド(make clean all)
 ;;  SHIFT+[F4] で一つ前のエラー行へジャンプ
 ;;
@@ -87,7 +95,7 @@
         (setq compilation-read-command nil)
         ;; make するとき 全バッファを自動的にsaveする
         (setq compilation-ask-about-save nil)
-        (define-key c-mode-base-map [f1] 'manual-entry)
+        ;; (define-key c-mode-base-map [f1] 'manual-entry)
         (define-key c-mode-base-map [f4] 'next-error)
         (define-key c-mode-base-map [(shift f4)] 'previous-error)
          (define-key c-mode-base-map [f7] 'compile)
@@ -1396,7 +1404,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;; (global-set-key "\M-v" 'my-meta-v)
 
 
-
 ;;
 ;; full screen
 ;;
@@ -1410,7 +1417,8 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
     (set-frame-parameter nil 'fullscreen 'fullboth)
     (display-time-mode 1)))
 
-(global-set-key (kbd "C-M-f") 'my-toggle-fullscreen)
+(global-set-key (kbd "M-F") 'my-toggle-fullscreen)
+;; (global-set-key (kbd "C-M-f") 'my-toggle-fullscreen)
 
 
 
@@ -1425,8 +1433,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
              (setq dired-view-file-other-window-viewing-p nil)))
 
 (defun dired-view-file-other-window-1 ()
-
-
 )
   
 
