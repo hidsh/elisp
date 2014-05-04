@@ -4,10 +4,27 @@
 ;;;
 
 ;;
+;; rinari for ruby on rails
+;;
+;; Interactively Do Things (highly recommended, but not strictly required)
+(require 'ido)
+(ido-mode t)
+;; Rinari
+(add-to-list 'load-path "~/src/rinari")
+(require 'rinari)
+
+;;; rhtml-mode
+(add-to-list 'load-path "~/src/rhtml")
+(require 'rhtml-mode)
+(add-hook 'rhtml-mode-hook
+    (lambda () (rinari-launch)))
+
+;;
 ;; font size (SHIFT +/-)
 ;;
 (global-set-key "\M-+" 'text-scale-increase)
 (global-set-key "\M-_" 'text-scale-decrease)
+
 
 ;;
 ;; toggle-read-only
@@ -34,8 +51,7 @@
 
 ;; package.el
 ;;
-;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得
-;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
+;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
 ;;    M-x package-install                 パッケージ名を指定してインストール
 (when (eq system-type 'darwin)
   (require 'package)

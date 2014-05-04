@@ -82,8 +82,8 @@ are always included."
 ;; (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 ;; (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-(global-set-key [f10]        'tabbar-forward-tab)
-(global-set-key [f9]         'tabbar-backward-tab)
+(global-set-key [f12]        'tabbar-forward-tab)
+(global-set-key [f11]         'tabbar-backward-tab)
 
 (global-set-key [(meta f12)] 'tabbar+move-right)
 (global-set-key [(meta f11)] 'tabbar+move-left)
