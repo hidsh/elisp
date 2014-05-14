@@ -11,6 +11,7 @@
 (ido-mode t)
 ;; Rinari
 (add-to-list 'load-path "~/src/rinari")
+(add-to-list 'load-path "~/git-clone/rinari")
 (require 'rinari)
 
 ;;; rhtml-mode
