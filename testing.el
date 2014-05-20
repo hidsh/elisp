@@ -3,6 +3,16 @@
 ;;; testing.el --- now testing
 ;;;
 
+
+
+;;
+;; set read only after saving
+;;
+(add-hook 'after-save-hook
+          (lambda ()
+            (unless buffer-read-only
+              (toggle-read-only))))
+
 ;;
 ;; rinari for ruby on rails
 ;;
