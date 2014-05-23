@@ -3,6 +3,15 @@
 ;;; testing.el --- now testing
 ;;;
 
+;;
+;; mod (orig:discrete.el)
+;; add: open-finder
+(defun my-find-file (filename &optional wildcards)
+  (interactive (my-find-file-interactive-arg "Find file: "))
+  (let ((curr (buffer-file-name)))
+    (if (string= filename curr)
+        (open-finder-1 (file-name-directory curr) (file-name-nondirectory curr))
+      (find-file filename wildcards))))
 
 
 ;;
