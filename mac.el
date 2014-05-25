@@ -174,15 +174,17 @@ That is, a string used to represent it on the tab bar."
 ;;; 
 ;;; open finder
 ;;; 
-(defun open-finder-1 (dir file)
+(defun open-finder-1 (dir fn)
   (let ((script
-		 (if file
-			 (concat
-			  "tell application \"Finder\"\n"
-			  "    set frontmost to true\n"
-			  "    make new Finder window to (POSIX file \"" dir "\")\n" 
-			  "    select file \"" file "\"\n"
-			  "end tell\n")
+		 (if fn
+             (let ((path (concat dir fn)))
+               (concat
+                "tell application \"Finder\"\n"
+                "    set frontmost to true\n"
+                "    make new Finder window to (POSIX file \"" dir "\")\n" 
+                ;; "    select file \"" file "\"\n"
+                "    select (\"" path "\" as POSIX file)\n"
+                "end tell\n"))
 		   (concat
 			"tell application \"Finder\"\n"
 			"    set frontmost to true\n"
