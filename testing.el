@@ -26,12 +26,12 @@
 ;; rinari for ruby on rails
 ;;
 ;; Interactively Do Things (highly recommended, but not strictly required)
-(require 'ido)
-(ido-mode t)
+;(require 'ido)
+;(ido-mode t)
 ;; Rinari
-(add-to-list 'load-path "~/src/rinari")
-(add-to-list 'load-path "~/git-clone/rinari")
-(require 'rinari)
+;(add-to-list 'load-path "~/src/rinari")
+;(add-to-list 'load-path "~/git-clone/rinari")
+;(require 'rinari)
 
 ;;; rhtml-mode
 (add-to-list 'load-path "~/src/rhtml")

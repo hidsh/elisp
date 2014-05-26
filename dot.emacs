@@ -1,7 +1,7 @@
 ;; .emacs  
 (message "loading dot.emacs")
 
-(setq load-path (append '("~/Dropbox/elisp") load-path))
+(setq load-path (append '("~/elisp") load-path))
 (setq default-directory "~/")
 
 (load
