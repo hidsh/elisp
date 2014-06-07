@@ -10,7 +10,9 @@
 (evil-mode 1)
 (define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
 (define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
-
+(define-key evil-motion-state-map (kbd "C-f") nil)
+(define-key evil-motion-state-map (kbd "C-b") nil)
+(setq evil-move-cursor-back nil)
 
 ;;
 ;; mod (orig:discrete.el)
@@ -594,7 +596,8 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
      ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
-     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)))
+     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)
+     (define-key evil-motion-state-map "w" 'my-recentf-enter-edit-mode)))
 
 (setq my-recentf-directory-face `((:foreground ,"#F1266F")))
 
