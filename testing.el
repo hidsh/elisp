@@ -4,6 +4,14 @@
 ;;;
 
 ;;
+;; evil
+;;
+(eval-after-load 'evil-mode
+  '(progn
+     (evil-mode 1)))
+
+
+;;
 ;; mod (orig:discrete.el)
 ;; add: open-finder
 (defun my-find-file (filename &optional wildcards)
