@@ -17,10 +17,10 @@
 ;;
 ;; set read only after saving
 ;;
-(add-hook 'after-save-hook
-          (lambda ()
-            (unless buffer-read-only
-              (toggle-read-only))))
+;; (add-hook 'after-save-hook
+;;           (lambda ()
+;;             (unless buffer-read-only
+;;               (toggle-read-only))))
 
 ;;
 ;; rinari for ruby on rails
@@ -49,19 +49,19 @@
 ;;
 ;; toggle-read-only
 ;;
-(add-hook 'find-file-hook
-     '(lambda ()
-        (toggle-read-only)))
+;; (add-hook 'find-file-hook
+;;      '(lambda ()
+;;         (toggle-read-only)))
 
-(defun my-bs ()
-  (interactive)
-  (if buffer-file-name
-    (toggle-read-only)
-    (call-interactively 'backward-delete-char-untabify))
-  (message ""))
+;; (defun my-bs ()
+;;   (interactive)
+;;   (if buffer-file-name
+;;     (toggle-read-only)
+;;     (call-interactively 'backward-delete-char-untabify))
+;;   (message ""))
 
 ;; (global-set-key (kbd "M-DEL") 'my-bs) ; del key
-(global-set-key [backspace] 'my-bs) ; del key
+;; (global-set-key [backspace] 'my-bs) ; del key
 
 
 ;;
@@ -413,11 +413,11 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                     #'ace-jump-word-mode
                   #'ace-jump-char-mode) ,c))))
 
-(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
+;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
 
 ;;
 ;; スクロール
