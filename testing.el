@@ -6,9 +6,10 @@
 ;;
 ;; evil
 ;;
-(eval-after-load 'evil-mode
-  '(progn
-     (evil-mode 1)))
+(require 'evil)
+(evil-mode 1)
+(define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
+(define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
 
 
 ;;
@@ -76,19 +77,6 @@
 ;; disable menu key
 ;;
 (global-unset-key "\M-`")               ; menu keys
-
-;; package.el
-;;
-;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
-;;    M-x package-install                 パッケージ名を指定してインストール
-(when (eq system-type 'darwin)
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (setq package-user-dir "~/elisp/elpa/")
-  (package-initialize)
-  ;; (require 'melpa)
-)
 
 ;;
 ;; jedi for python
