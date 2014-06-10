@@ -596,8 +596,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
      ;; (define-key my-recentf-mode-map "\M-e" 'recentf-edit-list)
      ;; (define-key my-recentf-mode-map "\M-\C-m" 'recentf-open-dired)
      (define-key my-recentf-mode-map [delete] 'my-recentf-enter-edit-mode)
-     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)
-     (define-key evil-motion-state-map "w" 'my-recentf-enter-edit-mode)))
+     (define-key my-recentf-edit-map [delete] 'my-recentf-exit-edit-mode)))
 
 (setq my-recentf-directory-face `((:foreground ,"#F1266F")))
 
