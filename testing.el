@@ -4,8 +4,9 @@
 ;;;
 
 ;;
-;; for evil
+;; for view-mode
 ;;
+(defalias 'view 'view-mode)
 
 
 ;;
