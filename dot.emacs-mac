@@ -869,6 +869,7 @@
 ;; (tool-bar-mode 0)
 (setq default-frame-alist (append '(
 				    (top    . 0)
+				    ;(left   . 1007)
 				    (left   . 1007)
 				    (height . 64)
 				    (width  . 110))

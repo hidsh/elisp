@@ -804,14 +804,14 @@ double quotation characters \(\"\) from given string."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ insert-my-vss-signature
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar insert-my-vss-signature-string "HSHA")
-(defun insert-my-vss-signature ()
-  "insert string for vss signature like sig:ZZR / 2006-12-30 -->`061230ZZR\'"
-  (interactive)
-  (insert (concat (format-time-string "%y%m%d" (current-time))
-		  insert-my-vss-signature-string)))
+;; (defvar insert-my-vss-signature-string "HSHA")
+;; (defun insert-my-vss-signature ()
+;;   "insert string for vss signature like sig:ZZR / 2006-12-30 -->`061230ZZR\'"
+;;   (interactive)
+;;   (insert (concat (format-time-string "%y%m%d" (current-time))
+;; 		  insert-my-vss-signature-string)))
 
-(global-set-key "\C-c\C-j" 'insert-my-vss-signature)
+;; (global-set-key "\C-c\C-j" 'insert-my-vss-signature)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ highlight-current-line
@@ -1837,7 +1837,7 @@ Otherwise,  ARG is t, redo is called."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ multiply current line.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun multi-line (&optional ARG)
+(defun duplicate-line (&optional ARG)
   "Multiply current line."
   (interactive"*p")
   (let ((cnt 0)
@@ -1857,7 +1857,7 @@ Otherwise,  ARG is t, redo is called."
     (goto-char pt)
     (next-line 1)))
 
-(global-set-key [?\M-=] 'multi-line)
+(global-set-key [?\M-=] 'duplicate-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ set-mark w/ fringe-indicator

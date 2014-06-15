@@ -83,7 +83,7 @@ are always included."
 ;; (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
 (global-set-key [f12]        'tabbar-forward-tab)
-(global-set-key [f11]         'tabbar-backward-tab)
+(global-set-key [f11]        'tabbar-backward-tab)
 
 (global-set-key [(meta f12)] 'tabbar+move-right)
 (global-set-key [(meta f11)] 'tabbar+move-left)
@@ -103,7 +103,7 @@ are always included."
     ;; Don't show groups.
     (tabbar-buffer-show-groups nil)))
 
-(setq tabbar-help-on-tab-function 'my-tabbar-buffer-help-on-tab)
+;(setq tabbar-help-on-tab-function 'my-tabbar-buffer-help-on-tab)
 (setq tabbar-select-tab-function 'my-tabbar-buffer-select-tab)
 
 ;; adding spaces
