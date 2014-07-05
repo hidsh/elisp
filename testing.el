@@ -4,8 +4,13 @@
 ;;;
 
 ;;
-;; for view-mode
 ;;
+;;
+(global-set-key "\C-x\C-d" 'dired)
+;;
+;; alias
+;;
+(defalias 'revert 'revert-buffer)
 (defalias 'view 'view-mode)
 
 
