@@ -107,6 +107,7 @@
 
 ;; c-mode (include tab setting)
 (add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
+(electric-indent-mode)
 
 (defun indent-or-insert-tab ()
   (interactive)
