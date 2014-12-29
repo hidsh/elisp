@@ -35,3 +35,4 @@ emacs-w3m/
 .tmp
 .diff
 *.elc
+*.pyc

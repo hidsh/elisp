@@ -1584,6 +1584,30 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 ;;@@ insert-paren-*    [], {}, <>, "", ''
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar insert-paren-kaku-state nil)
+;; (defun insert-paren-kaku ()
+;;   "Insert paired [] or {} working like insert-parenthesis."
+;;   (interactive)
+;;   (if (eq last-command 'insert-paren-kaku)
+;;       (progn
+;; 	(forward-char -1)
+;; 	(delete-char 2)
+;; 	(if (null insert-paren-kaku-state)
+;; 	    (progn
+;; 	      (insert ?\{)
+;; 	      (save-excursion
+;; 		(insert ?\}))
+;; 	      (setq insert-paren-kaku-state t))
+;; 	  (progn
+;; 	    (insert ?\[)
+;; 	    (save-excursion
+;; 	      (insert ?\]))
+;; 	    (setq insert-paren-kaku-state nil))))
+;;     (progn
+;;       (insert ?\[)
+;;       (save-excursion
+;; 	(insert ?\]))
+;;       (setq insert-paren-kaku-state nil))))
+
 (defun insert-paren-kaku ()
   "Insert paired [] or {} working like insert-parenthesis."
   (interactive)
@@ -1593,19 +1617,19 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 	(delete-char 2)
 	(if (null insert-paren-kaku-state)
 	    (progn
-	      (insert ?\{)
+	      (insert ?\[)
 	      (save-excursion
-		(insert ?\}))
+		(insert ?\]))
 	      (setq insert-paren-kaku-state t))
 	  (progn
-	    (insert ?\[)
+	    (insert ?\{)
 	    (save-excursion
-	      (insert ?\]))
+	      (insert ?\}))
 	    (setq insert-paren-kaku-state nil))))
     (progn
-      (insert ?\[)
+      (insert ?\{)
       (save-excursion
-	(insert ?\]))
+	(insert ?\}))
       (setq insert-paren-kaku-state nil))))
 
 (global-set-key "\M-[" 'insert-paren-kaku)
