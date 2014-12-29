@@ -7,6 +7,8 @@
 ;;
 ;;
 (global-set-key "\C-x\C-d" 'dired)
+
+
 ;;
 ;; alias
 ;;
@@ -18,7 +20,7 @@
 ;; evil
 ;;
 (require 'evil)
-;(evil-mode 1)
+(evil-mode 1)
 (defalias 'evil 'evil-mode)
 (define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
 (define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
@@ -29,7 +31,14 @@
 (define-key evil-motion-state-map "\C-o" nil)
 (define-key evil-motion-state-map "q" nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
+(define-key evil-normal-state-map "\C-y" 'yank)
+(define-key evil-insert-state-map "\C-y" 'yank)
+(define-key evil-insert-state-map "\C-r" 'search-backward)
 
+;; cursor color
+(setq evil-default-cursor 'hollow
+      evil-normal-state-cursor '("white")
+      evil-insert-state-cursor '("#FF0066" box))
 
 
 ;;
@@ -470,11 +479,16 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                     #'ace-jump-word-mode
                   #'ace-jump-char-mode) ,c))))
 
+; ESC/Win/App key
+(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-" c 'word))
+(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-" c 'word))
 ;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
+
+(setq mac-option-modifier 'hyper)
 
 ;;
 ;; スクロール
@@ -1223,6 +1237,12 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 						  (cdr url-region))))))
 
 (global-set-key "\M-\C-m" 'browse-url-at-point)      ; M-RET
+
+;; modeline (mode name)
+(setcar (cdr (assq 'abbrev-mode minor-mode-alist)) " ")
+(setcar (cdr (assq 'global-whitespace-mode minor-mode-alist)) " ")
+(setcar (cdr (assq 'auto-highlight-symbol-mode minor-mode-alist)) " HS")
+(setq undo-tree-mode-lighter "")
 
 
 ;;
