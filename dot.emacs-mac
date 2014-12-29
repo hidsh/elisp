@@ -37,7 +37,8 @@
 ;;;
 ;;; unbinding and key binding
 ;;;
-(keyboard-translate ?\C-h ?\C-?)            ; c-h
+(setq mac-option-modifier 'hyper)       ; for ace-jump-mode (win-key or app-key)
+(keyboard-translate ?\C-h ?\C-?)        ; c-h
 
 
 (global-unset-key "\C-z")                          ; suspend-frame
