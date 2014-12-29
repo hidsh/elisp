@@ -106,8 +106,26 @@
 (setq default-truncate-lines t)             ; 折り返しなし
 
 ;; c-mode (include tab setting)
+(add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
+
+(defun indent-or-insert-tab ()
+  (interactive)
+  (let ((pos (point)))
+    (funcall indent-line-function)
+    (when (= pos (point))
+      (insert "\t"))))
+
+(global-set-key "\C-i" 'indent-or-insert-tab)
+
 (add-hook 'c-mode-hook
-          (lambda () (c-set-style "stroustrup")))
+          (lambda () (c-set-style "stroustrup"))
+          (define-key c-mode-map "\C-i" 'indent-or-insert-tab))
+
+(add-to-list 'align-rules-list
+             '(tab-stop-assignment
+               (regexp   . "\\(\\s-+\\)")
+               (tab-stop . t)              ; タブ位置でそろえる
+               (modes    . '(c-mode))))
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
