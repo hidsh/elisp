@@ -22,23 +22,43 @@
 (require 'evil)
 (evil-mode 1)
 (defalias 'evil 'evil-mode)
+(setq evil-move-cursor-back nil)
+
 (define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
 (define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
 (define-key evil-motion-state-map (kbd "C-f") nil)
 (define-key evil-motion-state-map (kbd "C-b") nil)
-(setq evil-move-cursor-back nil)
-
 (define-key evil-motion-state-map "\C-o" nil)
 (define-key evil-motion-state-map "q" nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
+
 (define-key evil-normal-state-map "\C-y" 'yank)
-(define-key evil-insert-state-map "\C-y" 'yank)
+
 (define-key evil-insert-state-map "\C-r" 'search-backward)
+;; (define-key evil-insert-state-map "\M-j" #'evil-force-normal-state) ; ESC 
+(define-key evil-insert-state-map "j" #'evil-maybe-exit) ; jj --> ESC 
+
+(evil-define-command evil-maybe-exit ()
+  :repeat change
+  (interactive)
+  (let ((modified (buffer-modified-p))
+        (entry-key ?j)
+        (exit-key ?j))
+    (insert entry-key)
+    (let ((evt (read-event (format "Insert %c to exit insert state" exit-key) nil 0.5)))
+      (cond
+       ((null evt) (message ""))
+       ((and (integerp evt) (char-equal evt exit-key))
+          (delete-char -1)
+          (set-buffer-modified-p modified)
+          (push 'escape unread-command-events))
+       (t (push evt unread-command-events))))))
+
 
 ;; cursor color
 (setq evil-default-cursor 'hollow
       evil-normal-state-cursor '("white")
-      evil-insert-state-cursor '("#FF0066" box))
+      evil-insert-state-cursor '("#FF0066" (bar . 3)))
 
 
 ;;
