@@ -33,7 +33,6 @@
 (define-key evil-motion-state-map (kbd "TAB") nil)
 
 (define-key evil-normal-state-map "\C-y" 'yank)
-(define-key evil-insert-state-map "\C-y" 'yank)
 
 (define-key evil-insert-state-map "\C-r" 'search-backward)
 ;; (define-key evil-insert-state-map "\M-j" #'evil-force-normal-state) ; ESC 
@@ -55,9 +54,6 @@
           (push 'escape unread-command-events))
        (t (push evt unread-command-events))))))
 
-(require 'evil-numbers)
-(define-key evil-normal-state-map "=" #'evil-numbers/inc-at-pt)
-(define-key evil-normal-state-map "-" #'evil-numbers/dec-at-pt)
 
 ;; cursor color
 (setq evil-default-cursor 'hollow
