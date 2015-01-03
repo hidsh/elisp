@@ -38,7 +38,6 @@
 (define-key evil-insert-state-map "\C-r" 'search-backward)
 ;; (define-key evil-insert-state-map "\M-j" #'evil-force-normal-state) ; ESC 
 (define-key evil-insert-state-map "j" #'evil-maybe-exit) ; jj --> ESC 
-
 (evil-define-command evil-maybe-exit ()
   :repeat change
   (interactive)
@@ -54,6 +53,15 @@
           (set-buffer-modified-p modified)
           (push 'escape unread-command-events))
        (t (push evt unread-command-events))))))
+
+(evil-ex-define-cmd "wq" 'my-save-kill-current-butffer)
+(defun my-save-kill-current-butffer ()
+  :repeat nil
+  (interactive)
+  (save-buffer)
+  (kill-buffer (current-buffer)))
+
+
 
 (require 'evil-numbers)
 (define-key evil-normal-state-map "=" #'evil-numbers/inc-at-pt)
