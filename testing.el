@@ -33,6 +33,7 @@
 (define-key evil-motion-state-map (kbd "TAB") nil)
 
 (define-key evil-normal-state-map "\C-y" 'yank)
+(define-key evil-normal-state-map "q" nil)
 (define-key evil-insert-state-map "\C-y" 'yank)
 
 (define-key evil-insert-state-map "\C-r" 'search-backward)
