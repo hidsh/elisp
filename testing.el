@@ -15,6 +15,12 @@
 (defalias 'revert 'revert-buffer)
 (defalias 'view 'view-mode)
 
+;; print
+;; http://www.emacswiki.org/emacs/MacPrintMode
+(when (require 'mac-print-mode nil t)
+  (mac-print-mode 1)
+  (global-set-key (kbd "M-S-p") 'mac-print-buffer)
+  (defalias 'print-buffer 'mac-print-buffer))
 
 ;;
 ;; evil
