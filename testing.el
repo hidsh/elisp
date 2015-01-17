@@ -19,7 +19,7 @@
 ;; http://www.emacswiki.org/emacs/MacPrintMode
 (when (require 'mac-print-mode nil t)
   (mac-print-mode 1)
-  (global-set-key (kbd "M-S-p") 'mac-print-buffer)
+  (global-set-key (kbd "H-M-p") 'mac-print-buffer)
   (defalias 'print-buffer 'mac-print-buffer))
 
 ;;
