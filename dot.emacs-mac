@@ -123,6 +123,7 @@
           (lambda ()
             (c-set-style "stroustrup")
             (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
+            (modify-syntax-entry ?_ "w")
             (setq case-fold-search nil))) ; case sensitive
 
 (setq align-rules-list '())

@@ -1782,16 +1782,16 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
     (forward-char 1)))
 
 
-(add-hook 'minibuffer-setup-hook
-	    (function
-	      (lambda ()
-		(setq dir-list '())
-		(local-set-key "\M-h" 'my-backward-kill-word-minibuffer)
-		(local-set-key "\M-f" 'my-forward-word-minibuffer)
-		(local-set-key "\C-h" 'my-backward-delete-char-minibuffer)
-		(local-set-key "\C-b" 'my-backward-char-minibuffer)
-		(local-set-key "\C-f" 'my-forward-char-minibuffer)
-		)))
+;; (add-hook 'minibuffer-setup-hook
+;; 	    (function
+;; 	      (lambda ()
+;; 		(setq dir-list '())
+;; 		(local-set-key "\M-h" 'my-backward-kill-word-minibuffer)
+;; 		(local-set-key "\M-f" 'my-forward-word-minibuffer)
+;; 		(local-set-key "\C-h" 'my-backward-delete-char-minibuffer)
+;; 		(local-set-key "\C-b" 'my-backward-char-minibuffer)
+;; 		(local-set-key "\C-f" 'my-forward-char-minibuffer)
+;; 		)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
