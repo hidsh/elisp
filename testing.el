@@ -80,7 +80,7 @@
       evil-insert-state-cursor '("#FF0066" (bar . 3)))
 
 (evil-make-overriding-map view-mode-map 'normal)
-(evil-make-overriding-map moccur-mode-map'normal)
+(evil-make-overriding-map moccur-mode-map 'normal)
 ;; (evil-make-overriding-map minibuffer-local-completion-map 'normal)
 
 ;;
