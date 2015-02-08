@@ -22,7 +22,7 @@
 ;;;
 ;;; font
 ;;;
-(set-face-attribute 'default nil :family "menlo" :height 140) 
+(set-face-attribute 'default nil :family "menlo" :height 165)
 (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
 (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
 (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
@@ -89,8 +89,8 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
-(set-face-attribute 'mode-line          nil :height 150 :box nil) ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :height 150 :box nil)
+(set-face-attribute 'mode-line          nil :height 160 :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :height 160 :box nil)
 (setq scroll-preserve-screen-position t)
 (setq initial-scratch-message "")
 
@@ -894,8 +894,8 @@
 (setq default-frame-alist (append '(
 				    (top    . 0)
 				    ;(left   . 1007)
-				    (left   . 1007)
+				    (left   . 71)
 				    (height . 64)
-				    (width  . 110))
+				    (width  . 100))
 				  default-frame-alist))
 (tool-bar-mode 0)

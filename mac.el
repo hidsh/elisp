@@ -27,10 +27,10 @@
 ;;
 ;; font
 ;;
-(set-face-attribute 'default nil :family "menlo" :height 140) 
-(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-(set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
-(add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
+;; (set-face-attribute 'default nil :family "menlo" :height 140) 
+;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+;; (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
+;; (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
 
 ;;
 ;; tabbar
