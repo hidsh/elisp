@@ -80,6 +80,8 @@
       evil-normal-state-cursor '("white")
       evil-insert-state-cursor '("#FF0066" (bar . 3)))
 
+(add-to-list 'evil-emacs-state-modes 'view-mode)
+(add-to-list 'evil-emacs-state-modes 'moccur-mode)
 (evil-make-overriding-map view-mode-map 'normal)
 (evil-make-overriding-map moccur-mode-map 'normal)
 ;; (evil-make-overriding-map minibuffer-local-completion-map 'normal)
