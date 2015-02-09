@@ -36,6 +36,7 @@
 (define-key evil-motion-state-map (kbd "C-b") nil)
 (define-key evil-motion-state-map "\C-o" nil)
 (define-key evil-motion-state-map "q" nil)
+(define-key evil-motion-state-map "\C-d" nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
 
 (define-key evil-normal-state-map "\C-y" 'yank)

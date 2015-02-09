@@ -126,12 +126,12 @@
             (modify-syntax-entry ?_ "w")
             (setq case-fold-search nil))) ; case sensitive
 
-(setq align-rules-list '())
-(add-to-list 'align-rules-list
-             '(tab-stop-assignment
-               (regexp   . "\\(\\s-+\\)")
-               (tab-stop . t)              ; タブ位置でそろえる
-               (modes    . '(c-mode))))
+(eval-after-load "align"
+  '(add-to-list 'align-rules-list
+                '(tab-stop-assignment
+                  (regexp   . "\\(\\s-+\\)")
+                  (tab-stop . t)              ; タブ位置でそろえる
+                  (modes     . '(c-mode c++-mode)))))
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
