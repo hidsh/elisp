@@ -1094,7 +1094,9 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
       (let ((col (current-column)))
         (setq comment-column col)
         (message "set comment-column to %d." col))
-    (indent-for-comment)))
+    (indent-for-comment)
+    (when (eq evil-state 'normal)
+      (evil-insert 1))))
 
 (global-set-key [?\C-\;] 'indent-for-comment-gnrr)
 

@@ -123,8 +123,14 @@
           (lambda ()
             (c-set-style "stroustrup")
             (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
-            (modify-syntax-entry ?_ "w")
-            (setq case-fold-search nil))) ; case sensitive
+            (setq comment-column 52)
+            (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
+            (setq comment-start "// ")                  ; コメントを // にする
+            (setq comment-end "")
+            (setq compilation-read-command nil)         ; make のオプションの確認は不要
+            (setq compilation-ask-about-save nil)       ; make するとき save する
+            (setq compile-command "make")               ; make時のデフォルトコマンド
+            (setq case-fold-search nil)))               ; case sensitive
 
 (eval-after-load "align"
   '(add-to-list 'align-rules-list
@@ -132,6 +138,10 @@
                   (regexp   . "\\(\\s-+\\)")
                   (tab-stop . t)              ; タブ位置でそろえる
                   (modes     . '(c-mode c++-mode)))))
+
+
+
+
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/

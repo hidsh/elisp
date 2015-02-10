@@ -39,7 +39,10 @@
 (define-key evil-motion-state-map "\C-d" nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
 
+(define-key evil-normal-state-map "4" 'end-of-line)
+(define-key evil-normal-state-map "\C-e" 'end-of-line)
 (define-key evil-normal-state-map "\C-y" 'yank)
+(define-key evil-normal-state-map "\C-z" 'my-undo-redo)
 (define-key evil-normal-state-map "q" nil)
 (define-key evil-insert-state-map "\C-y" 'yank)
 
