@@ -85,6 +85,7 @@
 
 (add-to-list 'evil-emacs-state-modes 'view-mode)
 (add-to-list 'evil-emacs-state-modes 'moccur-mode)
+(add-to-list 'evil-emacs-state-modes 'eshell-mode)
 (evil-make-overriding-map view-mode-map 'normal)
 (evil-make-overriding-map moccur-mode-map 'normal)
 ;; (evil-make-overriding-map minibuffer-local-completion-map 'normal)
