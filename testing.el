@@ -30,25 +30,29 @@
 (defalias 'evil 'evil-mode)
 (setq evil-move-cursor-back nil)
 
+(define-key evil-motion-state-map "q" nil)
+(define-key evil-motion-state-map (kbd "C-o") nil)
+(define-key evil-motion-state-map (kbd "C-d") nil)
 (define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
 (define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
 (define-key evil-motion-state-map (kbd "C-f") nil)
 (define-key evil-motion-state-map (kbd "C-b") nil)
-(define-key evil-motion-state-map "\C-o" nil)
-(define-key evil-motion-state-map "q" nil)
-(define-key evil-motion-state-map "\C-d" nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
 
+(define-key evil-normal-state-map "q" nil)
+(define-key evil-normal-state-map (kbd "C-0") nil)
+(define-key evil-normal-state-map (kbd "C-1") nil)
 (define-key evil-normal-state-map "4" 'end-of-line)
 (define-key evil-normal-state-map "\C-e" 'end-of-line)
 (define-key evil-normal-state-map "\C-y" 'yank)
 (define-key evil-normal-state-map "\C-z" 'my-undo-redo)
-(define-key evil-normal-state-map "q" nil)
+(define-key evil-normal-state-map "\C-v" 'evil-emacs-state)
+(define-key evil-emacs-state-map "\C-v" '(lambda () (interactive) (evil-exit-emacs-state) (message "-- EVIL --")))
 (define-key evil-insert-state-map "\C-y" 'yank)
-
 (define-key evil-insert-state-map "\C-r" 'search-backward)
 ;; (define-key evil-insert-state-map "\M-j" #'evil-force-normal-state) ; ESC 
 (define-key evil-insert-state-map "j" #'evil-maybe-exit) ; jj --> ESC 
+
 (evil-define-command evil-maybe-exit ()
   :repeat change
   (interactive)
@@ -1404,31 +1408,31 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
           (format "%%f - Emacs")
         (format "%%b - Emacs")))
 
-;;
-;; org-mode and remember
-;;
-(setq remember-data-file "~/memo/remember")    
+;; ;;
+;; ;; org-mode and remember
+;; ;;
+;; (setq remember-data-file "~/memo/remember")    
 
-(require 'org-install)
-(setq org-startup-truncated nil)
-(setq org-return-follows-link t)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(setq org-directory "~/memo/")
-(setq org-default-notes-file (concat org-directory "agenda.org"))
-(setq org-capture-templates
-      '(("t" "Task" entry (file+headline nil "Inbox") "** TODO %?\n   %i\n   %a\n   %t\n   \n")
-        ("b" "Bug"  entry (file+headline nil "Inbox") "** TODO %?   :bug:\n   %i\n   %a\n   %t\n   \n")
-        ("i" "Idea" entry (file+headline nil "Idea")  "** %?\n   %i\n   %a\n   %t\n   \n")))
+;; (require 'org-install)
+;; (setq org-startup-truncated nil)
+;; (setq org-return-follows-link t)
+;; (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;; (setq org-directory "~/memo/")
+;; (setq org-default-notes-file (concat org-directory "agenda.org"))
+;; (setq org-capture-templates
+;;       '(("t" "Task" entry (file+headline nil "Inbox") "** TODO %?\n   %i\n   %a\n   %t\n   \n")
+;;         ("b" "Bug"  entry (file+headline nil "Inbox") "** TODO %?   :bug:\n   %i\n   %a\n   %t\n   \n")
+;;         ("i" "Idea" entry (file+headline nil "Idea")  "** %?\n   %i\n   %a\n   %t\n   \n")))
 
-(add-hook 'org-capture-mode-hook
-          '(lambda ()
-             (view-mode-exit)
-             (widen)
-             (define-key org-capture-mode-map (kbd "q") 'org-capture-finalize)
-             (define-key org-capture-mode-map (kbd "C-x C-k") 'org-capture-kill)))
+;; (add-hook 'org-capture-mode-hook
+;;           '(lambda ()
+;;              (view-mode-exit)
+;;              (widen)
+;;              (define-key org-capture-mode-map (kbd "q") 'org-capture-finalize)
+;;              (define-key org-capture-mode-map (kbd "C-x C-k") 'org-capture-kill)))
 
 
-(defalias 'm 'org-capture)
+;; (defalias 'm 'org-capture)
 
 
 ;;
