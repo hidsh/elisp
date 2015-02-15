@@ -22,6 +22,15 @@
   (global-set-key (kbd "H-M-p") 'mac-print-buffer)
   (defalias 'print-buffer 'mac-print-buffer))
 
+;; copy word 
+(defun copy-word-at-point ()
+  (interactive)
+  (let ((word (current-word)))
+    (kill-new word)
+    (message (concat "copied: \"" word "\""))))
+
+(global-set-key "\M-q" 'copy-word-at-point)
+
 ;;
 ;; evil
 ;;
@@ -90,6 +99,7 @@
 (add-to-list 'evil-emacs-state-modes 'view-mode)
 (add-to-list 'evil-emacs-state-modes 'moccur-mode)
 (add-to-list 'evil-emacs-state-modes 'eshell-mode)
+(add-to-list 'evil-emacs-state-modes 'bs-mode)
 (evil-make-overriding-map view-mode-map 'normal)
 (evil-make-overriding-map moccur-mode-map 'normal)
 ;; (evil-make-overriding-map minibuffer-local-completion-map 'normal)
