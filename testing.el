@@ -98,6 +98,7 @@
 
 (add-to-list 'evil-emacs-state-modes 'view-mode)
 (add-to-list 'evil-emacs-state-modes 'moccur-mode)
+(add-to-list 'evil-emacs-state-modes 'moccur-grep-mode)
 (add-to-list 'evil-emacs-state-modes 'eshell-mode)
 (add-to-list 'evil-emacs-state-modes 'bs-mode)
 (evil-make-overriding-map view-mode-map 'normal)
@@ -1343,7 +1344,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
   (defpowerline powerline-modified
     (if (buffer-modified-p) "mod" ""))
 
-  '( 
+  ;; '( 
     ;; モードラインに現在の関数名を表示
     (which-function-mode 1)
     (set-face-foreground 'which-func "Gray50")
@@ -1353,7 +1354,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
       (progn
         (which-function-mode 1)
         which-func-format))
-    )
+    ;; )
 
   (defpowerline powerline-count-lines-and-chars
     (if (region-active-p)
@@ -1384,6 +1385,10 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                                 (powerline-raw " " face1)
                                 (powerline-arrow-right face1 face2 height)
                                 (powerline-view face2 'l)
+                                (when (and which-func-mode
+                                           (eq major-mode 'c-mode))
+                                  (powerline-raw which-func-format face2 'l))
+                                ;; (powerline-which-func face2 'l)
                                 ))
                           (rhs (list
                                 (powerline-raw global-mode-string face2 'r)
