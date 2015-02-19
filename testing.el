@@ -15,6 +15,15 @@
 (defalias 'revert 'revert-buffer)
 (defalias 'view 'view-mode)
 
+;; my-revert-buffer
+(defun my-revert-buffer ()
+  (interactive)
+  (if (buffer-modified-p)
+      (call-interactively 'revert-buffer)
+    (message "not modified. do nothing.")))
+
+(global-set-key "\C-xt" 'my-revert-buffer)
+
 ;; print
 ;; http://www.emacswiki.org/emacs/MacPrintMode
 (when (require 'mac-print-mode nil t)
