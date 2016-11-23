@@ -49,6 +49,7 @@
 (setq evil-move-cursor-back nil)
 
 (define-key evil-motion-state-map "q" nil)
+(define-key evil-motion-state-map (kbd "C-k") nil)
 (define-key evil-motion-state-map (kbd "C-o") nil)
 (define-key evil-motion-state-map (kbd "C-d") nil)
 (define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
@@ -101,10 +102,12 @@
 (define-key evil-normal-state-map "-" #'evil-numbers/dec-at-pt)
 
 ;; cursor color
-(setq evil-default-cursor 'hollow
-      evil-normal-state-cursor '("white")
+(setq evil-default-cursor 'box
+      evil-normal-state-cursor '("#DDDDDD")
       evil-insert-state-cursor '("#FF0066" (bar . 3)))
 
+(add-to-list 'evil-emacs-state-modes 'dired-mode)
+(add-to-list 'evil-emacs-state-modes 'wdired-mode)
 (add-to-list 'evil-emacs-state-modes 'view-mode)
 (add-to-list 'evil-emacs-state-modes 'moccur-mode)
 (add-to-list 'evil-emacs-state-modes 'moccur-grep-mode)
@@ -225,16 +228,16 @@
 ;; jedi for python
 ;;
 ;; (add-to-list load-path "~/elisp/elpa/epc-20130803.2228")
-(require 'epc)
-(require 'auto-complete-config)
-(require 'python)
+; (require 'epc)
+; (require 'auto-complete-config)
+; (require 'python)
 
 ;;;;; PYTHONPATH上のソースコードがauto-completeの補完対象になる ;;;;;
 ;; (setenv "PYTHONPATH" "/usr/local/lib/python2.7/site-packages")
-(setenv "PYTHONPATH" "/opt/local/lib/python2.7/site-packages")
-(require 'jedi)
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
+; (setenv "PYTHONPATH" "/opt/local/lib/python2.7/site-packages")
+; (require 'jedi)
+; (add-hook 'python-mode-hook 'jedi:setup)
+; (setq jedi:complete-on-dot t)
 
 
 ;;
@@ -810,8 +813,11 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 ;; dired
 ;;
+(when (eq system-type 'darwin)
+  (require 'ls-lisp)
+  (setq ls-lisp-use-insert-directory-program nil))
+(setq dired-listing-switches "-Alh") ; for unix
 (setq delete-by-moving-to-trash t)
-
 (defun my-dired-exit ()
   (interactive)
   (let ((buf (current-buffer)))
@@ -864,7 +870,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
              (define-key dired-mode-map (kbd "q") 'my-dired-exit)
              (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)
              (define-key dired-mode-map "\C-a" 'my-beginning-of-line-dired)))
-
 
 ;;
 ;; 最後のマークに移動

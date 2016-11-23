@@ -148,27 +148,52 @@ That is, a string used to represent it on the tab bar."
 ;;; open terminal
 ;;;
 (defun open-terminal-1 (dir)
-  (let ((script (format (concat
-                         "tell application \"Terminal\"\n"
-                         "    activate"
-                         "    do script with command \" cd %s \" \n"
-                         "end tell\n")
-                        ;; (concat "\\\"" dir "\\\""))))
-                        dir)))
+  (let* ((term "iTerm 2")
+         (script (concat
+                  "if application \"" term "\" is running then\n"
+                  "  tell application \"" term "\"\n"
+                  "    set _window to (create window with profile \"Default\")\n"
+                  "    tell _window\n"
+                  "      tell current session\n"
+                  "        write text \"cd " dir "; clear\"\n"
+                  "      end tell\n"
+                  "    end tell\n"
+                  "  end tell\n"
+                  "else\n"
+                  "  tell application \"" term "\"\n"
+                  "    activate\n"
+                  "    tell current window\n"
+                  "      tell current session\n"
+                  "        write text \"cd " dir "; clear\"\n"
+                  "      end tell\n"
+                  "    end tell\n"
+                  "  end tell\n"
+                  "end if\n")))
     (start-process "osascript-getinfo" nil "osascript" "-e" script)))
+    ;; (insert script)))
+
+;; (defun open-terminal-1 (dir)
+;;   (let* ((term "Terminal")
+;;          (script (format (concat
+;;                          "tell application \"" term "\"\n"
+;;                          "    activate\n"
+;;                          "    do script with command \" cd %s \" \n"
+;;                          "end tell\n")
+;;                         ;; (concat "\\\"" dir "\\\""))))
+;;                         dir)))
+;;     (start-process "osascript-getinfo" nil "osascript" "-e" script)))
 
 (defun open-terminal ()
   (interactive)
   (let* ((fn (buffer-file-name))
-         (dir (cond ((string= major-mode "dired-mode")
-                     dired-directory)
-                    ((and fn (file-exists-p fn))
-                     (file-name-directory fn))
+         (dir (cond ((string= major-mode "dired-mode") dired-directory)
+                    ((and fn (file-exists-p fn)) (file-name-directory fn))
                     (t "~"))))
     (open-terminal-1 dir)))
 
 (setf term-orig (symbol-function 'term))
 (fset 'term 'open-terminal)
+(fset 'c 'open-terminal)
 
 
 ;;; 

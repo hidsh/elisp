@@ -8,6 +8,20 @@
 (message "loading dot.emacs-mac")
 
 ;;;
+;;; window size and position
+;;;
+;; (tool-bar-mode 0)
+(setq default-frame-alist (append '(
+				    (top    . 0)
+				    ;(left   . 1007)
+				    (left   . 71)
+				    ;; (left   . 0)
+				    (height . 64)
+				    (width  . 90))
+				  default-frame-alist))
+(tool-bar-mode 0)
+
+;;;
 ;;; themes
 ;;;
 (setq load-path (append '("~/elisp/themes/") load-path))
@@ -61,6 +75,8 @@
 (global-set-key "\M-N" 'end-of-buffer)
 ;; (global-set-key "\M-p" 'View-scroll-page-backward)
 ;; (global-set-key "\M-n" 'View-scroll-page-forward)
+
+(define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;;;
 ;;; setting
@@ -126,6 +142,7 @@
             (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
             (setq comment-start "// ")                  ; コメントを // にする
             (setq comment-end "")
+            (cwarn-mode)
             (setq compilation-read-command nil)         ; make のオプションの確認は不要
             (setq compilation-ask-about-save nil)       ; make するとき save する
             (setq compile-command "make")               ; make時のデフォルトコマンド
@@ -137,9 +154,6 @@
                   (regexp   . "\\(\\s-+\\)")
                   (tab-stop . t)              ; タブ位置でそろえる
                   (modes     . '(c-mode c++-mode)))))
-
-
-
 
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
@@ -864,6 +878,20 @@
     (if (y-or-n-p-with-timeout "really close? " 2 nil) ad-do-it
       (message ""))))
 
+;;
+;; for emacs mac port
+;;
+;; Emacs Mac Port 用設定
+;; ミニバッファで入力する際に自動的にASCIIにする
+(when (fboundp 'mac-auto-ascii-mode)
+  (mac-auto-ascii-mode 1))
+
+;; evil でノーマルステートになったら IME をオフにする
+;; (mac-set-input-method-parameter "com.google.inputmethod.Japanese.base" `title "あ")
+;(add-hook 'evil-normal-state-entry-hook
+;          '(lambda ()
+;             (mac-toggle-input-method nil)))
+
 ;(defadvice recentf-mode (before my-recentf-adv activate)
 ;(add-hook 'recentf-dialog-mode-hook
 ;          '(lambda ()
@@ -896,15 +924,3 @@
 (load-library "discrete")
 (load-library "testing")
 
-;;;
-;;; window size and position
-;;;
-;; (tool-bar-mode 0)
-(setq default-frame-alist (append '(
-				    (top    . 0)
-				    ;(left   . 1007)
-				    (left   . 71)
-				    (height . 64)
-				    (width  . 90))
-				  default-frame-alist))
-(tool-bar-mode 0)
