@@ -5,8 +5,21 @@
 ;;; for gnu-macs on mac
 ;;;
 ;;;
-
 (message "loading dot.emacs-mac")
+
+;;;
+;;; window size and position
+;;;
+;; (tool-bar-mode 0)
+(setq default-frame-alist (append '(
+				    (top    . 0)
+				    ;(left   . 1007)
+				    (left   . 71)
+				    ;; (left   . 0)
+				    (height . 64)
+				    (width  . 90))
+				  default-frame-alist))
+(tool-bar-mode 0)
 
 ;;;
 ;;; themes
@@ -22,7 +35,7 @@
 ;;;
 ;;; font
 ;;;
-(set-face-attribute 'default nil :family "menlo" :height 140) 
+(set-face-attribute 'default nil :family "menlo" :height 165)
 (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0208 (font-spec :family "hiragino maru gothic pron") nil 'append) 
 (set-fontset-font (frame-parameter nil 'font) 'japanese-jisx0212 (font-spec :family "hiragino maru gothic pron") nil 'append) 
 (add-to-list 'face-font-rescale-alist '("^-apple-hiragino_.*" . 1.1))
@@ -37,7 +50,8 @@
 ;;;
 ;;; unbinding and key binding
 ;;;
-(keyboard-translate ?\C-h ?\C-?)            ; c-h
+(setq mac-option-modifier 'hyper)       ; for ace-jump-mode (win-key or app-key)
+(keyboard-translate ?\C-h ?\C-?)        ; c-h
 
 
 (global-unset-key "\C-z")                          ; suspend-frame
@@ -61,6 +75,8 @@
 (global-set-key "\M-N" 'end-of-buffer)
 ;; (global-set-key "\M-p" 'View-scroll-page-backward)
 ;; (global-set-key "\M-n" 'View-scroll-page-forward)
+
+(define-key isearch-mode-map (kbd "C-b") 'isearch-delete-char)
 
 ;;;
 ;;; setting
@@ -88,8 +104,8 @@
 
 (setq indent-line-function 'indent-relative-maybe)
 (global-set-key "\C-m" 'newline-and-indent)  ; Returnキーで改行＋オートインデント
-(set-face-attribute 'mode-line          nil :height 150 :box nil) ; モードラインを非3D化
-(set-face-attribute 'mode-line-inactive nil :height 150 :box nil)
+(set-face-attribute 'mode-line          nil :height 160 :box nil) ; モードラインを非3D化
+(set-face-attribute 'mode-line-inactive nil :height 160 :box nil)
 (setq scroll-preserve-screen-position t)
 (setq initial-scratch-message "")
 
@@ -106,8 +122,39 @@
 (setq default-truncate-lines t)             ; 折り返しなし
 
 ;; c-mode (include tab setting)
+(add-to-list 'auto-mode-alist '("\\.h$" . c-mode))
+(electric-indent-mode)
+
+(defun indent-or-insert-tab ()
+  (interactive)
+  (let ((pos (point)))
+    (funcall indent-line-function)
+    (when (= pos (point))
+      (insert "\t"))))
+
+(global-set-key "\C-i" 'indent-or-insert-tab)
+
 (add-hook 'c-mode-hook
-          (lambda () (c-set-style "stroustrup")))
+          (lambda ()
+            (c-set-style "stroustrup")
+            (define-key c-mode-map "\C-i" 'indent-or-insert-tab)
+            (setq comment-column 52)
+            (modify-syntax-entry ?_ "w")                ; アンダーバーをワード区切りとしない
+            (setq comment-start "// ")                  ; コメントを // にする
+            (setq comment-end "")
+            (cwarn-mode)
+            (setq compilation-read-command nil)         ; make のオプションの確認は不要
+            (setq compilation-ask-about-save nil)       ; make するとき save する
+            (setq compile-command "make")               ; make時のデフォルトコマンド
+            (setq case-fold-search nil)))               ; case sensitive
+
+(eval-after-load "align"
+  '(add-to-list 'align-rules-list
+                '(tab-stop-assignment
+                  (regexp   . "\\(\\s-+\\)")
+                  (tab-stop . t)              ; タブ位置でそろえる
+                  (modes     . '(c-mode c++-mode)))))
+
 
 ;; アイコンやdockから起動したemacsのpathやexec-pathが正しく設定されてないのをなんとかする
 ;; http://yukihr.github.com/blog/2012/03/02/emacs-path-settings/
@@ -831,6 +878,20 @@
     (if (y-or-n-p-with-timeout "really close? " 2 nil) ad-do-it
       (message ""))))
 
+;;
+;; for emacs mac port
+;;
+;; Emacs Mac Port 用設定
+;; ミニバッファで入力する際に自動的にASCIIにする
+(when (fboundp 'mac-auto-ascii-mode)
+  (mac-auto-ascii-mode 1))
+
+;; evil でノーマルステートになったら IME をオフにする
+;; (mac-set-input-method-parameter "com.google.inputmethod.Japanese.base" `title "あ")
+;(add-hook 'evil-normal-state-entry-hook
+;          '(lambda ()
+;             (mac-toggle-input-method nil)))
+
 ;(defadvice recentf-mode (before my-recentf-adv activate)
 ;(add-hook 'recentf-dialog-mode-hook
 ;          '(lambda ()
@@ -859,18 +920,7 @@
 ;;;
 ;;; my-additional elisp
 ;;;
-(load-library "discrete")
 (load-library "mac")
+(load-library "discrete")
 (load-library "testing")
 
-;;;
-;;; window size and position
-;;;
-;; (tool-bar-mode 0)
-(setq default-frame-alist (append '(
-				    (top    . 0)
-				    (left   . 1007)
-				    (height . 64)
-				    (width  . 110))
-				  default-frame-alist))
-(tool-bar-mode 0)

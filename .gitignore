@@ -34,3 +34,4 @@ ee/
 emacs-w3m/
 .tmp
 .diff
+.pyc

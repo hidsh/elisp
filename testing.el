@@ -4,6 +4,161 @@
 ;;;
 
 ;;
+;;
+;;
+(global-set-key "\C-x\C-d" 'dired)
+
+
+;;
+;; alias
+;;
+(defalias 'revert 'revert-buffer)
+(defalias 'view 'view-mode)
+
+;; my-revert-buffer
+(defun my-revert-buffer ()
+  (interactive)
+  (if (buffer-modified-p)
+      (call-interactively 'revert-buffer)
+    (message "not modified. do nothing.")))
+
+(global-set-key "\C-xt" 'my-revert-buffer)
+
+;; print
+;; http://www.emacswiki.org/emacs/MacPrintMode
+(when (require 'mac-print-mode nil t)
+  (mac-print-mode 1)
+  (global-set-key (kbd "H-M-p") 'mac-print-buffer)
+  (defalias 'print-buffer 'mac-print-buffer))
+
+;; copy word 
+(defun copy-word-at-point ()
+  (interactive)
+  (let ((word (current-word)))
+    (kill-new word)
+    (message (concat "copied: \"" word "\""))))
+
+(global-set-key "\M-q" 'copy-word-at-point)
+
+;;
+;; evil
+;;
+(require 'evil)
+(evil-mode 1)
+(defalias 'evil 'evil-mode)
+(setq evil-move-cursor-back nil)
+
+(define-key evil-motion-state-map "q" nil)
+(define-key evil-motion-state-map (kbd "C-k") nil)
+(define-key evil-motion-state-map (kbd "C-o") nil)
+(define-key evil-motion-state-map (kbd "C-d") nil)
+(define-key evil-motion-state-map (kbd "SPC") #'evil-scroll-page-down)
+(define-key evil-motion-state-map (kbd "<S-SPC>") #'evil-scroll-page-up)
+(define-key evil-motion-state-map (kbd "C-f") nil)
+(define-key evil-motion-state-map (kbd "C-b") nil)
+(define-key evil-motion-state-map (kbd "TAB") nil)
+
+(define-key evil-normal-state-map "q" nil)
+(define-key evil-normal-state-map (kbd "C-0") nil)
+(define-key evil-normal-state-map (kbd "C-1") nil)
+(define-key evil-normal-state-map "4" 'end-of-line)
+(define-key evil-normal-state-map "\C-e" 'end-of-line)
+(define-key evil-normal-state-map "\C-y" 'yank)
+(define-key evil-normal-state-map "\C-z" 'my-undo-redo)
+(define-key evil-normal-state-map "\C-v" 'evil-emacs-state)
+(define-key evil-emacs-state-map "\C-v" '(lambda () (interactive) (evil-exit-emacs-state) (message "-- EVIL --")))
+(define-key evil-insert-state-map "\C-y" 'yank)
+(define-key evil-insert-state-map "\C-r" 'search-backward)
+;; (define-key evil-insert-state-map "\M-j" #'evil-force-normal-state) ; ESC 
+(define-key evil-insert-state-map "j" #'evil-maybe-exit) ; jj --> ESC 
+
+(evil-define-command evil-maybe-exit ()
+  :repeat change
+  (interactive)
+  (let ((modified (buffer-modified-p))
+        (entry-key ?j)
+        (exit-key ?j))
+    (insert entry-key)
+    (let ((evt (read-event (format "Insert %c to exit insert state" exit-key) nil 0.5)))
+      (cond
+       ((null evt) (message ""))
+       ((and (integerp evt) (char-equal evt exit-key))
+          (delete-char -1)
+          (set-buffer-modified-p modified)
+          (push 'escape unread-command-events))
+       (t (push evt unread-command-events))))))
+
+(evil-ex-define-cmd "wq" 'my-save-kill-current-butffer)
+(defun my-save-kill-current-butffer ()
+  :repeat nil
+  (interactive)
+  (save-buffer)
+  (kill-buffer (current-buffer)))
+
+
+
+(require 'evil-numbers)
+(define-key evil-normal-state-map "=" #'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map "-" #'evil-numbers/dec-at-pt)
+
+;; cursor color
+(setq evil-default-cursor 'box
+      evil-normal-state-cursor '("#DDDDDD")
+      evil-insert-state-cursor '("#FF0066" (bar . 3)))
+
+(add-to-list 'evil-emacs-state-modes 'dired-mode)
+(add-to-list 'evil-emacs-state-modes 'wdired-mode)
+(add-to-list 'evil-emacs-state-modes 'view-mode)
+(add-to-list 'evil-emacs-state-modes 'moccur-mode)
+(add-to-list 'evil-emacs-state-modes 'moccur-grep-mode)
+(add-to-list 'evil-emacs-state-modes 'eshell-mode)
+(add-to-list 'evil-emacs-state-modes 'bs-mode)
+(evil-make-overriding-map view-mode-map 'normal)
+(evil-make-overriding-map moccur-mode-map 'normal)
+;; (evil-make-overriding-map minibuffer-local-completion-map 'normal)
+
+;;
+;; for tabbar
+;;
+;; taken from http://www.emacswiki.org/emacs/TabBarMode#toc12
+;; (when (require 'tabbar+ nil t)
+;;   ;; Enable tabbars globally:
+;;   (tabbar-mode 1)
+;;   ;; I use this minor-mode mainly as a global mode (see below):
+;;   (define-minor-mode tabbar-on-custom-mode
+;;     "Display tabbar on selected modes only."
+;;     :init-value t
+;;     :lighter nil
+;;     :keymap nil
+;;     (if tabbar-on-custom-mode
+;;         ;; filter is enabled
+;;         (if (memq major-mode '(term-mode 
+;;                                eshell-mode 
+;;                                dired-mode 
+;;                                help-mode 
+;;                                apropos-mode 
+;;                                Info-mode 
+;;                                Man-mode))
+;;             (tabbar-local-mode -1)
+;;           (tabbar-local-mode 1))
+;;       ;; always activate tabbar locally when we disable the minor mode:
+;;       (tabbar-local-mode -1)))
+
+;;   (defun tabbar-on-custom-mode-on ()
+;;     "Turn on tabbar if current buffer is a terminal."
+;;     (unless (minibufferp) (tabbar-on-custom-mode 1)))
+;;   ;; Define a global switch for the mode. Note that this is not set for buffers
+;;   ;; in fundamental mode.
+;;   ;;
+;;   ;; I use it 'cause some major modes do not run the
+;;   ;; `after-change-major-mode-hook'...
+;;   (define-globalized-minor-mode global-tabbar-on-custom-mode
+;;     tabbar-on-custom-mode tabbar-on-custom-mode-on)
+;;   ;; Eventually, switch on this global filter for tabbars:
+;;   (global-tabbar-on-custom-mode 1))
+
+
+;;
 ;; mod (orig:discrete.el)
 ;; add: open-finder
 (defun my-find-file (filename &optional wildcards)
@@ -17,10 +172,10 @@
 ;;
 ;; set read only after saving
 ;;
-(add-hook 'after-save-hook
-          (lambda ()
-            (unless buffer-read-only
-              (toggle-read-only))))
+;; (add-hook 'after-save-hook
+;;           (lambda ()
+;;             (unless buffer-read-only
+;;               (toggle-read-only))))
 
 ;;
 ;; rinari for ruby on rails
@@ -49,19 +204,19 @@
 ;;
 ;; toggle-read-only
 ;;
-(add-hook 'find-file-hook
-     '(lambda ()
-        (toggle-read-only)))
+;; (add-hook 'find-file-hook
+;;      '(lambda ()
+;;         (toggle-read-only)))
 
-(defun my-bs ()
-  (interactive)
-  (if buffer-file-name
-    (toggle-read-only)
-    (call-interactively 'backward-delete-char-untabify))
-  (message ""))
+;; (defun my-bs ()
+;;   (interactive)
+;;   (if buffer-file-name
+;;     (toggle-read-only)
+;;     (call-interactively 'backward-delete-char-untabify))
+;;   (message ""))
 
 ;; (global-set-key (kbd "M-DEL") 'my-bs) ; del key
-(global-set-key [backspace] 'my-bs) ; del key
+;; (global-set-key [backspace] 'my-bs) ; del key
 
 
 ;;
@@ -69,33 +224,20 @@
 ;;
 (global-unset-key "\M-`")               ; menu keys
 
-;; package.el
-;;
-;;    M-x package-list-packages           インストール出来るパッケージ一覧を取得;;    M-x package-list-packages-no-fetch  インストール出来るパッケージ一覧を取得(更新なし)
-;;    M-x package-install                 パッケージ名を指定してインストール
-(when (eq system-type 'darwin)
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (setq package-user-dir "~/elisp/elpa/")
-  (package-initialize)
-  ;; (require 'melpa)
-)
-
 ;;
 ;; jedi for python
 ;;
 ;; (add-to-list load-path "~/elisp/elpa/epc-20130803.2228")
-(require 'epc)
-(require 'auto-complete-config)
-(require 'python)
+; (require 'epc)
+; (require 'auto-complete-config)
+; (require 'python)
 
 ;;;;; PYTHONPATH上のソースコードがauto-completeの補完対象になる ;;;;;
 ;; (setenv "PYTHONPATH" "/usr/local/lib/python2.7/site-packages")
-(setenv "PYTHONPATH" "/opt/local/lib/python2.7/site-packages")
-(require 'jedi)
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
+; (setenv "PYTHONPATH" "/opt/local/lib/python2.7/site-packages")
+; (require 'jedi)
+; (add-hook 'python-mode-hook 'jedi:setup)
+; (setq jedi:complete-on-dot t)
 
 
 ;;
@@ -413,11 +555,16 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                     #'ace-jump-word-mode
                   #'ace-jump-char-mode) ,c))))
 
-(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
-(loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
+; ESC/Win/App key
+(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-" c 'word))
+(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-" c 'word))
+;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
+;; (loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
+
+(setq mac-option-modifier 'hyper)
 
 ;;
 ;; スクロール
@@ -666,8 +813,11 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 ;; dired
 ;;
+(when (eq system-type 'darwin)
+  (require 'ls-lisp)
+  (setq ls-lisp-use-insert-directory-program nil))
+(setq dired-listing-switches "-Alh") ; for unix
 (setq delete-by-moving-to-trash t)
-
 (defun my-dired-exit ()
   (interactive)
   (let ((buf (current-buffer)))
@@ -720,7 +870,6 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
              (define-key dired-mode-map (kbd "q") 'my-dired-exit)
              (define-key dired-mode-map (kbd "a") 'dired-toggle-marks)
              (define-key dired-mode-map "\C-a" 'my-beginning-of-line-dired)))
-
 
 ;;
 ;; 最後のマークに移動
@@ -1167,6 +1316,12 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 
 (global-set-key "\M-\C-m" 'browse-url-at-point)      ; M-RET
 
+;; modeline (mode name)
+(setcar (cdr (assq 'abbrev-mode minor-mode-alist)) " ")
+(setcar (cdr (assq 'global-whitespace-mode minor-mode-alist)) " ")
+(setcar (cdr (assq 'auto-highlight-symbol-mode minor-mode-alist)) " HS")
+(setq undo-tree-mode-lighter "")
+
 
 ;;
 ;; powerline - https://github.com/milkypostman/powerline
@@ -1203,7 +1358,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
   (defpowerline powerline-modified
     (if (buffer-modified-p) "mod" ""))
 
-  '( 
+  ;; '( 
     ;; モードラインに現在の関数名を表示
     (which-function-mode 1)
     (set-face-foreground 'which-func "Gray50")
@@ -1213,7 +1368,7 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
       (progn
         (which-function-mode 1)
         which-func-format))
-    )
+    ;; )
 
   (defpowerline powerline-count-lines-and-chars
     (if (region-active-p)
@@ -1244,6 +1399,10 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
                                 (powerline-raw " " face1)
                                 (powerline-arrow-right face1 face2 height)
                                 (powerline-view face2 'l)
+                                (when (and which-func-mode
+                                           (eq major-mode 'c-mode))
+                                  (powerline-raw which-func-format face2 'l))
+                                ;; (powerline-which-func face2 'l)
                                 ))
                           (rhs (list
                                 (powerline-raw global-mode-string face2 'r)
@@ -1278,31 +1437,31 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
           (format "%%f - Emacs")
         (format "%%b - Emacs")))
 
-;;
-;; org-mode and remember
-;;
-(setq remember-data-file "~/memo/remember")    
+;; ;;
+;; ;; org-mode and remember
+;; ;;
+;; (setq remember-data-file "~/memo/remember")    
 
-(require 'org-install)
-(setq org-startup-truncated nil)
-(setq org-return-follows-link t)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(setq org-directory "~/memo/")
-(setq org-default-notes-file (concat org-directory "agenda.org"))
-(setq org-capture-templates
-      '(("t" "Task" entry (file+headline nil "Inbox") "** TODO %?\n   %i\n   %a\n   %t\n   \n")
-        ("b" "Bug"  entry (file+headline nil "Inbox") "** TODO %?   :bug:\n   %i\n   %a\n   %t\n   \n")
-        ("i" "Idea" entry (file+headline nil "Idea")  "** %?\n   %i\n   %a\n   %t\n   \n")))
+;; (require 'org-install)
+;; (setq org-startup-truncated nil)
+;; (setq org-return-follows-link t)
+;; (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;; (setq org-directory "~/memo/")
+;; (setq org-default-notes-file (concat org-directory "agenda.org"))
+;; (setq org-capture-templates
+;;       '(("t" "Task" entry (file+headline nil "Inbox") "** TODO %?\n   %i\n   %a\n   %t\n   \n")
+;;         ("b" "Bug"  entry (file+headline nil "Inbox") "** TODO %?   :bug:\n   %i\n   %a\n   %t\n   \n")
+;;         ("i" "Idea" entry (file+headline nil "Idea")  "** %?\n   %i\n   %a\n   %t\n   \n")))
 
-(add-hook 'org-capture-mode-hook
-          '(lambda ()
-             (view-mode-exit)
-             (widen)
-             (define-key org-capture-mode-map (kbd "q") 'org-capture-finalize)
-             (define-key org-capture-mode-map (kbd "C-x C-k") 'org-capture-kill)))
+;; (add-hook 'org-capture-mode-hook
+;;           '(lambda ()
+;;              (view-mode-exit)
+;;              (widen)
+;;              (define-key org-capture-mode-map (kbd "q") 'org-capture-finalize)
+;;              (define-key org-capture-mode-map (kbd "C-x C-k") 'org-capture-kill)))
 
 
-(defalias 'm 'org-capture)
+;; (defalias 'm 'org-capture)
 
 
 ;;

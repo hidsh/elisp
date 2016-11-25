@@ -804,14 +804,14 @@ double quotation characters \(\"\) from given string."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ insert-my-vss-signature
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar insert-my-vss-signature-string "HSHA")
-(defun insert-my-vss-signature ()
-  "insert string for vss signature like sig:ZZR / 2006-12-30 -->`061230ZZR\'"
-  (interactive)
-  (insert (concat (format-time-string "%y%m%d" (current-time))
-		  insert-my-vss-signature-string)))
+;; (defvar insert-my-vss-signature-string "HSHA")
+;; (defun insert-my-vss-signature ()
+;;   "insert string for vss signature like sig:ZZR / 2006-12-30 -->`061230ZZR\'"
+;;   (interactive)
+;;   (insert (concat (format-time-string "%y%m%d" (current-time))
+;; 		  insert-my-vss-signature-string)))
 
-(global-set-key "\C-c\C-j" 'insert-my-vss-signature)
+;; (global-set-key "\C-c\C-j" 'insert-my-vss-signature)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;@@ highlight-current-line
@@ -1094,7 +1094,9 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
       (let ((col (current-column)))
         (setq comment-column col)
         (message "set comment-column to %d." col))
-    (indent-for-comment)))
+    (indent-for-comment)
+    (when (eq evil-state 'normal)
+      (evil-insert 1))))
 
 (global-set-key [?\C-\;] 'indent-for-comment-gnrr)
 
@@ -1584,6 +1586,30 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 ;;@@ insert-paren-*    [], {}, <>, "", ''
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar insert-paren-kaku-state nil)
+;; (defun insert-paren-kaku ()
+;;   "Insert paired [] or {} working like insert-parenthesis."
+;;   (interactive)
+;;   (if (eq last-command 'insert-paren-kaku)
+;;       (progn
+;; 	(forward-char -1)
+;; 	(delete-char 2)
+;; 	(if (null insert-paren-kaku-state)
+;; 	    (progn
+;; 	      (insert ?\{)
+;; 	      (save-excursion
+;; 		(insert ?\}))
+;; 	      (setq insert-paren-kaku-state t))
+;; 	  (progn
+;; 	    (insert ?\[)
+;; 	    (save-excursion
+;; 	      (insert ?\]))
+;; 	    (setq insert-paren-kaku-state nil))))
+;;     (progn
+;;       (insert ?\[)
+;;       (save-excursion
+;; 	(insert ?\]))
+;;       (setq insert-paren-kaku-state nil))))
+
 (defun insert-paren-kaku ()
   "Insert paired [] or {} working like insert-parenthesis."
   (interactive)
@@ -1593,19 +1619,19 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
 	(delete-char 2)
 	(if (null insert-paren-kaku-state)
 	    (progn
-	      (insert ?\{)
+	      (insert ?\[)
 	      (save-excursion
-		(insert ?\}))
+		(insert ?\]))
 	      (setq insert-paren-kaku-state t))
 	  (progn
-	    (insert ?\[)
+	    (insert ?\{)
 	    (save-excursion
-	      (insert ?\]))
+	      (insert ?\}))
 	    (setq insert-paren-kaku-state nil))))
     (progn
-      (insert ?\[)
+      (insert ?\{)
       (save-excursion
-	(insert ?\]))
+	(insert ?\}))
       (setq insert-paren-kaku-state nil))))
 
 (global-set-key "\M-[" 'insert-paren-kaku)
@@ -1758,16 +1784,16 @@ C-x C-x (exchange-point-and-mark) 等で便利。")
     (forward-char 1)))
 
 
-(add-hook 'minibuffer-setup-hook
-	    (function
-	      (lambda ()
-		(setq dir-list '())
-		(local-set-key "\M-h" 'my-backward-kill-word-minibuffer)
-		(local-set-key "\M-f" 'my-forward-word-minibuffer)
-		(local-set-key "\C-h" 'my-backward-delete-char-minibuffer)
-		(local-set-key "\C-b" 'my-backward-char-minibuffer)
-		(local-set-key "\C-f" 'my-forward-char-minibuffer)
-		)))
+;; (add-hook 'minibuffer-setup-hook
+;; 	    (function
+;; 	      (lambda ()
+;; 		(setq dir-list '())
+;; 		(local-set-key "\M-h" 'my-backward-kill-word-minibuffer)
+;; 		(local-set-key "\M-f" 'my-forward-word-minibuffer)
+;; 		(local-set-key "\C-h" 'my-backward-delete-char-minibuffer)
+;; 		(local-set-key "\C-b" 'my-backward-char-minibuffer)
+;; 		(local-set-key "\C-f" 'my-forward-char-minibuffer)
+;; 		)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1837,7 +1863,7 @@ Otherwise,  ARG is t, redo is called."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ multiply current line.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun multi-line (&optional ARG)
+(defun duplicate-line (&optional ARG)
   "Multiply current line."
   (interactive"*p")
   (let ((cnt 0)
@@ -1857,7 +1883,7 @@ Otherwise,  ARG is t, redo is called."
     (goto-char pt)
     (next-line 1)))
 
-(global-set-key [?\M-=] 'multi-line)
+(global-set-key [?\M-=] 'duplicate-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;@@ set-mark w/ fringe-indicator
