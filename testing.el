@@ -57,6 +57,8 @@
 (define-key evil-motion-state-map (kbd "C-f") nil)
 (define-key evil-motion-state-map (kbd "C-b") nil)
 (define-key evil-motion-state-map (kbd "TAB") nil)
+(define-key evil-motion-state-map "H" #'tabbar-backward-tab)
+(define-key evil-motion-state-map "L" #'tabbar-forward-tab)
 
 (define-key evil-normal-state-map "q" nil)
 (define-key evil-normal-state-map (kbd "C-0") nil)
@@ -286,7 +288,7 @@
       ))
 
 ;; 
-;; auto highlihgt symbol
+;; auto highlight symbol
 ;;
 (global-unset-key [M-right])
 (global-unset-key [M-left])
@@ -544,27 +546,28 @@ If CONTINUE is non-nil, use the `comment-continue' markers if any."
 ;;
 ;; ace-jump-mode
 ;;
-(require 'ace-jump-mode)
-
-(defun add-keys-to-ace-jump-mode (prefix c &optional mode)
-  (define-key global-map
-    (read-kbd-macro (concat prefix (string c)))
-    `(lambda ()
-       (interactive)
-       (funcall (if (eq ',mode 'word)
-                    #'ace-jump-word-mode
-                  #'ace-jump-char-mode) ,c))))
+;; (require 'ace-jump-mode)
+;;
+;; (defun add-keys-to-ace-jump-mode (prefix c &optional mode)
+;;   (define-key global-map
+;;     (read-kbd-macro (concat prefix (string c)))
+;;     `(lambda ()
+;;        (interactive)
+;;        (funcall (if (eq ',mode 'word)
+;;                     #'ace-jump-word-mode
+;;                   #'ace-jump-char-mode) ,c))))
 
 ; ESC/Win/App key
-(loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-" c 'word))
-(loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-" c 'word))
+;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-" c 'word))
+;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-" c 'word))
+;;
 ;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?0 to ?9 do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?a to ?z do (add-keys-to-ace-jump-mode "H-M-" c))
 ;; (loop for c from ?! to ?~ do (add-keys-to-ace-jump-mode "H-" c))
 
-(setq mac-option-modifier 'hyper)
+;; (setq mac-option-modifier 'hyper)
 
 ;;
 ;; スクロール

@@ -291,65 +291,65 @@
 (require 'my-backup)
 (setq my-backup-directory "~/bak")
 
-;;
-;; auto-complete
-;;
+;; ;;
+;; ;; auto-complete
+;; ;;
 
-;;; パスを通す
-(add-to-list 'load-path "~/elisp/auto-complete")
-(add-to-list 'load-path "~/elisp/popup-el")
-(add-to-list 'load-path "~/elisp/fuzzy-el")
+;; ;;; パスを通す
+;; (add-to-list 'load-path "~/elisp/auto-complete")
+;; (add-to-list 'load-path "~/elisp/popup-el")
+;; (add-to-list 'load-path "~/elisp/fuzzy-el")
 
-(require 'auto-complete-config)
-;(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-(ac-config-default)
+;; (require 'auto-complete-config)
+;; ;(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+;; (ac-config-default)
 
 
-;;; 適用するメジャーモードを足す
-(add-to-list 'ac-modes 'scss-mode)
-(add-to-list 'ac-modes 'web-mode)
-(add-to-list 'ac-modes 'coffee-mode)
-(add-to-list 'ac-modes 'ruby-mode)
-;; (add-to-list 'ac-modes 'python-mode)
+;; ;;; 適用するメジャーモードを足す
+;; (add-to-list 'ac-modes 'scss-mode)
+;; (add-to-list 'ac-modes 'web-mode)
+;; (add-to-list 'ac-modes 'coffee-mode)
+;; (add-to-list 'ac-modes 'ruby-mode)
+;; ;; (add-to-list 'ac-modes 'python-mode)
 
-;;; ベースとなるソースを指定
-(defvar my-ac-sources
-  '(ac-source-yasnippet
-    ac-source-abbrev
-    ac-source-dictionary
-    ac-source-words-in-same-mode-buffers))
+;; ;;; ベースとなるソースを指定
+;; (defvar my-ac-sources
+;;   '(ac-source-yasnippet
+;;     ac-source-abbrev
+;;     ac-source-dictionary
+;;     ac-source-words-in-same-mode-buffers))
 
-;;; 個別にソースを指定
-(defun ac-scss-mode-setup ()
-  (setq-default ac-sources (append '(ac-source-css-property) my-ac-sources)))
-(defun ac-web-mode-setup ()
-  (setq-default ac-sources my-ac-sources))
-(defun ac-coffee-mode-setup ()
-  (setq-default ac-sources my-ac-sources))
-(add-hook 'scss-mode-hook 'ac-scss-mode-setup)
-(add-hook 'web-mode-hook 'ac-web-mode-setup)
-(add-hook 'coffee-mode-hook 'ac-coffee-mode-setup)
-(add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-;; (add-hook 'python-mode-hook 'ac-python-mode-setup)
+;; ;;; 個別にソースを指定
+;; (defun ac-scss-mode-setup ()
+;;   (setq-default ac-sources (append '(ac-source-css-property) my-ac-sources)))
+;; (defun ac-web-mode-setup ()
+;;   (setq-default ac-sources my-ac-sources))
+;; (defun ac-coffee-mode-setup ()
+;;   (setq-default ac-sources my-ac-sources))
+;; (add-hook 'scss-mode-hook 'ac-scss-mode-setup)
+;; (add-hook 'web-mode-hook 'ac-web-mode-setup)
+;; (add-hook 'coffee-mode-hook 'ac-coffee-mode-setup)
+;; (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+;; ;; (add-hook 'python-mode-hook 'ac-python-mode-setup)
 
-(global-auto-complete-mode t)
+;; (global-auto-complete-mode t)
 
-;;; C-n / C-p で選択
-(setq ac-use-menu-map t)
+;; ;;; C-n / C-p で選択
+;; (setq ac-use-menu-map t)
 
-(push 'ac-source-filename ac-sources)
+;; (push 'ac-source-filename ac-sources)
 
-;;; yasnippetのbindingを指定するとエラーが出るので回避する方法。
-(setf (symbol-function 'yas-active-keys)
-      (lambda ()
-        (remove-duplicates (mapcan #'yas--table-all-keys (yas--get-snippet-tables)))))
+;; ;;; yasnippetのbindingを指定するとエラーが出るので回避する方法。
+;; (setf (symbol-function 'yas-active-keys)
+;;       (lambda ()
+;;         (remove-duplicates (mapcan #'yas--table-all-keys (yas--get-snippet-tables)))))
 
-(defalias 'ac 'auto-complete-mode)
+;; (defalias 'ac 'auto-complete-mode)
 
-; auto-complete に対応しないモード
-; (setq ac-modes (append '(js2-mode)))
+;; ; auto-complete に対応しないモード
+;; ; (setq ac-modes (append '(js2-mode)))
 
-(setq ac-ignore-case nil)     ; 大文字・小文字を区別する
+;; (setq ac-ignore-case nil)     ; 大文字・小文字を区別する
 
 ;;
 ;; view-mode
