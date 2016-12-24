@@ -4,7 +4,7 @@
 
 
 ;;;### (autoloads (evil-numbers/dec-at-pt evil-numbers/inc-at-pt)
-;;;;;;  "evil-numbers" "evil-numbers.el" (21670 12984 0 0))
+;;;;;;  "evil-numbers" "evil-numbers.el" (22620 50850 0 0))
 ;;; Generated autoloads from evil-numbers.el
 
 (autoload 'evil-numbers/inc-at-pt "evil-numbers" "\
@@ -28,7 +28,7 @@ This function uses `evil-numbers/inc-at-pt'
 
 ;;;***
 
-;;;### (autoloads nil nil ("evil-numbers-pkg.el") (21670 12984 822615
+;;;### (autoloads nil nil ("evil-numbers-pkg.el") (22620 50850 765388
 ;;;;;;  0))
 
 ;;;***

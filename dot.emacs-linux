@@ -77,8 +77,8 @@
 
 (setq inhibit-startup-message t)
 (blink-cursor-mode 0)
-;; (setq default-cursor-type '(hbar . 4))
-(setq default-cursor-type 'box)
+;; (setq cursor-type '(hbar . 4))
+(setq cursor-type 'box)
 ;; (set-cursor-color "#FF0066")
 ;; (set-cursor-color "#FF6699")
 ;; (set-cursor-color "#CCCC99")
@@ -297,8 +297,8 @@
 
 ;(key-chord-define-global "jk" 'my-toggle-view-mode)
 
-(defadvice view-mode-exit (after cursor-type-edit activate)
-  (setq cursor-type default-cursor-type))
+;; (defadvice view-mode-exit (after cursor-type-edit activate)
+;;   (setq cursor-type default-cursor-type))
 
 (defadvice view-mode-enter (after cursor-type-view activate)
   (setq cursor-type 'hollow))
@@ -354,58 +354,58 @@
 
 
 
-;; 
-;; switching window
-;; 
-(defvar toggle-split-window-hidden-buffer nil)
-(defconst toggle-split-window-threshold-width 150)
-(defun toggle-split-window ()
-  (interactive)
-  (if (one-window-p)
-      (progn
-        (if (> (frame-width) toggle-split-window-threshold-width)
-            (split-window-horizontally)
-          (split-window-vertically))
-        (other-window 1)
-        (when (and toggle-split-window-hidden-buffer
-                   (eq last-command 'toggle-split-window))
-          (switch-to-buffer toggle-split-window-hidden-buffer))
-        ;; view-mode
-        ;; (view-mode-enter)
-        )
-    (setq toggle-split-window-hidden-buffer (window-buffer (selected-window)))
-    (delete-window)))
+;; ;; 
+;; ;; switching window
+;; ;; 
+;; (defvar toggle-split-window-hidden-buffer nil)
+;; (defconst toggle-split-window-threshold-width 150)
+;; (defun toggle-split-window ()
+;;   (interactive)
+;;   (if (one-window-p)
+;;       (progn
+;;         (if (> (frame-width) toggle-split-window-threshold-width)
+;;             (split-window-horizontally)
+;;           (split-window-vertically))
+;;         (other-window 1)
+;;         (when (and toggle-split-window-hidden-buffer
+;;                    (eq last-command 'toggle-split-window))
+;;           (switch-to-buffer toggle-split-window-hidden-buffer))
+;;         ;; view-mode
+;;         ;; (view-mode-enter)
+;;         )
+;;     (setq toggle-split-window-hidden-buffer (window-buffer (selected-window)))
+;;     (delete-window)))
 
-(global-set-key (kbd "C-0") 'toggle-split-window)
+;; (global-set-key (kbd "C-0") 'toggle-split-window)
 
-(defun my-other-window ()
-  (interactive)
-  (unless (one-window-p)
-    ;; view-mode
-    ;; (view-mode-enter)
-    (other-window 1)))
+;; (defun my-other-window ()
+;;   (interactive)
+;;   (unless (one-window-p)
+;;     ;; view-mode
+;;     ;; (view-mode-enter)
+;;     (other-window 1)))
 
-(global-set-key (kbd "C-o") 'my-other-window)
+;; (global-set-key (kbd "C-o") 'my-other-window)
     
-;; not use
-(defun other-window-or-split ()
-  (interactive)
-  (let ((wide-enough-p (> (frame-width) other-window-or-split-width-threshold)))
-    (if (one-window-p)
-        (if wide-enough-p
-            (split-window-horizontally)
-          (split-window-vertically))
-      (if wide-enough-p
-          (when (window-full-width-p)   ; already split-h?
-            (delete-window)
-            (split-window-horizontally))
-        (when (window-full-height-p)    ; already split-v?
-          (delete-window)
-          (split-window-vertically)))))
-  (other-window 1))
+;; ;; not use
+;; (defun other-window-or-split ()
+;;   (interactive)
+;;   (let ((wide-enough-p (> (frame-width) other-window-or-split-width-threshold)))
+;;     (if (one-window-p)
+;;         (if wide-enough-p
+;;             (split-window-horizontally)
+;;           (split-window-vertically))
+;;       (if wide-enough-p
+;;           (when (window-full-width-p)   ; already split-h?
+;;             (delete-window)
+;;             (split-window-horizontally))
+;;         (when (window-full-height-p)    ; already split-v?
+;;           (delete-window)
+;;           (split-window-vertically)))))
+;;   (other-window 1))
         
-;; (global-set-key (kbd "C-o") 'other-window-or-split)
-;; (global-set-key (kbd "C-0") 'delete-window)
+;; ;; (global-set-key (kbd "C-o") 'other-window-or-split)
+;; ;; (global-set-key (kbd "C-0") 'delete-window)
 
 
 ;;

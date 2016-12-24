@@ -4,8 +4,72 @@
 ;;;
 
 ;;
+;; iedit
 ;;
+(require 'iedit)
+(require 'evil-multiedit)
+
+;; (custom-set-variables '(iedit-toggle-key-default )))
+
+;; (define-key iedit-mode-keymap (kbd "C-m") 'iedit-toggle-selection)
+;; (define-key iedit-mode-keymap (kbd "M-p") 'iedit-expand-up-a-line)
+;; (define-key iedit-mode-keymap (kbd "M-n") 'iedit-expand-down-a-line)
+;; (define-key iedit-mode-keymap (kbd "M-h") 'iedit-restrict-function)
+;; (define-key iedit-mode-keymap (kbd "M-i") 'iedit-restrict-current-line))
+
+
+(add-hook 'iedit-mode-hook
+          #'(lambda ()
+              (yas-minor-mode -1)))
+
+(add-hook 'iedit-mode-end-hook
+          #'(lambda ()
+              (yas-minor-mode 1)))
+
 ;;
+;; helm and yasnippet
+;;
+(require 'yasnippet)
+(require 'helm-c-yasnippet)
+(setq helm-yas-space-match-any-greedy t)
+;; (global-set-key (kbd "C-c y") 'helm-yas-complete)
+(push '("emacs.+/snippets/" . snippet-mode) auto-mode-alist)
+(yas-global-mode 1)
+
+;;
+;; switching window
+;; 
+(defvar toggle-split-window-hidden-buffer nil)
+(defconst toggle-split-window-threshold-width 80)
+(defun toggle-split-window ()
+  (interactive)
+  (if (one-window-p)
+      (progn
+        (if (> (frame-width) toggle-split-window-threshold-width)
+            (split-window-horizontally)
+          (split-window-vertically))
+        (other-window 1)
+        (when (and toggle-split-window-hidden-buffer
+                   (eq last-command 'toggle-split-window))
+          (switch-to-buffer toggle-split-window-hidden-buffer))
+        ;; view-mode
+        ;; (view-mode-enter)
+        )
+    (setq toggle-split-window-hidden-buffer (window-buffer (selected-window)))
+    (delete-window)))
+
+(global-set-key (kbd "C-0") 'toggle-split-window)
+
+(defun my-other-window ()
+  (interactive)
+  (unless (one-window-p)
+    ;; view-mode
+    ;; (view-mode-enter)
+    (other-window 1)))
+
+(global-set-key (kbd "C-o") 'my-other-window)
+
+
 (global-set-key "\C-x\C-d" 'dired)
 
 
